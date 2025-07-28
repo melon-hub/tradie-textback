@@ -44,7 +44,7 @@ const Hero = () => {
               <Button size="lg" className="btn-primary-gradient text-lg px-10 py-4 h-auto shadow-primary">
                 Start 14-Day Free Trial
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-10 py-4 h-auto hover:bg-muted/50 transition-all duration-300">
+              <Button variant="outline" size="lg" className="text-lg px-10 py-4 h-auto hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300">
                 See How It Works
               </Button>
             </div>
