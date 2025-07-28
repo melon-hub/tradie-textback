@@ -92,7 +92,7 @@ const Pricing = () => {
                   <span>Advanced analytics</span>
                 </li>
               </ul>
-              <Button variant="outline" className="w-full text-lg py-4 h-auto hover:bg-muted/50 transition-all duration-300" size="lg">
+              <Button variant="outline" className="w-full text-lg py-4 h-auto hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300" size="lg">
                 Upgrade Later
               </Button>
             </CardContent>

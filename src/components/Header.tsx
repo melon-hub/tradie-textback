@@ -32,7 +32,7 @@ const Header = () => {
           <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
             FAQ
           </a>
-          <Button variant="outline" className="hover:bg-muted/50 transition-all duration-300">
+          <Button variant="outline" className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300">
             Demo
           </Button>
           <Button className="btn-primary-gradient shadow-primary hover:scale-105 transition-transform duration-200">
@@ -82,7 +82,7 @@ const Header = () => {
             FAQ
           </a>
           <div className="space-y-4 pt-6">
-            <Button variant="outline" className="w-full py-3 h-auto hover:bg-muted/50 transition-all duration-300" onClick={closeMobileMenu}>
+            <Button variant="outline" className="w-full py-3 h-auto hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300" onClick={closeMobileMenu}>
               Demo
             </Button>
             <Button className="w-full btn-primary-gradient py-3 h-auto shadow-primary" onClick={closeMobileMenu}>
