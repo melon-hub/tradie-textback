@@ -5,7 +5,7 @@ import heroImage from "@/assets/hero-image.jpg";
 
 const Hero = () => {
   return (
-    <section className="section-padding bg-gradient-subtle">
+    <section className="pt-8 pb-16 lg:pt-12 lg:pb-24 bg-gradient-subtle">
       <div className="container mx-auto container-padding">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-10">
