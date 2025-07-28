@@ -129,11 +129,15 @@ All colors MUST be HSL.
 
 @layer components {
   .section-padding {
-    @apply py-12 lg:py-16;
+    @apply py-8 lg:py-24;
   }
   
   .container-padding {
     @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  .mobile-compact {
+    @apply space-y-4 lg:space-y-8;
   }
   
   .card-elevated {
