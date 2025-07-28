@@ -21,35 +21,35 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl lg:text-5xl font-bold">
+    <section id="how-it-works" className="section-padding bg-muted/50">
+      <div className="container mx-auto container-padding">
+        <div className="text-center space-y-6 mb-20">
+          <h2 className="text-4xl lg:text-6xl font-bold">
             How It Works
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto">
             Three simple steps to turn missed calls into qualified leads
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-10">
           {steps.map((step, index) => (
-            <Card key={index} className="relative overflow-hidden">
-              <CardContent className="p-8 space-y-6">
+            <Card key={index} className="card-elevated group hover:transform hover:-translate-y-2 transition-all duration-300">
+              <CardContent className="p-10 space-y-8">
                 <div className="flex items-center justify-between">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <step.icon className="h-8 w-8 text-primary" />
+                  <div className="bg-gradient-primary p-4 rounded-2xl shadow-primary group-hover:scale-110 transition-transform duration-300">
+                    <step.icon className="h-10 w-10 text-primary-foreground" />
                   </div>
-                  <div className="text-6xl font-bold text-primary/20">
+                  <div className="text-7xl font-bold text-primary/15 group-hover:text-primary/25 transition-colors duration-300">
                     {index + 1}
                   </div>
                 </div>
                 
-                <div className="space-y-3">
-                  <h3 className="text-xl font-bold">
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-bold leading-tight">
                     {step.title}
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground text-lg leading-relaxed">
                     {step.description}
                   </p>
                 </div>

@@ -5,21 +5,21 @@ import heroImage from "@/assets/hero-image.jpg";
 
 const Hero = () => {
   return (
-    <section className="pt-12 pb-20 lg:pt-20 lg:pb-32">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
-            <Badge variant="secondary" className="w-fit">
-              For Australian Tradies
+    <section className="section-padding bg-gradient-subtle">
+      <div className="container mx-auto container-padding">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-10">
+            <Badge variant="secondary" className="w-fit px-4 py-2 text-sm font-medium shadow-sm">
+              For Australian Tradies 🇦🇺
             </Badge>
             
-            <div className="space-y-6">
-              <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+            <div className="space-y-8">
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight tracking-tight">
                 Never Miss a 
-                <span className="text-primary"> Hot Lead</span> Again
+                <span className="text-gradient"> Hot Lead</span> Again
               </h1>
               
-              <p className="text-xl text-muted-foreground leading-relaxed">
+              <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-lg">
                 When you miss a call on the tools, we instantly text the caller for their suburb + photos. 
                 You get a tidy job card by SMS and call back with one tap.
               </p>
@@ -40,11 +40,11 @@ const Hero = () => {
               </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="text-lg px-8">
+            <div className="flex flex-col sm:flex-row gap-6">
+              <Button size="lg" className="btn-primary-gradient text-lg px-10 py-4 h-auto shadow-primary">
                 Start 14-Day Free Trial
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8">
+              <Button variant="outline" size="lg" className="text-lg px-10 py-4 h-auto hover:bg-muted/50 transition-all duration-300">
                 See How It Works
               </Button>
             </div>
@@ -65,15 +65,18 @@ const Hero = () => {
             </div>
           </div>
           
-          <div className="relative">
-            <img 
-              src={heroImage} 
-              alt="Tradie using phone on job site" 
-              className="rounded-2xl shadow-2xl w-full"
-            />
-            <div className="absolute -bottom-6 -left-2 sm:-left-6 bg-card border border-border rounded-xl p-4 shadow-lg">
-              <div className="text-sm font-medium text-card-foreground">Never miss a lead</div>
-              <div className="text-2xl font-bold text-accent">+127%</div>
+          <div className="relative lg:mt-8">
+            <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+              <img 
+                src={heroImage} 
+                alt="Tradie using phone on job site" 
+                className="w-full h-auto transform hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            </div>
+            <div className="absolute -bottom-8 -left-4 sm:-left-8 card-elevated p-6 bg-card/95 backdrop-blur-sm">
+              <div className="text-sm font-semibold text-card-foreground mb-1">Never miss a lead</div>
+              <div className="text-3xl font-bold text-gradient mb-1">+127%</div>
               <div className="text-sm text-muted-foreground">More callbacks</div>
             </div>
           </div>

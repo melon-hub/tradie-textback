@@ -42,25 +42,25 @@ const FAQ = () => {
   ];
 
   return (
-    <section id="faq" className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl lg:text-5xl font-bold">
+    <section id="faq" className="section-padding bg-muted/50">
+      <div className="container mx-auto container-padding">
+        <div className="text-center space-y-6 mb-20">
+          <h2 className="text-4xl lg:text-6xl font-bold">
             Common Questions
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto">
             Everything you need to know about CallCatch
           </p>
         </div>
         
-        <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-4">
+        <div className="max-w-4xl mx-auto">
+          <Accordion type="single" collapsible className="space-y-6">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="bg-card border border-border rounded-lg px-6">
-                <AccordionTrigger className="text-left hover:no-underline py-6">
-                  <span className="font-semibold">{faq.question}</span>
+              <AccordionItem key={index} value={`item-${index}`} className="card-elevated px-8 hover:shadow-lg transition-all duration-300">
+                <AccordionTrigger className="text-left hover:no-underline py-8 text-lg">
+                  <span className="font-bold">{faq.question}</span>
                 </AccordionTrigger>
-                <AccordionContent className="pb-6 text-muted-foreground">
+                <AccordionContent className="pb-8 text-muted-foreground text-lg leading-relaxed">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

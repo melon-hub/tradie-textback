@@ -16,13 +16,10 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-background border-b border-border sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="bg-primary text-primary-foreground p-2 rounded-lg">
-            <Phone className="h-6 w-6" />
-          </div>
-          <span className="text-xl font-bold text-foreground">CallCatch</span>
+    <header className="bg-background/95 backdrop-blur-md border-b border-border sticky top-0 z-50 shadow-sm">
+      <div className="container mx-auto container-padding py-4 flex items-center justify-between">
+        <Link to="/" className="text-3xl font-bold text-gradient hover:scale-105 transition-transform duration-200">
+          CallCatch
         </Link>
         
         <nav className="hidden md:flex items-center space-x-6">
@@ -35,10 +32,10 @@ const Header = () => {
           <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
             FAQ
           </a>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" className="hover:bg-muted/50 transition-all duration-300">
             Demo
           </Button>
-          <Button size="sm">
+          <Button className="btn-primary-gradient shadow-primary hover:scale-105 transition-transform duration-200">
             Start 14-Day Trial
           </Button>
         </nav>
@@ -59,10 +56,10 @@ const Header = () => {
       
       {/* Mobile Menu */}
       <div className={cn(
-        "md:hidden bg-background border-t border-border transition-all duration-300 ease-in-out",
+        "md:hidden bg-background/95 backdrop-blur-md border-t border-border transition-all duration-300 ease-in-out shadow-lg",
         isMobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
       )}>
-        <nav className="container mx-auto px-4 py-4 space-y-4">
+        <nav className="container mx-auto container-padding py-6 space-y-6">
           <a 
             href="#how-it-works" 
             className="block text-muted-foreground hover:text-foreground transition-colors py-2"
@@ -84,11 +81,11 @@ const Header = () => {
           >
             FAQ
           </a>
-          <div className="space-y-3 pt-4">
-            <Button variant="outline" className="w-full" onClick={closeMobileMenu}>
+          <div className="space-y-4 pt-6">
+            <Button variant="outline" className="w-full py-3 h-auto hover:bg-muted/50 transition-all duration-300" onClick={closeMobileMenu}>
               Demo
             </Button>
-            <Button className="w-full" onClick={closeMobileMenu}>
+            <Button className="w-full btn-primary-gradient py-3 h-auto shadow-primary" onClick={closeMobileMenu}>
               Start 14-Day Trial
             </Button>
           </div>
