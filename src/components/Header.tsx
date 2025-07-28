@@ -14,15 +14,15 @@ const Header = () => {
         </Link>
         
         <nav className="hidden md:flex items-center space-x-6">
-          <Link to="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
             How it Works
-          </Link>
-          <Link to="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+          </a>
+          <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
             Pricing
-          </Link>
-          <Link to="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
+          </a>
+          <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
             FAQ
-          </Link>
+          </a>
           <Button variant="outline" size="sm">
             Demo
           </Button>
