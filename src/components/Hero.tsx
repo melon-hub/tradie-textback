@@ -71,7 +71,7 @@ const Hero = () => {
               alt="Tradie using phone on job site" 
               className="rounded-2xl shadow-2xl w-full"
             />
-            <div className="absolute -bottom-6 -left-6 bg-card border border-border rounded-xl p-4 shadow-lg">
+            <div className="absolute -bottom-6 -left-2 sm:-left-6 bg-card border border-border rounded-xl p-4 shadow-lg">
               <div className="text-sm font-medium text-card-foreground">Never miss a lead</div>
               <div className="text-2xl font-bold text-accent">+127%</div>
               <div className="text-sm text-muted-foreground">More callbacks</div>
