@@ -22,7 +22,7 @@ const CTA = () => {
               <Button size="lg" variant="secondary" className="text-lg px-10 py-4 h-auto hover:scale-105 transition-transform duration-200 shadow-lg">
                 Start Free Trial
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-10 py-4 h-auto border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary transition-all duration-300">
+              <Button size="lg" variant="outline" className="text-lg px-10 py-4 h-auto bg-primary-foreground text-primary border-primary-foreground hover:bg-primary-foreground/90 hover:text-primary transition-all duration-300">
                 Book a Demo
               </Button>
             </div>

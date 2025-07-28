@@ -17,7 +17,7 @@ const Pricing = () => {
         </div>
         
         <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-          <Card className="relative card-elevated hover:transform hover:-translate-y-2 transition-all duration-300 border-2 border-primary/20">
+          <Card className="relative card-elevated hover:transform hover:-translate-y-2 transition-all duration-300 border-2 border-primary/20 flex flex-col">
             <Badge className="absolute -top-4 left-6 bg-gradient-primary text-primary-foreground px-4 py-2 shadow-primary">
               Most Popular
             </Badge>
@@ -28,8 +28,8 @@ const Pricing = () => {
                 <div className="text-base text-muted-foreground">+ $149 one-off setup</div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <ul className="space-y-3">
+            <CardContent className="space-y-6 flex-grow flex flex-col">
+              <ul className="space-y-3 flex-grow">
                 <li className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-success" />
                   <span>Missed call text-back</span>
@@ -55,13 +55,15 @@ const Pricing = () => {
                   <span>Fair usage limits</span>
                 </li>
               </ul>
-              <Button className="w-full btn-primary-gradient text-lg py-4 h-auto shadow-primary" size="lg">
-                Start 14-Day Free Trial
-              </Button>
+              <div className="mt-auto">
+                <Button className="w-full btn-primary-gradient text-lg py-4 h-auto shadow-primary" size="lg">
+                  Start 14-Day Free Trial
+                </Button>
+              </div>
             </CardContent>
           </Card>
           
-          <Card className="card-elevated hover:transform hover:-translate-y-2 transition-all duration-300">
+          <Card className="card-elevated hover:transform hover:-translate-y-2 transition-all duration-300 flex flex-col">
             <CardHeader className="text-center pb-10">
               <CardTitle className="text-3xl font-bold">Pro</CardTitle>
               <div className="space-y-3">
@@ -69,8 +71,8 @@ const Pricing = () => {
                 <div className="text-base text-muted-foreground">Starter + $15/mo</div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <ul className="space-y-3">
+            <CardContent className="space-y-6 flex-grow flex flex-col">
+              <ul className="space-y-3 flex-grow">
                 <li className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-success" />
                   <span>Everything in Starter</span>
@@ -92,9 +94,11 @@ const Pricing = () => {
                   <span>Advanced analytics</span>
                 </li>
               </ul>
-              <Button variant="outline" className="w-full text-lg py-4 h-auto hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300" size="lg">
-                Upgrade Later
-              </Button>
+              <div className="mt-auto">
+                <Button variant="outline" className="w-full text-lg py-4 h-auto hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300" size="lg">
+                  Upgrade Later
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
