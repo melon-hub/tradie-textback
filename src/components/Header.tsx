@@ -1,8 +1,20 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Menu } from "lucide-react";
+import { Phone, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const Header = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -31,9 +43,56 @@ const Header = () => {
           </Button>
         </nav>
         
-        <Button variant="ghost" size="sm" className="md:hidden">
-          <Menu className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="md:hidden"
+          onClick={toggleMobileMenu}
+        >
+          {isMobileMenuOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
         </Button>
+      </div>
+      
+      {/* Mobile Menu */}
+      <div className={cn(
+        "md:hidden bg-background border-t border-border transition-all duration-300 ease-in-out",
+        isMobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+      )}>
+        <nav className="container mx-auto px-4 py-4 space-y-4">
+          <a 
+            href="#how-it-works" 
+            className="block text-muted-foreground hover:text-foreground transition-colors py-2"
+            onClick={closeMobileMenu}
+          >
+            How it Works
+          </a>
+          <a 
+            href="#pricing" 
+            className="block text-muted-foreground hover:text-foreground transition-colors py-2"
+            onClick={closeMobileMenu}
+          >
+            Pricing
+          </a>
+          <a 
+            href="#faq" 
+            className="block text-muted-foreground hover:text-foreground transition-colors py-2"
+            onClick={closeMobileMenu}
+          >
+            FAQ
+          </a>
+          <div className="space-y-3 pt-4">
+            <Button variant="outline" className="w-full" onClick={closeMobileMenu}>
+              Demo
+            </Button>
+            <Button className="w-full" onClick={closeMobileMenu}>
+              Start 14-Day Trial
+            </Button>
+          </div>
+        </nav>
       </div>
     </header>
   );
