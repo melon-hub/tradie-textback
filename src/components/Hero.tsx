@@ -74,7 +74,7 @@ const Hero = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
-            <div className="absolute -bottom-8 -left-4 sm:-left-8 card-elevated p-6 bg-card/95 backdrop-blur-sm">
+            <div className="absolute -bottom-8 left-2 sm:-left-8 card-elevated p-6 bg-card/95 backdrop-blur-sm">
               <div className="text-sm font-semibold text-card-foreground mb-1">Never miss a lead</div>
               <div className="text-3xl font-bold text-gradient mb-1">+127%</div>
               <div className="text-sm text-muted-foreground">More callbacks</div>
