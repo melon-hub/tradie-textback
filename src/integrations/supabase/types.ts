@@ -14,7 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      auth_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          session_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          session_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          session_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_photos: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string
+          photo_url: string
+          retry_count: number | null
+          upload_status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_id: string
+          photo_url: string
+          retry_count?: number | null
+          upload_status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_id?: string
+          photo_url?: string
+          retry_count?: number | null
+          upload_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_photos_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          created_at: string
+          customer_name: string
+          description: string | null
+          estimated_value: number | null
+          id: string
+          job_type: string
+          last_contact: string | null
+          location: string
+          phone: string
+          preferred_time: string | null
+          sms_blocked: boolean | null
+          status: string
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name: string
+          description?: string | null
+          estimated_value?: number | null
+          id?: string
+          job_type: string
+          last_contact?: string | null
+          location: string
+          phone: string
+          preferred_time?: string | null
+          sms_blocked?: boolean | null
+          status?: string
+          updated_at?: string
+          urgency: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string
+          description?: string | null
+          estimated_value?: number | null
+          id?: string
+          job_type?: string
+          last_contact?: string | null
+          location?: string
+          phone?: string
+          preferred_time?: string | null
+          sms_blocked?: boolean | null
+          status?: string
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
