@@ -64,7 +64,7 @@ const Intake = () => {
 
   return (
     <div className="min-h-screen max-h-screen bg-gradient-to-br from-primary/5 to-accent/5 flex flex-col">
-      <div className="flex-1 flex items-center justify-center py-4 sm:py-6 lg:py-8">
+      <div className="flex-1 flex items-center justify-center py-4 sm:py-6 lg:py-8 xl:py-12">
         <div className="container mx-auto container-padding max-w-2xl w-full">
           <div className="text-center space-y-3 lg:space-y-4 mb-6 lg:mb-8 fade-in-up">
             <Badge variant="secondary" className="px-4 py-2 text-sm font-medium shadow-sm">
@@ -105,7 +105,7 @@ const Intake = () => {
             </div>
           </div>
 
-          <Card className="card-elevated hover:shadow-xl transition-all duration-300 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
+          <Card className="card-elevated hover:shadow-xl transition-all duration-300 max-h-[60vh] sm:max-h-[70vh] lg:max-h-[85vh] xl:max-h-none overflow-y-auto">
             <CardHeader className="pb-4 lg:pb-6">
               <CardTitle className="flex items-center space-x-2 text-lg lg:text-xl">
               {step === 1 && (
