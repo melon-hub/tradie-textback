@@ -44,9 +44,6 @@ const FAQ = () => {
   return (
     <section id="faq" className="section-padding relative">
       <div className="container mx-auto container-padding">
-        {/* Section separator line */}
-        <div className="section-separator mb-8"></div>
-        
         <div className="text-center space-y-4 lg:space-y-6 mb-12 lg:mb-16 fade-in-up">
           <h2 className="text-2xl lg:text-6xl font-bold">
             Common Questions
