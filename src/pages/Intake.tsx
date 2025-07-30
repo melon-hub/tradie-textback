@@ -73,8 +73,8 @@ const Intake = () => {
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
               Help us get you a faster quote
             </h1>
-            <p className="text-muted-foreground text-sm sm:text-base lg:text-lg max-w-md mx-auto">
-              Just a few quick details and photos - takes 30 seconds
+            <p className="text-muted-foreground text-sm sm:text-base lg:text-lg mx-auto">
+              Quick details and photos - 30 seconds
             </p>
           </div>
 
