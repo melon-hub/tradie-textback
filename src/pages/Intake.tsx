@@ -68,16 +68,13 @@ const Intake = () => {
         <div className="container mx-auto container-padding max-w-2xl w-full">
           {/* Company Banner */}
           <div className="text-center mb-6 lg:mb-8">
-            <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 mb-4">
-              <h2 className="text-lg font-semibold text-foreground">TradiePro</h2>
-              <p className="text-xs text-muted-foreground">Your trusted trade professionals</p>
+            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 backdrop-blur-sm border border-primary/20 rounded-xl p-6 mb-4 shadow-lg">
+              <h2 className="text-2xl font-bold text-primary mb-1">TradiePro</h2>
+              <p className="text-sm text-muted-foreground font-medium">Your trusted trade professionals</p>
             </div>
           </div>
 
           <div className="text-center space-y-3 lg:space-y-2 mb-6 lg:mb-4 fade-in-up">
-            <Badge variant="secondary" className="px-4 py-2 text-sm font-medium shadow-sm">
-              Step {step} of 3
-            </Badge>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
               Help us get you a faster quote
             </h1>
