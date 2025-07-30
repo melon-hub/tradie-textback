@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff } from "lucide-react";
+import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import PhotoGrid from "@/components/PhotoGrid";
+import { useAuth, generateJobLink } from "@/hooks/useAuth";
 
 type Job = {
   id: string;
@@ -33,6 +34,15 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user, profile, loading: authLoading, isAuthenticated, signOut } = useAuth();
+
+  // Redirect to auth if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/auth?redirect=/dashboard');
+    }
+  }, [authLoading, isAuthenticated, navigate]);
 
   // Fetch jobs from Supabase
   const fetchJobs = async () => {
@@ -176,6 +186,27 @@ const Dashboard = () => {
     }
   };
 
+  const shareJobLink = async (job: Job) => {
+    try {
+      const jobLink = await generateJobLink(job.id, job.phone);
+      if (jobLink) {
+        await navigator.clipboard.writeText(jobLink);
+        toast({
+          title: "Job link copied!",
+          description: `Secure link for ${job.customer_name} copied to clipboard`,
+        });
+      } else {
+        throw new Error('Failed to generate job link');
+      }
+    } catch (error) {
+      toast({
+        title: "Failed to share job",
+        description: "Could not generate secure job link",
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.job_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -200,11 +231,25 @@ const Dashboard = () => {
               <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
               <p className="text-sm text-muted-foreground">TradiePro - Follow-up Central</p>
             </div>
-            <Link to="/">
-              <Button variant="outline" size="sm">
-                Home
+            <div className="flex items-center gap-2">
+              {profile && (
+                <div className="flex items-center gap-2 mr-3">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {profile.name || profile.phone || 'Tradie'}
+                  </span>
+                </div>
+              )}
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
               </Button>
-            </Link>
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  Home
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Quick Stats */}
@@ -341,7 +386,7 @@ const Dashboard = () => {
                   </div>
 
                   {/* Status Actions */}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     <Button 
                       size="sm"
                       variant="outline"
@@ -360,13 +405,23 @@ const Dashboard = () => {
                     >
                       Complete
                     </Button>
+                    <Button 
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => shareJobLink(job)}
+                      className="text-xs"
+                      disabled={!isOnline}
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Share
+                    </Button>
                     <Link to={`/job/${job.id}`}>
                       <Button 
                         size="sm"
                         variant="secondary"
                         className="w-full text-xs"
                       >
-                        View Details
+                        Details
                       </Button>
                     </Link>
                   </div>

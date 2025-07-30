@@ -38,6 +38,47 @@ export type Database = {
         }
         Relationships: []
       }
+      job_links: {
+        Row: {
+          accessed_count: number | null
+          created_at: string
+          created_for_phone: string | null
+          expires_at: string
+          id: string
+          job_id: string
+          last_accessed_at: string | null
+          token: string
+        }
+        Insert: {
+          accessed_count?: number | null
+          created_at?: string
+          created_for_phone?: string | null
+          expires_at: string
+          id?: string
+          job_id: string
+          last_accessed_at?: string | null
+          token: string
+        }
+        Update: {
+          accessed_count?: number | null
+          created_at?: string
+          created_for_phone?: string | null
+          expires_at?: string
+          id?: string
+          job_id?: string
+          last_accessed_at?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_links_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_photos: {
         Row: {
           created_at: string
@@ -139,12 +180,45 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string | null
+          phone: string | null
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_job_link: {
+        Args: { p_job_id: string; p_phone?: string; p_expires_hours?: number }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

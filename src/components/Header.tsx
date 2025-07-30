@@ -32,12 +32,21 @@ const Header = () => {
           <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
             FAQ
           </a>
-          <Button variant="outline" className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300">
-            Demo
-          </Button>
-          <Button className="btn-primary-gradient shadow-primary hover:scale-105 transition-transform duration-200">
-            Start 14-Day Trial
-          </Button>
+          <Link to="/intake">
+            <Button variant="outline" className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300">
+              Demo
+            </Button>
+          </Link>
+          <Link to="/auth">
+            <Button variant="secondary" className="hover:bg-secondary/80 transition-colors">
+              Tradie Login
+            </Button>
+          </Link>
+          <Link to="/intake">
+            <Button className="btn-primary-gradient shadow-primary hover:scale-105 transition-transform duration-200">
+              Start 14-Day Trial
+            </Button>
+          </Link>
         </nav>
         
         <Button 
@@ -82,12 +91,21 @@ const Header = () => {
             FAQ
           </a>
           <div className="space-y-4 pt-6">
-            <Button variant="outline" className="w-full py-3 h-auto hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300" onClick={closeMobileMenu}>
-              Demo
-            </Button>
-            <Button className="w-full btn-primary-gradient py-3 h-auto shadow-primary" onClick={closeMobileMenu}>
-              Start 14-Day Trial
-            </Button>
+            <Link to="/intake">
+              <Button variant="outline" className="w-full py-3 h-auto hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300" onClick={closeMobileMenu}>
+                Demo
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button variant="secondary" className="w-full py-3 h-auto hover:bg-secondary/80 transition-colors" onClick={closeMobileMenu}>
+                Tradie Login
+              </Button>
+            </Link>
+            <Link to="/intake">
+              <Button className="w-full btn-primary-gradient py-3 h-auto shadow-primary" onClick={closeMobileMenu}>
+                Start 14-Day Trial
+              </Button>
+            </Link>
           </div>
         </nav>
       </div>
