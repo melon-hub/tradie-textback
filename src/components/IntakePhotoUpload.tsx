@@ -139,31 +139,31 @@ const IntakePhotoUpload: React.FC<IntakePhotoUploadProps> = ({
 
       {/* Upload Area */}
       <div className="text-center space-y-4">
-        <div className="bg-muted/50 border-2 border-dashed border-border rounded-lg p-6 lg:p-8">
+        <div className="bg-muted/50 border-2 border-dashed border-border rounded-lg p-6 lg:p-8 touch-manipulation">
           <Camera className="h-8 lg:h-12 w-8 lg:w-12 mx-auto text-muted-foreground mb-3 lg:mb-4" />
           <p className="text-muted-foreground mb-3 lg:mb-4 text-sm lg:text-base">
             Add photos to help the tradie quote accurately
           </p>
           
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+          <div className="flex flex-col gap-3 justify-center">
             <Button 
               onClick={takePhoto}
               variant="default"
-              className="w-full sm:w-auto"
+              className="w-full h-12 text-base font-medium"
               disabled={photos.length >= maxPhotos}
             >
-              <Camera className="h-4 w-4 mr-2" />
+              <Camera className="h-5 w-5 mr-2" />
               Take Photo
             </Button>
             <Button 
               onClick={selectFromGallery}
               variant="outline"
-              className="w-full sm:w-auto"
+              className="w-full h-12 text-base font-medium"
               disabled={photos.length >= maxPhotos}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Choose Photos
+              <Upload className="h-5 w-5 mr-2" />
+              Choose from Gallery
             </Button>
           </div>
           

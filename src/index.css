@@ -56,7 +56,14 @@ All colors MUST be HSL.
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     --shadow-primary: 0 10px 30px -10px hsl(var(--primary) / 0.3);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Mobile-optimized touch targets */
+  --touch-target-min: 44px;
+  
+  /* Enhanced spacing for mobile */
+  --mobile-padding: 1rem;
+  --mobile-gap: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -172,5 +179,44 @@ All colors MUST be HSL.
   
   .fade-in-up {
     @apply animate-fade-in;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Enhanced touch targets for mobile */
+  button, [role="button"], input, select, textarea {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+  
+  /* Improved readability on mobile */
+  body {
+    font-size: 16px; /* Prevent zoom on iOS */
+    line-height: 1.6;
+  }
+  
+  /* Better spacing for mobile */
+  .container {
+    padding-left: var(--mobile-padding);
+    padding-right: var(--mobile-padding);
+  }
+  
+  /* Optimized scrolling */
+  .scroll-smooth {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Touch-friendly interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Safe area support for mobile devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
   }
 }

@@ -3,9 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Phone, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import MobileNav from "@/components/MobileNav";
+import NotificationCenter from "@/components/NotificationCenter";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -49,18 +53,11 @@ const Header = () => {
           </Link>
         </nav>
         
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="md:hidden"
-          onClick={toggleMobileMenu}
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
-          )}
-        </Button>
+        {/* Notifications and Mobile Navigation */}
+        <div className="flex items-center gap-2">
+          {isAuthenticated && <NotificationCenter />}
+          <MobileNav />
+        </div>
       </div>
       
       {/* Mobile Menu */}

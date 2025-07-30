@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
-import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut } from "lucide-react";
+import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import PhotoGrid from "@/components/PhotoGrid";
+import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import { useAuth, generateJobLink } from "@/hooks/useAuth";
+import { useNotifications } from "@/hooks/useNotifications";
 
 type Job = {
   id: string;
@@ -33,9 +36,11 @@ const Dashboard = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [activeTab, setActiveTab] = useState("jobs");
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, profile, loading: authLoading, isAuthenticated, signOut } = useAuth();
+  const { notifyNewJob, notifyUrgentJob } = useNotifications();
 
   // Redirect to auth if not authenticated
   useEffect(() => {
@@ -222,7 +227,7 @@ const Dashboard = () => {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 md:pb-0">
       {/* Header */}
       <div className="bg-card border-b border-border/50 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
@@ -300,8 +305,18 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Job Cards */}
-      <div className="container mx-auto px-4 py-4 space-y-4">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="jobs">Job Management</TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="jobs" className="space-y-4">
         {loading ? (
           // Loading skeleton
           <div className="space-y-4">
@@ -438,6 +453,12 @@ const Dashboard = () => {
             )}
           </>
         )}
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsDashboard />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
