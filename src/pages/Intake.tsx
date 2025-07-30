@@ -66,9 +66,17 @@ const Intake = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 flex flex-col sm:block">
       <div className="flex-1 sm:flex-none sm:min-h-screen flex items-center justify-center py-4 sm:py-6 lg:py-4 xl:py-6">
         <div className="container mx-auto container-padding max-w-2xl w-full">
+          {/* Company Banner */}
+          <div className="text-center mb-6 lg:mb-8">
+            <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 mb-4">
+              <h2 className="text-lg font-semibold text-foreground">TradiePro</h2>
+              <p className="text-xs text-muted-foreground">Your trusted trade professionals</p>
+            </div>
+          </div>
+
           <div className="text-center space-y-3 lg:space-y-2 mb-6 lg:mb-4 fade-in-up">
             <Badge variant="secondary" className="px-4 py-2 text-sm font-medium shadow-sm">
-              Quick Job Details
+              Step {step} of 3
             </Badge>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
               Help us get you a faster quote
