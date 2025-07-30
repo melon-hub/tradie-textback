@@ -163,7 +163,11 @@ All colors MUST be HSL.
   
   .section-separator::before {
     content: '';
-    @apply absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent;
+    @apply absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-border/60 to-transparent;
+  }
+  
+  .section-divider {
+    @apply h-px bg-gradient-to-r from-transparent via-border to-transparent my-8;
   }
   
   .fade-in-up {

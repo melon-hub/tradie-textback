@@ -14,23 +14,23 @@ const Index = () => {
       {/* Hero - Primary brand colors with gradient */}
       <Hero />
       
-      {/* How It Works - Muted background for contrast */}
-      <div className="relative bg-muted/20">
+      {/* How It Works - Strong muted background */}
+      <div className="bg-muted/50 border-t border-b border-border/50">
         <HowItWorks />
       </div>
       
-      {/* Pricing - Clean background with subtle gradient */}
-      <div className="relative bg-gradient-subtle">
+      {/* Pricing - Clean white background with shadow */}
+      <div className="bg-card shadow-sm border-y border-border/30">
         <Pricing />
       </div>
       
-      {/* FAQ - Muted background for alternation */}
-      <div className="relative bg-muted/30">
+      {/* FAQ - Strong muted background again */}
+      <div className="bg-muted/60 border-t border-b border-border/50">
         <FAQ />
       </div>
       
-      {/* CTA - Strong gradient finale */}
-      <div className="relative bg-gradient-to-t from-primary/10 via-background to-background">
+      {/* CTA - Strong primary accent background */}
+      <div className="bg-gradient-to-br from-primary/5 to-primary/10 border-t border-primary/20">
         <CTA />
       </div>
       
