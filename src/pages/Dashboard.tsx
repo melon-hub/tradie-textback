@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import PhotoGrid from "@/components/PhotoGrid";
 
 type Job = {
   id: string;
@@ -297,13 +298,16 @@ const Dashboard = () => {
                         <Clock className="h-3 w-3 ml-2" />
                         <span>Last contact: {formatLastContact(job.last_contact)}</span>
                       </div>
-                      <div className="flex gap-2">
-                        <Badge variant={getUrgencyColor(job.urgency)} className="text-xs">
-                          {job.urgency.toUpperCase()} PRIORITY
-                        </Badge>
-                        <Badge variant={getStatusColor(job.status)} className="text-xs">
-                          {job.status.replace('_', ' ').toUpperCase()}
-                        </Badge>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex gap-2">
+                          <Badge variant={getUrgencyColor(job.urgency)} className="text-xs">
+                            {job.urgency.toUpperCase()} PRIORITY
+                          </Badge>
+                          <Badge variant={getStatusColor(job.status)} className="text-xs">
+                            {job.status.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                        </div>
+                        <PhotoGrid jobId={job.id} maxPhotos={3} size="sm" />
                       </div>
                     </div>
                     <div className="text-right">

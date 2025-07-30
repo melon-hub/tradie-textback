@@ -41,27 +41,42 @@ export type Database = {
       job_photos: {
         Row: {
           created_at: string
+          file_name: string | null
+          file_size: number | null
           id: string
           job_id: string
+          mime_type: string | null
           photo_url: string
           retry_count: number | null
+          storage_path: string | null
           upload_status: string
+          uploaded_by: string | null
         }
         Insert: {
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
           id?: string
           job_id: string
+          mime_type?: string | null
           photo_url: string
           retry_count?: number | null
+          storage_path?: string | null
           upload_status?: string
+          uploaded_by?: string | null
         }
         Update: {
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
           id?: string
           job_id?: string
+          mime_type?: string | null
           photo_url?: string
           retry_count?: number | null
+          storage_path?: string | null
           upload_status?: string
+          uploaded_by?: string | null
         }
         Relationships: [
           {

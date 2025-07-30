@@ -16,6 +16,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import PhotoUpload from "@/components/PhotoUpload";
 
 const JobCard = () => {
   const [status, setStatus] = useState("new");
@@ -221,24 +222,17 @@ const JobCard = () => {
           </CardContent>
         </Card>
 
-        {/* Photos */}
-        <Card className="mb-4">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Image className="h-5 w-5 mr-2" />
-              Photos ({job.photos.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              {job.photos.map((photo) => (
-                <div key={photo.id} className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                  <Image className="h-8 w-8 text-muted-foreground" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Photos Upload */}
+        <PhotoUpload 
+          jobId={job.id}
+          maxPhotos={8}
+          onPhotoUploaded={(photo) => {
+            toast({
+              title: "Photo uploaded",
+              description: "Job photo added successfully"
+            });
+          }}
+        />
 
         {/* Activity Log */}
         <Card>
