@@ -5,16 +5,16 @@ import heroImage from "@/assets/hero-image.jpg";
 
 const Hero = () => {
   return (
-    <section className="pt-8 pb-16 lg:pt-12 lg:pb-24 bg-gradient-subtle">
+    <section className="pt-6 pb-12 lg:pt-12 lg:pb-20 bg-gradient-subtle">
       <div className="container mx-auto container-padding">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-10">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div className="space-y-6 lg:space-y-8">
             <Badge variant="secondary" className="w-fit px-4 py-2 text-sm font-medium shadow-sm">
               For Australian Tradies 🇦🇺
             </Badge>
             
-            <div className="space-y-8">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight tracking-tight">
+            <div className="space-y-6 lg:space-y-8">
+              <h1 className="text-3xl lg:text-7xl font-bold leading-tight tracking-tight">
                 Never Miss a 
                 <span className="text-gradient"> Hot Lead</span> Again
               </h1>

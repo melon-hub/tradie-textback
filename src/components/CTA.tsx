@@ -7,9 +7,9 @@ const CTA = () => {
     <section className="section-padding">
       <div className="container mx-auto container-padding">
         <Card className="bg-gradient-primary text-primary-foreground overflow-hidden relative shadow-xl">
-          <CardContent className="p-16 md:p-20 text-center space-y-12">
-            <div className="space-y-6">
-              <h2 className="text-4xl lg:text-6xl font-bold leading-tight">
+          <CardContent className="p-8 md:p-12 lg:p-16 text-center space-y-8 lg:space-y-10">
+            <div className="space-y-4 lg:space-y-6">
+              <h2 className="text-2xl lg:text-6xl font-bold leading-tight">
                 Ready to Catch Every Lead?
               </h2>
               <p className="text-xl lg:text-2xl opacity-95 max-w-3xl mx-auto leading-relaxed">
@@ -27,7 +27,7 @@ const CTA = () => {
               </Button>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-10 pt-12">
+            <div className="grid md:grid-cols-3 gap-6 lg:gap-10 pt-8 lg:pt-12">
               <div className="flex flex-col items-center space-y-3 group">
                 <div className="bg-primary-foreground/20 p-4 rounded-2xl group-hover:scale-110 transition-transform duration-300">
                   <Phone className="h-10 w-10 opacity-90" />

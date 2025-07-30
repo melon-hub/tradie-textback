@@ -7,16 +7,16 @@ const Pricing = () => {
   return (
     <section id="pricing" className="section-padding">
       <div className="container mx-auto container-padding">
-        <div className="text-center space-y-6 mb-20">
-          <h2 className="text-4xl lg:text-6xl font-bold">
+        <div className="text-center space-y-4 lg:space-y-6 mb-12 lg:mb-16">
+          <h2 className="text-2xl lg:text-6xl font-bold">
             Simple, Fair Pricing
           </h2>
-          <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg lg:text-2xl text-muted-foreground max-w-3xl mx-auto">
             One extra job a month usually pays for itself
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-10 max-w-5xl mx-auto">
           <Card className="relative card-elevated hover:transform hover:-translate-y-2 transition-all duration-300 border-2 border-primary/20 flex flex-col">
             <Badge className="absolute -top-4 left-6 bg-gradient-primary text-primary-foreground px-4 py-2 shadow-primary">
               Most Popular

@@ -129,7 +129,7 @@ All colors MUST be HSL.
 
 @layer components {
   .section-padding {
-    @apply py-8 lg:py-24;
+    @apply py-6 lg:py-16;
   }
   
   .container-padding {

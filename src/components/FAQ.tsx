@@ -44,23 +44,23 @@ const FAQ = () => {
   return (
     <section id="faq" className="section-padding bg-muted/50">
       <div className="container mx-auto container-padding">
-        <div className="text-center space-y-6 mb-20">
-          <h2 className="text-4xl lg:text-6xl font-bold">
+        <div className="text-center space-y-4 lg:space-y-6 mb-12 lg:mb-16">
+          <h2 className="text-2xl lg:text-6xl font-bold">
             Common Questions
           </h2>
-          <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg lg:text-2xl text-muted-foreground max-w-3xl mx-auto">
             Everything you need to know about CallCatch
           </p>
         </div>
         
         <div className="max-w-4xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-6">
+          <Accordion type="single" collapsible className="space-y-4 lg:space-y-6">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="card-elevated px-8 hover:shadow-lg transition-all duration-300">
-                <AccordionTrigger className="text-left hover:no-underline py-8 text-lg">
+              <AccordionItem key={index} value={`item-${index}`} className="card-elevated px-6 lg:px-8 hover:shadow-lg transition-all duration-300">
+                <AccordionTrigger className="text-left hover:no-underline py-6 lg:py-8 text-base lg:text-lg">
                   <span className="font-bold">{faq.question}</span>
                 </AccordionTrigger>
-                <AccordionContent className="pb-8 text-muted-foreground text-lg leading-relaxed">
+                <AccordionContent className="pb-6 lg:pb-8 text-muted-foreground text-base lg:text-lg leading-relaxed">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
