@@ -7,10 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Camera, MapPin, Clock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import IntakePhotoUpload from "@/components/IntakePhotoUpload";
 
 const Intake = () => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    phone: string;
+    suburb: string;
+    jobType: string;
+    description: string;
+    urgency: string;
+    preferredTime: string;
+    photos: File[];
+  }>({
     name: "",
     phone: "",
     suburb: "",
@@ -216,22 +226,11 @@ const Intake = () => {
             )}
 
             {step === 3 && (
-              <div className="space-y-6">
-                <div className="text-center space-y-4">
-                  <div className="bg-muted/50 border-2 border-dashed border-border rounded-lg p-8">
-                    <Camera className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">
-                      Add photos to help the tradie quote accurately
-                    </p>
-                    <Button variant="outline">
-                      Take Photos
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Photos help tradies give you a better quote faster. Optional but recommended.
-                  </p>
-                </div>
-              </div>
+              <IntakePhotoUpload
+                photos={formData.photos}
+                onPhotosChange={(photos) => setFormData({...formData, photos})}
+                maxPhotos={5}
+              />
             )}
             
             <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-4 lg:pt-6 sticky bottom-0 bg-card border-t border-border/50">
