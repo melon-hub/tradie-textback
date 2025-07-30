@@ -15,11 +15,8 @@ const Index = () => {
       <Hero />
       
       {/* How It Works - Muted background for contrast */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/30 to-background"></div>
-        <div className="relative">
-          <HowItWorks />
-        </div>
+      <div className="relative bg-muted/20">
+        <HowItWorks />
       </div>
       
       {/* Pricing - Clean background with subtle gradient */}
@@ -28,19 +25,13 @@ const Index = () => {
       </div>
       
       {/* FAQ - Muted background for alternation */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/50 to-background"></div>
-        <div className="relative">
-          <FAQ />
-        </div>
+      <div className="relative bg-muted/30">
+        <FAQ />
       </div>
       
       {/* CTA - Strong gradient finale */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/5 via-background to-background"></div>
-        <div className="relative">
-          <CTA />
-        </div>
+      <div className="relative bg-gradient-to-t from-primary/10 via-background to-background">
+        <CTA />
       </div>
       
       <Footer />
