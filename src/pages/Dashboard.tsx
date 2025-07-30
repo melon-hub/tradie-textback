@@ -1,64 +1,120 @@
-import { useState } from "react";
-import { Phone, MessageSquare, MapPin, Clock, Search, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock data for demonstration
-const mockJobs = [
-  {
-    id: "1",
-    customerName: "Sarah Johnson",
-    phone: "(555) 123-4567",
-    jobType: "Bathroom Renovation",
-    location: "Bondi, NSW",
-    urgency: "high",
-    lastContact: "2 hours ago",
-    status: "new",
-    estimatedValue: "$8,500"
-  },
-  {
-    id: "2", 
-    customerName: "Mike Chen",
-    phone: "(555) 987-6543",
-    jobType: "Kitchen Repair",
-    location: "Surry Hills, NSW",
-    urgency: "medium",
-    lastContact: "4 hours ago", 
-    status: "contacted",
-    estimatedValue: "$3,200"
-  },
-  {
-    id: "3",
-    customerName: "Emma Wilson", 
-    phone: "(555) 456-7890",
-    jobType: "Deck Installation",
-    location: "Manly, NSW",
-    urgency: "low",
-    lastContact: "1 day ago",
-    status: "quote_sent", 
-    estimatedValue: "$12,000"
-  },
-  {
-    id: "4",
-    customerName: "David Brown",
-    phone: "(555) 321-9876", 
-    jobType: "Plumbing Emergency",
-    location: "Paddington, NSW",
-    urgency: "high",
-    lastContact: "30 minutes ago",
-    status: "new",
-    estimatedValue: "$450"
-  }
-];
+type Job = {
+  id: string;
+  customer_name: string;
+  phone: string;
+  job_type: string;
+  location: string;
+  urgency: string;
+  status: string;
+  estimated_value: number;
+  description: string;
+  preferred_time: string;
+  last_contact: string;
+  sms_blocked: boolean;
+  created_at: string;
+  updated_at: string;
+};
 
 const Dashboard = () => {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const { toast } = useToast();
+
+  // Fetch jobs from Supabase
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load jobs. Check your connection.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Set up real-time subscription
+  useEffect(() => {
+    fetchJobs();
+
+    // Set up real-time subscription for job updates
+    const jobsSubscription = supabase
+      .channel('jobs-channel')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'jobs'
+        },
+        () => {
+          fetchJobs(); // Refetch jobs when data changes
+        }
+      )
+      .subscribe();
+
+    // Monitor online/offline status
+    const handleOnline = () => {
+      setIsOnline(true);
+      fetchJobs(); // Refetch when coming back online
+      toast({
+        title: "Connection restored",
+        description: "Dashboard data updated",
+      });
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast({
+        title: "Connection lost",
+        description: "Working in offline mode",
+        variant: "destructive",
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      jobsSubscription.unsubscribe();
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const formatLastContact = (dateString: string) => {
+    if (!dateString) return 'Never';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffHours < 1) return 'Just now';
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  };
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
@@ -96,16 +152,32 @@ const Dashboard = () => {
     });
   };
 
-  const updateJobStatus = (jobId: string, newStatus: string) => {
-    toast({
-      title: "Status updated",
-      description: `Job status changed to ${newStatus}`,
-    });
+  const updateJobStatus = async (jobId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ status: newStatus })
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status updated",
+        description: `Job status changed to ${newStatus}`,
+      });
+    } catch (error) {
+      console.error('Error updating job status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update job status",
+        variant: "destructive",
+      });
+    }
   };
 
-  const filteredJobs = mockJobs.filter(job => {
-    const matchesSearch = job.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.jobType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredJobs = jobs.filter(job => {
+    const matchesSearch = job.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         job.job_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === "all" || job.status === filterStatus;
     return matchesSearch && matchesFilter;
@@ -114,7 +186,7 @@ const Dashboard = () => {
   const urgentJobs = filteredJobs.filter(job => job.urgency === "high").length;
   const newJobs = filteredJobs.filter(job => job.status === "new").length;
   const totalValue = filteredJobs.reduce((sum, job) => {
-    return sum + parseFloat(job.estimatedValue.replace(/[$,]/g, ""));
+    return sum + (job.estimated_value || 0);
   }, 0);
 
   return (
@@ -174,92 +246,138 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Connection Status */}
+      {!isOnline && (
+        <div className="bg-destructive text-destructive-foreground p-2 text-center text-sm">
+          <WifiOff className="inline h-4 w-4 mr-2" />
+          Offline - showing cached data
+        </div>
+      )}
+
       {/* Job Cards */}
       <div className="container mx-auto px-4 py-4 space-y-4">
-        {filteredJobs.map((job) => (
-          <Card key={job.id} className="border-l-4 border-l-primary">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-foreground mb-1">{job.customerName}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{job.jobType}</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                    <MapPin className="h-3 w-3" />
-                    <span>{job.location}</span>
-                    <Clock className="h-3 w-3 ml-2" />
-                    <span>Last contact: {job.lastContact}</span>
+        {loading ? (
+          // Loading skeleton
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-4 bg-muted rounded w-1/3 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-1/4 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div className="h-12 bg-muted rounded"></div>
+                    <div className="h-12 bg-muted rounded"></div>
                   </div>
-                  <div className="flex gap-2">
-                    <Badge variant={getUrgencyColor(job.urgency)} className="text-xs">
-                      {job.urgency.toUpperCase()} PRIORITY
-                    </Badge>
-                    <Badge variant={getStatusColor(job.status)} className="text-xs">
-                      {job.status.replace('_', ' ').toUpperCase()}
-                    </Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <>
+            {filteredJobs.map((job) => (
+              <Card key={job.id} className="border-l-4 border-l-primary">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-lg text-foreground">{job.customer_name}</h3>
+                        {job.sms_blocked && (
+                          <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-600">
+                            SMS BLOCKED
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{job.job_type}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                        <MapPin className="h-3 w-3" />
+                        <span>{job.location}</span>
+                        <Clock className="h-3 w-3 ml-2" />
+                        <span>Last contact: {formatLastContact(job.last_contact)}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge variant={getUrgencyColor(job.urgency)} className="text-xs">
+                          {job.urgency.toUpperCase()} PRIORITY
+                        </Badge>
+                        <Badge variant={getStatusColor(job.status)} className="text-xs">
+                          {job.status.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-green-600">
+                        ${job.estimated_value?.toLocaleString() || '0'}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-green-600">{job.estimatedValue}</div>
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="pt-0">
-              {/* Quick Action Buttons */}
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <Button 
-                  onClick={() => handleCall(job.customerName, job.phone)}
-                  className="h-12 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call Now
-                </Button>
-                <Button 
-                  onClick={() => handleSMS(job.customerName, job.phone)}
-                  variant="outline"
-                  className="h-12"
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Send SMS
-                </Button>
-              </div>
+                </CardHeader>
+                
+                <CardContent className="pt-0">
+                  {/* Quick Action Buttons */}
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <Button 
+                      onClick={() => handleCall(job.customer_name, job.phone)}
+                      className="h-12 bg-green-600 hover:bg-green-700 text-white"
+                      disabled={!isOnline}
+                    >
+                      <Phone className="h-4 w-4 mr-2" />
+                      Call Now
+                    </Button>
+                    <Button 
+                      onClick={() => handleSMS(job.customer_name, job.phone)}
+                      variant="outline"
+                      className="h-12"
+                      disabled={!isOnline || job.sms_blocked}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      {job.sms_blocked ? 'SMS Blocked' : 'Send SMS'}
+                    </Button>
+                  </div>
 
-              {/* Status Actions */}
-              <div className="grid grid-cols-3 gap-2">
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={() => updateJobStatus(job.id, "contacted")}
-                  className="text-xs"
-                >
-                  Mark Contacted
-                </Button>
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={() => updateJobStatus(job.id, "quote_sent")}
-                  className="text-xs"
-                >
-                  Quote Sent
-                </Button>
-                <Link to={`/job/${job.id}`}>
-                  <Button 
-                    size="sm"
-                    variant="secondary"
-                    className="w-full text-xs"
-                  >
-                    View Details
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                  {/* Status Actions */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateJobStatus(job.id, "in_progress")}
+                      className="text-xs"
+                      disabled={!isOnline}
+                    >
+                      Start Job
+                    </Button>
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateJobStatus(job.id, "completed")}
+                      className="text-xs"
+                      disabled={!isOnline}
+                    >
+                      Complete
+                    </Button>
+                    <Link to={`/job/${job.id}`}>
+                      <Button 
+                        size="sm"
+                        variant="secondary"
+                        className="w-full text-xs"
+                      >
+                        View Details
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
 
-        {filteredJobs.length === 0 && (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">No jobs found matching your criteria.</p>
-          </Card>
+            {!loading && filteredJobs.length === 0 && (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">
+                  {jobs.length === 0 ? 'No jobs found. Create your first job!' : 'No jobs found matching your criteria.'}
+                </p>
+              </Card>
+            )}
+          </>
         )}
       </div>
     </div>
