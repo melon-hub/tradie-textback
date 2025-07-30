@@ -7,7 +7,10 @@ const Pricing = () => {
   return (
     <section id="pricing" className="section-padding">
       <div className="container mx-auto container-padding">
-        <div className="text-center space-y-4 lg:space-y-6 mb-12 lg:mb-16">
+        {/* Section separator line */}
+        <div className="section-separator mb-8"></div>
+        
+        <div className="text-center space-y-4 lg:space-y-6 mb-12 lg:mb-16 fade-in-up">
           <h2 className="text-2xl lg:text-6xl font-bold">
             Simple, Fair Pricing
           </h2>
