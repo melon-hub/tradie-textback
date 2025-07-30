@@ -105,7 +105,7 @@ const Intake = () => {
             </div>
           </div>
 
-          <Card className="card-elevated hover:shadow-xl transition-all duration-300 max-h-[60vh] md:max-h-none overflow-y-auto md:overflow-visible">
+          <Card className="card-elevated hover:shadow-xl transition-all duration-300 max-h-[60vh] overflow-y-auto md:max-h-none md:overflow-visible">
             <CardHeader className="pb-4 lg:pb-6">
               <CardTitle className="flex items-center space-x-2 text-lg lg:text-xl">
               {step === 1 && (
