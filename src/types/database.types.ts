@@ -74,6 +74,13 @@ export type Database = {
             foreignKeyName: "job_links_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
+            referencedRelation: "customer_jobs_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_links_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
             referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
@@ -120,6 +127,13 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "job_photos_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "customer_jobs_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "job_photos_job_id_fkey"
             columns: ["job_id"]
@@ -221,7 +235,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      customer_jobs_view: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          description: string | null
+          estimated_value: number | null
+          id: string | null
+          job_type: string | null
+          last_contact: string | null
+          location: string | null
+          preferred_time: string | null
+          sms_blocked: boolean | null
+          status: string | null
+          tradie_id: string | null
+          tradie_name: string | null
+          tradie_phone: string | null
+          tradie_type: string | null
+          updated_at: string | null
+          urgency: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       create_job_link: {

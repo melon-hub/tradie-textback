@@ -29,6 +29,11 @@ type Job = {
   sms_blocked: boolean;
   created_at: string;
   updated_at: string;
+  // Added for multi-tradie support
+  tradie_name?: string;
+  tradie_id?: string;
+  tradie_phone?: string;
+  tradie_business_name?: string;
 };
 
 const Dashboard = () => {
@@ -37,6 +42,8 @@ const Dashboard = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterTradie, setFilterTradie] = useState("all");
+  const [availableTradies, setAvailableTradies] = useState<Array<{id: string, name: string, business_name?: string}>>([]);
   const [activeTab, setActiveTab] = useState("jobs");
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -62,17 +69,25 @@ const Dashboard = () => {
     try {
       setLoading(true);
       
-      let query: any = supabase
-        .from('jobs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      let query: any;
+      
       // Filter jobs based on user type
       if (profile?.user_type === 'client') {
-        // Clients can only see their own jobs (filtered by client_id)
-        query = query.eq('client_id', user?.id);
+        // For customers: query by phone number to see jobs from ALL tradies
+        // Use the customer_jobs_view to get tradie information
+        query = supabase
+          .from('customer_jobs_view')
+          .select('*')
+          .eq('customer_phone', profile.phone)
+          .order('created_at', { ascending: false });
+      } else {
+        // For tradies: only see their own jobs (current behavior)
+        query = supabase
+          .from('jobs')
+          .select('*')
+          .eq('client_id', user?.id)
+          .order('created_at', { ascending: false });
       }
-      // Tradies see all jobs (no additional filtering)
 
       const { data, error } = await query;
 
@@ -81,7 +96,23 @@ const Dashboard = () => {
         throw error;
       }
       
-      setJobs(data || []);
+      const jobsData = data || [];
+      setJobs(jobsData);
+      
+      // Extract unique tradies for filtering (only for customers)
+      if (profile?.user_type === 'client' && jobsData.length > 0) {
+        const tradiesMap = new Map();
+        jobsData.forEach((job: any) => {
+          if (job.tradie_id && !tradiesMap.has(job.tradie_id)) {
+            tradiesMap.set(job.tradie_id, {
+              id: job.tradie_id,
+              name: job.tradie_name || 'Unknown Tradie',
+              business_name: job.tradie_business_name
+            });
+          }
+        });
+        setAvailableTradies(Array.from(tradiesMap.values()));
+      }
     } catch (error) {
       console.error('Error fetching jobs:', error);
       toast({
@@ -256,7 +287,8 @@ const Dashboard = () => {
                          job.job_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === "all" || job.status === filterStatus;
-    return matchesSearch && matchesFilter;
+    const matchesTradie = filterTradie === "all" || job.tradie_id === filterTradie;
+    return matchesSearch && matchesFilter && matchesTradie;
   });
 
   const urgentJobs = filteredJobs.filter(job => job.urgency === "high").length;
@@ -353,6 +385,23 @@ const Dashboard = () => {
                 className="pl-10"
               />
             </div>
+            
+            {/* Tradie Filter - Only show for customers */}
+            {profile?.user_type === 'client' && availableTradies.length > 1 && (
+              <select
+                value={filterTradie}
+                onChange={(e) => setFilterTradie(e.target.value)}
+                className="px-3 py-2 border rounded-md text-sm bg-background"
+              >
+                <option value="all">All Tradies</option>
+                {availableTradies.map(tradie => (
+                  <option key={tradie.id} value={tradie.id}>
+                    {tradie.business_name || tradie.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            
             <Button variant="outline" size="icon">
               <Filter className="h-4 w-4" />
             </Button>
@@ -500,6 +549,12 @@ const Dashboard = () => {
                         {job.sms_blocked && (
                           <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-600">
                             SMS BLOCKED
+                          </Badge>
+                        )}
+                        {/* Show tradie name for customers */}
+                        {profile?.user_type === 'client' && job.tradie_name && (
+                          <Badge variant="secondary" className="text-xs">
+                            {job.tradie_business_name || job.tradie_name}
                           </Badge>
                         )}
                       </div>
