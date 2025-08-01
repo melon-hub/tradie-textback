@@ -1,1 +1,55 @@
 project_id = "cjxejmljovszxuleibqn"
+[functions.create-test-client]
+enabled = true
+verify_jwt = true
+import_map = "./functions/create-test-client/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/create-test-client/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/create-test-client/*.html" ]
+
+[functions.create-test-job]
+enabled = true
+verify_jwt = true
+import_map = "./functions/create-test-job/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/create-test-job/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/create-test-job/*.html" ]
+
+[functions.reset-test-data]
+enabled = true
+verify_jwt = true
+import_map = "./functions/reset-test-data/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/reset-test-data/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/reset-test-data/*.html" ]
+
+[functions.create-test-tradie]
+enabled = true
+verify_jwt = true
+import_map = "./functions/create-test-tradie/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/create-test-tradie/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/create-test-tradie/*.html" ]
+
+[functions.dev-login]
+enabled = true
+verify_jwt = true
+import_map = "./functions/dev-login/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/dev-login/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/dev-login/*.html" ]

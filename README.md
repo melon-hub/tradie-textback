@@ -69,15 +69,20 @@ After setup, you'll have these convenient aliases:
 #### Manual Commands (if aliases don't work)
 
 ```bash
-# Push database changes
-supabase db push --password "your-password"
+# First, load your environment variables
+source .env.local
 
-# Pull database changes  
-supabase db pull --password "your-password"
+# Push database changes (password loaded from environment)
+supabase db push --password "$PGPASSWORD"
+
+# Pull database changes (password loaded from environment)
+supabase db pull --password "$PGPASSWORD"
 
 # Generate TypeScript types
 supabase gen types typescript --project-id cjxejmljovszxuleibqn > src/types/database.types.ts
 ```
+
+**🔐 Security Note**: The aliases and manual commands above automatically load your password from `.env.local` so it's never visible in terminal history or process lists.
 
 **Edit a file directly in GitHub**
 

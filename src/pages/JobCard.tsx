@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,18 +13,35 @@ import {
   CheckCircle,
   User,
   Home,
-  AlertTriangle
+  AlertTriangle,
+  ArrowLeft,
+  MessageSquare,
+  CheckCircle2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate, useParams } from "react-router-dom";
 import PhotoUpload from "@/components/PhotoUpload";
+import { useAuth } from "@/hooks/useAuth";
 
 const JobCard = () => {
   const [status, setStatus] = useState("new");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { jobId } = useParams();
+  const { profile } = useAuth();
+  const [loading, setLoading] = useState(true);
 
-  // Mock job data
+  useEffect(() => {
+    // Simulate loading profile
+    setTimeout(() => setLoading(false), 100);
+  }, []);
+
+  // Use the actual job ID from URL params, or fallback to a valid UUID for demo
+  const actualJobId = jobId || "550e8400-e29b-41d4-a716-446655440000";
+
+  // Mock job data - using a valid UUID format
   const job = {
-    id: "xyz789",
+    id: actualJobId,
     customer: {
       name: "Jane Bennett",
       phone: "+61412345678",
@@ -92,69 +109,127 @@ const JobCard = () => {
     }
   };
 
+
   return (
     <div className="min-h-screen bg-muted/30 py-4">
       <div className="container mx-auto px-4 max-w-2xl">
-        {/* Quick Actions Bar */}
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-2 gap-2">
-              <Button onClick={handleCall} className="w-full">
-                <Phone className="h-4 w-4 mr-2" />
-                Call Now
-              </Button>
-              <Button variant="outline" onClick={handleMaps} className="w-full">
-                <MapPin className="h-4 w-4 mr-2" />
-                Open Maps
-              </Button>
-              <Button variant="outline" onClick={handleCalendar} className="w-full">
-                <Calendar className="h-4 w-4 mr-2" />
-                Add to Calendar
-              </Button>
-              <Button variant="outline" className="w-full">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Share Job
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Back Button */}
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </div>
 
-        {/* Status Update */}
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <h3 className="font-semibold mb-3">Update Status</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <Button 
-                variant={status === "called" ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleStatusUpdate("called")}
-              >
-                Called
-              </Button>
-              <Button 
-                variant={status === "quoted" ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleStatusUpdate("quoted")}
-              >
-                Quoted
-              </Button>
-              <Button 
-                variant={status === "won" ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleStatusUpdate("won")}
-              >
-                Won
-              </Button>
-              <Button 
-                variant={status === "lost" ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleStatusUpdate("lost")}
-              >
-                Lost
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Quick Actions Bar - Different for Clients vs Tradies */}
+        {profile?.user_type === 'client' ? (
+          // Client View - Status Overview
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Job Status</h3>
+                  <Badge variant={getStatusColor(status)} className="text-sm">
+                    {status === "new" && "Awaiting Response"}
+                    {status === "called" && "Tradie Has Called"}
+                    {status === "quoted" && "Quote Sent"}
+                    {status === "won" && "Job Scheduled"}
+                    {status === "lost" && "Job Cancelled"}
+                  </Badge>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                    <span>Your job request has been received</span>
+                  </div>
+                  {status !== "new" && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <MessageSquare className="h-4 w-4 text-primary" />
+                      <span>The tradie has reviewed your request</span>
+                    </div>
+                  )}
+                  {(status === "quoted" || status === "won") && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span>You should have received a quote</span>
+                    </div>
+                  )}
+                </div>
+                <Button variant="outline" onClick={handleMaps} className="w-full">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  View Job Location
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          // Tradie View - Original Quick Actions
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <div className="grid grid-cols-2 gap-2">
+                <Button onClick={handleCall} className="w-full">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call Now
+                </Button>
+                <Button variant="outline" onClick={handleMaps} className="w-full">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  Open Maps
+                </Button>
+                <Button variant="outline" onClick={handleCalendar} className="w-full">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Add to Calendar
+                </Button>
+                <Button variant="outline" className="w-full">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Share Job
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Status Update - Only for Tradies */}
+        {profile?.user_type !== 'client' && (
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <h3 className="font-semibold mb-3">Update Status</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  variant={status === "called" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleStatusUpdate("called")}
+                >
+                  Called
+                </Button>
+                <Button 
+                  variant={status === "quoted" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleStatusUpdate("quoted")}
+                >
+                  Quoted
+                </Button>
+                <Button 
+                  variant={status === "won" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleStatusUpdate("won")}
+                >
+                  Won
+                </Button>
+                <Button 
+                  variant={status === "lost" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleStatusUpdate("lost")}
+                >
+                  Lost
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Job Details */}
         <Card className="mb-4">
@@ -222,22 +297,51 @@ const JobCard = () => {
           </CardContent>
         </Card>
 
-        {/* Photos Upload */}
-        <PhotoUpload 
-          jobId={job.id}
-          maxPhotos={8}
-          onPhotoUploaded={(photo) => {
-            toast({
-              title: "Photo uploaded",
-              description: "Job photo added successfully"
-            });
-          }}
-        />
+        {/* Photos - Different views for Clients vs Tradies */}
+        {profile?.user_type === 'client' ? (
+          // Client View - Show their submitted photos
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>Submitted Photos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {job.photos.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {job.photos.map((photo) => (
+                    <div key={photo.id} className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                      <img 
+                        src={photo.url} 
+                        alt={photo.description}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No photos submitted with this job</p>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          // Tradie View - Can upload additional photos
+          <PhotoUpload 
+            jobId={job.id}
+            maxPhotos={8}
+            onPhotoUploaded={(photo) => {
+              toast({
+                title: "Photo uploaded",
+                description: "Job photo added successfully"
+              });
+            }}
+          />
+        )}
 
         {/* Activity Log */}
         <Card>
           <CardHeader>
-            <CardTitle>Activity</CardTitle>
+            <CardTitle>
+              {profile?.user_type === 'client' ? 'Job Timeline' : 'Activity'}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -249,7 +353,15 @@ const JobCard = () => {
               ))}
               {status !== "new" && (
                 <div className="flex items-center justify-between text-sm">
-                  <span>Status updated to {status}</span>
+                  <span>
+                    {profile?.user_type === 'client' 
+                      ? `Tradie ${status === "called" ? "has called you" : 
+                          status === "quoted" ? "sent a quote" :
+                          status === "won" ? "scheduled the job" :
+                          status === "lost" ? "cancelled the job" : 
+                          "updated the status"}`
+                      : `Status updated to ${status}`}
+                  </span>
                   <span className="text-muted-foreground">Just now</span>
                 </div>
               )}

@@ -12,6 +12,11 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 const AuthPage = () => {
   const [step, setStep] = useState<'phone' | 'sent' | 'verified'>('phone');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [authMethod, setAuthMethod] = useState<'phone' | 'email'>('email'); // Default to email for dev
+  const [userType, setUserType] = useState<'tradie' | 'client'>('client');
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { toast } = useToast();
@@ -76,29 +81,58 @@ const AuthPage = () => {
     setError('');
 
     try {
-      const formattedPhone = formatPhoneNumber(phone);
-      
-      if (formattedPhone.length < 12) {
-        throw new Error('Please enter a valid Australian mobile number');
+      let authOptions;
+      let successMessage;
+
+      if (authMethod === 'email') {
+        if (!email || !email.includes('@')) {
+          throw new Error('Please enter a valid email address');
+        }
+
+        authOptions = {
+          email: email,
+          options: {
+            shouldCreateUser: true,
+            data: {
+              name: name || 'User',
+              email: email,
+              user_type: userType,
+              address: address || null
+            }
+          }
+        };
+        successMessage = "Check your email for the login link";
+
+      } else {
+        const formattedPhone = formatPhoneNumber(phone);
+        
+        if (formattedPhone.length < 12) {
+          throw new Error('Please enter a valid Australian mobile number');
+        }
+
+        authOptions = {
+          phone: formattedPhone,
+          options: {
+            shouldCreateUser: true,
+            data: {
+              name: name || 'User',
+              phone: formattedPhone,
+              user_type: userType,
+              address: address || null
+            }
+          }
+        };
+        successMessage = "Check your SMS for the login link";
       }
 
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-        options: {
-          shouldCreateUser: true,
-          data: {
-            name: 'Tradie User',
-            phone: formattedPhone
-          }
-        }
-      });
+      const { error } = await supabase.auth.signInWithOtp(authOptions);
 
       if (error) throw error;
 
       setStep('sent');
       toast({
         title: "Magic link sent!",
-        description: "Check your SMS for the login link",
+        description: successMessage,
       });
 
     } catch (error: any) {
@@ -169,21 +203,115 @@ const AuthPage = () => {
           <CardContent className="space-y-4">
             {step === 'phone' && (
               <form onSubmit={sendMagicLink} className="space-y-4">
+                {/* User Type Selection */}
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Mobile Number</Label>
+                  <Label>User Type</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={userType === 'tradie' ? 'default' : 'outline'}
+                      className="flex-1"
+                      onClick={() => setUserType('tradie')}
+                    >
+                      Tradie
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={userType === 'client' ? 'default' : 'outline'}
+                      className="flex-1"
+                      onClick={() => setUserType('client')}
+                    >
+                      Client
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Authentication Method Selection */}
+                <div className="space-y-2">
+                  <Label>Login Method</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={authMethod === 'email' ? 'default' : 'outline'}
+                      className="flex-1"
+                      onClick={() => setAuthMethod('email')}
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      Email
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={authMethod === 'phone' ? 'default' : 'outline'}
+                      className="flex-1"
+                      onClick={() => setAuthMethod('phone')}
+                    >
+                      <Smartphone className="h-4 w-4 mr-2" />
+                      Phone
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Name Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
                   <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="0412 345 678"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    id="name"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     required
                     disabled={loading}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    We'll send you a secure login link via SMS
-                  </p>
                 </div>
+
+                {/* Address Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    type="text"
+                    placeholder="Enter your full address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+
+                {/* Email or Phone Input */}
+                {authMethod === 'email' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      We'll send you a secure login link via email
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Mobile Number</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="0412 345 678"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      We'll send you a secure login link via SMS
+                    </p>
+                  </div>
+                )}
 
                 {error && (
                   <Alert variant="destructive">
