@@ -1,0 +1,212 @@
+# Tradie Textback - AI Development Context
+
+You are helping build a **tradie missed-call management system** for the Australian market. This is a React TypeScript SaaS application that automatically sends SMS responses to missed calls.
+
+## 🎯 Project Overview
+
+**Business Model**: B2B SaaS for Australian tradies (plumbers, electricians, etc.)
+**Core Problem**: Tradies miss calls from potential customers and lose leads
+**Solution**: Automated SMS responses with job intake forms and management dashboard
+
+## 🏗️ Technical Architecture
+
+### Frontend Stack
+- **Framework**: React 18 + TypeScript + Vite
+- **UI Library**: shadcn/ui components + Tailwind CSS
+- **State Management**: React hooks + Context API
+- **Forms**: React Hook Form + Zod validation
+- **Routing**: React Router (if implemented)
+
+### Backend Stack
+- **Database**: Supabase PostgreSQL with Row-Level Security (RLS)
+- **Authentication**: Supabase Auth (magic links, JWT)
+- **Real-time**: Supabase real-time subscriptions
+- **File Storage**: Supabase Storage (job photos, documents)
+- **API**: Supabase REST API + TypeScript client
+
+### External Integrations
+- **SMS**: Twilio for sending/receiving SMS
+- **Webhooks**: Twilio webhooks for missed call detection
+- **Maps**: Google Maps API for location services
+- **Payments**: Stripe (planned for subscription billing)
+
+## 🗂️ Project Structure
+
+```
+src/
+├── components/           # Reusable UI components
+│   ├── ui/              # shadcn/ui base components
+│   ├── forms/           # Form components
+│   └── dashboard/       # Dashboard-specific components
+├── pages/               # Main application pages
+│   ├── Index.tsx        # Landing page
+│   ├── Intake.tsx       # Job intake form
+│   ├── Dashboard.tsx    # Tradie dashboard
+│   └── JobCard.tsx      # Individual job details
+├── hooks/               # Custom React hooks
+├── lib/                 # Utility functions
+├── types/               # TypeScript type definitions
+│   └── database.types.ts # Generated Supabase types
+└── integrations/        # External service integrations
+    └── supabase/        # Supabase client config
+```
+
+## 🎨 Design System
+
+### Color Palette
+- **Primary**: Blue (#3B82F6) - Trust, professional
+- **Secondary**: Orange (#F97316) - Urgency, action
+- **Success**: Green (#10B981) - Completed jobs
+- **Warning**: Yellow (#F59E0B) - Pending items
+- **Error**: Red (#EF4444) - Issues, failed calls
+
+### Typography
+- **Headers**: Font weight 600-700, clear hierarchy
+- **Body**: Font weight 400, readable sizes (14px-16px)
+- **Buttons**: Font weight 500, clear CTAs
+
+### Components
+- Use shadcn/ui components as base
+- Custom styling with Tailwind CSS
+- Mobile-first responsive design
+- Consistent spacing (4px grid system)
+
+## 📊 Database Schema
+
+### Key Tables
+- `jobs` - Job records with customer details
+- `job_photos` - Associated job images
+- `job_links` - Unique links for job access
+- `auth_sessions` - User authentication
+- `tenants` - Multi-tenant architecture
+
+### Important Fields
+- All tables have `tenant_id` for multi-tenancy
+- `created_at`/`updated_at` timestamps
+- UUIDs for primary keys
+- Proper foreign key relationships
+
+## 🔐 Authentication & Security
+
+### Supabase Auth
+- Magic link authentication (no passwords)
+- JWT tokens for API access
+- Row-Level Security (RLS) policies
+- Tenant isolation for multi-tenancy
+
+### Security Considerations
+- Never expose service_role keys in frontend
+- Use anon key for client-side operations
+- Implement proper RLS policies
+- Validate all user inputs with Zod schemas
+
+## 🛠️ Development Workflow
+
+### Supabase Commands
+- `sdb-push` - Push database changes
+- `sdb-pull` - Pull database changes  
+- `sdb-types` - Generate TypeScript types
+- Manual: `supabase db push --password "$PGPASSWORD"`
+
+### Environment Setup
+- `.env.local` contains database password
+- `PGPASSWORD` environment variable for CLI
+- Never commit passwords to git
+
+### Code Style
+- Use TypeScript strict mode
+- Prefer functional components with hooks
+- Use Zod for runtime validation
+- Follow shadcn/ui patterns for components
+- Consistent naming: camelCase for variables, PascalCase for components
+
+## 🚀 Key Features to Implement
+
+### MVP Features
+1. **Missed Call Webhook** - Receive Twilio webhooks
+2. **Automated SMS** - Send intake form links
+3. **Job Intake Form** - Customer fills job details
+4. **Tradie Dashboard** - View and manage jobs
+5. **Photo Upload** - Job-related images
+6. **Status Updates** - Job progress tracking
+
+### Advanced Features
+- Real-time notifications
+- Calendar integration
+- Invoicing system
+- Customer communication history
+- Analytics and reporting
+- Mobile app (React Native)
+
+## 🌏 Australian Context
+
+### Business Considerations
+- **ABN Registration** required for business
+- **GST** implications for pricing
+- **Australian phone numbers** (+61 format)
+- **Local time zones** (AEST/AEDT)
+- **Trade licensing** varies by state
+
+### User Experience
+- Mobile-first (tradies use phones)
+- Simple, clear interfaces
+- Fast loading (poor mobile coverage)
+- Offline capability considerations
+
+## 🎯 Development Priorities
+
+1. **Latency Critical**: Webhook processing (<300ms response)
+2. **Mobile Optimized**: Touch-friendly interfaces
+3. **Reliability**: Handle poor network conditions
+4. **Scalability**: Multi-tenant architecture
+5. **Security**: Protect customer data
+
+## 💡 Common Patterns
+
+### Form Handling
+```typescript
+const form = useForm<FormData>({
+  resolver: zodResolver(schema),
+  defaultValues: {...}
+});
+```
+
+### Supabase Queries
+```typescript
+const { data, error } = await supabase
+  .from('jobs')
+  .select('*')
+  .eq('tenant_id', tenantId);
+```
+
+### Component Structure
+```typescript
+interface ComponentProps {
+  // Props with proper TypeScript types
+}
+
+export const Component = ({ ...props }: ComponentProps) => {
+  // Hooks at top
+  // Event handlers
+  // Render JSX
+};
+```
+
+## 🚨 Important Notes
+
+- **Multi-tenant**: Always filter by `tenant_id`
+- **Real-time**: Use Supabase subscriptions for live updates
+- **Mobile**: Test on actual mobile devices
+- **Performance**: Optimize for slow networks
+- **Security**: Never trust client-side data
+
+## 📝 When Making Changes
+
+1. **Database**: Update migrations, regenerate types
+2. **Components**: Follow shadcn/ui patterns
+3. **Forms**: Use Zod validation schemas
+4. **API**: Handle errors gracefully
+5. **Testing**: Test on mobile devices
+6. **Documentation**: Update README if needed
+
+Remember: This is a **business-critical application** for tradies' livelihoods. Prioritize reliability, simplicity, and mobile experience.

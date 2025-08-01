@@ -1,6 +1,7 @@
 -- Create jobs table to replace mock data
 CREATE TABLE public.jobs (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  client_id UUID NOT NULL REFERENCES auth.users(id),
   customer_name TEXT NOT NULL,
   phone TEXT NOT NULL,
   job_type TEXT NOT NULL,

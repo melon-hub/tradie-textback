@@ -1,4 +1,6 @@
-# Welcome to your Lovable project
+# Tradie Textback - Missed Call Management System
+
+A React TypeScript application that helps Australian tradies capture leads by automatically sending SMS responses to missed calls.
 
 ## Project info
 
@@ -32,8 +34,49 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Set up Supabase development environment
+./scripts/setup-dev.sh
+
+# Step 5: Start the development server with auto-reloading and an instant preview.
 npm run dev
+```
+
+### Supabase Setup
+
+This project uses Supabase for backend services. To set up the development environment:
+
+1. **Create `.env.local` file** with your database password:
+   ```bash
+   PGPASSWORD=your-database-password
+   DB_URL="postgresql://postgres.cjxejmljovszxuleibqn:your-password@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres"
+   ```
+
+2. **Run the setup script**:
+   ```bash
+   ./scripts/setup-dev.sh
+   ```
+
+3. **Restart your terminal** to activate the new aliases
+
+#### Available Supabase Commands
+
+After setup, you'll have these convenient aliases:
+
+- `sdb-push` - Push database changes to Supabase
+- `sdb-pull` - Pull database changes from Supabase  
+- `sdb-types` - Generate fresh TypeScript types
+
+#### Manual Commands (if aliases don't work)
+
+```bash
+# Push database changes
+supabase db push --password "your-password"
+
+# Pull database changes  
+supabase db pull --password "your-password"
+
+# Generate TypeScript types
+supabase gen types typescript --project-id cjxejmljovszxuleibqn > src/types/database.types.ts
 ```
 
 **Edit a file directly in GitHub**
@@ -54,11 +97,9 @@ npm run dev
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Frontend**: Vite, TypeScript, React, shadcn-ui, Tailwind CSS
+- **Backend**: Supabase (Database, Auth, Real-time, Storage)
+- **External APIs**: Twilio (SMS), Google Maps (Location)
 
 ## How can I deploy this project?
 
