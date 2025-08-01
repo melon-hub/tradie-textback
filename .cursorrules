@@ -108,10 +108,12 @@ src/
 - `sdb-types` - Generate TypeScript types
 - Manual: `supabase db push --password "$PGPASSWORD"`
 
-### Environment Setup
-- `.env.local` contains database password
-- `PGPASSWORD` environment variable for CLI
-- Never commit passwords to git
+### Database Authentication
+- **Local Development**: Use `.env.local` file with `PGPASSWORD=your-db-password`
+- **CLI Commands**: Use secure aliases (`sdb-push`, `sdb-pull`, `sdb-types`) that load password from `.env.local`
+- **Manual Commands**: `supabase db push --password "$PGPASSWORD"` (after `source .env.local`)
+- **Security**: Never hardcode passwords in commands or commit to git
+- **Setup**: Run `./scripts/setup-dev.sh` to configure aliases securely
 
 ### Code Style
 - Use TypeScript strict mode

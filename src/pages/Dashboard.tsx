@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut, BarChart3 } from "lucide-react";
+import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut, BarChart3, Plus, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 
 type Job = {
   id: string;
+  client_id: string | null;
   customer_name: string;
   phone: string;
   job_type: string;
@@ -49,15 +50,37 @@ const Dashboard = () => {
     }
   }, [authLoading, isAuthenticated, navigate]);
 
+  // Force re-fetch when component mounts (handles navigation back to dashboard)
+  useEffect(() => {
+    console.log('Dashboard mounted, clearing jobs');
+    setJobs([]); // Clear stale data
+    setLoading(true);
+  }, []);
+
   // Fetch jobs from Supabase
   const fetchJobs = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      let query: any = supabase
         .from('jobs')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      // Filter jobs based on user type
+      if (profile?.user_type === 'client') {
+        // Clients can only see their own jobs (filtered by client_id)
+        query = query.eq('client_id', user?.id);
+      }
+      // Tradies see all jobs (no additional filtering)
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching jobs:', error);
+        throw error;
+      }
+      
       setJobs(data || []);
     } catch (error) {
       console.error('Error fetching jobs:', error);
@@ -73,7 +96,16 @@ const Dashboard = () => {
 
   // Set up real-time subscription
   useEffect(() => {
-    fetchJobs();
+    let mounted = true;
+
+    const initializeDashboard = async () => {
+      // Only fetch jobs if we have the necessary auth data
+      if (!authLoading && profile && user && mounted) {
+        await fetchJobs();
+      }
+    };
+
+    initializeDashboard();
 
     // Set up real-time subscription for job updates
     const jobsSubscription = supabase
@@ -86,7 +118,9 @@ const Dashboard = () => {
           table: 'jobs'
         },
         () => {
-          fetchJobs(); // Refetch jobs when data changes
+          if (mounted && !authLoading && profile && user) {
+            fetchJobs(); // Refetch jobs when data changes
+          }
         }
       )
       .subscribe();
@@ -94,31 +128,36 @@ const Dashboard = () => {
     // Monitor online/offline status
     const handleOnline = () => {
       setIsOnline(true);
-      fetchJobs(); // Refetch when coming back online
-      toast({
-        title: "Connection restored",
-        description: "Dashboard data updated",
-      });
+      if (mounted) {
+        fetchJobs(); // Refetch when coming back online
+        toast({
+          title: "Connection restored",
+          description: "Dashboard data updated",
+        });
+      }
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      toast({
-        title: "Connection lost",
-        description: "Working in offline mode",
-        variant: "destructive",
-      });
+      if (mounted) {
+        toast({
+          title: "Connection lost",
+          description: "Working in offline mode",
+          variant: "destructive",
+        });
+      }
     };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
     return () => {
+      mounted = false;
       jobsSubscription.unsubscribe();
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [authLoading, profile, user]);
 
   const formatLastContact = (dateString: string) => {
     if (!dateString) return 'Never';
@@ -226,6 +265,30 @@ const Dashboard = () => {
     return sum + (job.estimated_value || 0);
   }, 0);
 
+  // Show loading state while auth is loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Authenticating...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while profile is loading
+  if (!profile && isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       {/* Header */}
@@ -307,14 +370,103 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="jobs">Job Management</TabsTrigger>
-            <TabsTrigger value="analytics">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Analytics
-            </TabsTrigger>
-          </TabsList>
+        {profile?.user_type === 'client' ? (
+          // CLIENT DASHBOARD
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">My Jobs</h2>
+              <Button onClick={() => navigate('/intake')}>
+                <Plus className="h-4 w-4 mr-2" />
+                New Job Request
+              </Button>
+            </div>
+            
+            {loading ? (
+              // Loading skeleton for clients
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardHeader>
+                      <div className="h-4 bg-muted rounded w-1/3 mb-2"></div>
+                      <div className="h-3 bg-muted rounded w-1/2"></div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <>
+                {filteredJobs.length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <div className="space-y-4">
+                      <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Briefcase className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold">No jobs yet</h3>
+                        <p className="text-muted-foreground">Submit your first job request to get started</p>
+                      </div>
+                      <Button onClick={() => navigate('/intake')}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Job Request
+                      </Button>
+                    </div>
+                  </Card>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredJobs.map((job) => (
+                      <Card key={job.id} className="hover:shadow-md transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg">{job.description || 'Job Request'}</CardTitle>
+                              <p className="text-sm text-muted-foreground">
+                                Created {new Date(job.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Badge variant={getStatusColor(job.status)}>
+                              {job.status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-sm">
+                              <MapPin className="h-4 w-4 text-muted-foreground" />
+                              <span>{job.location || 'Address not provided'}</span>
+                            </div>
+                            {job.urgency && (
+                              <div className="flex items-center gap-2">
+                                <Badge variant={getUrgencyColor(job.urgency)} className="text-xs">
+                                  {job.urgency}
+                                </Badge>
+                              </div>
+                            )}
+                            <div className="flex gap-2 pt-2">
+                              <Link to={`/job/${job.id}`} className="flex-1">
+                                <Button variant="outline" className="w-full">
+                                  View Details
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        ) : (
+          // TRADIE DASHBOARD (existing)
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="jobs">Job Management</TabsTrigger>
+              <TabsTrigger value="analytics">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
 
           <TabsContent value="jobs" className="space-y-4">
         {loading ? (
@@ -458,7 +610,8 @@ const Dashboard = () => {
           <TabsContent value="analytics">
             <AnalyticsDashboard />
           </TabsContent>
-        </Tabs>
+          </Tabs>
+        )}
       </div>
     </div>
   );

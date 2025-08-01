@@ -182,6 +182,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           created_at: string
           id: string
           name: string | null
@@ -189,8 +190,10 @@ export type Database = {
           role: string | null
           updated_at: string
           user_id: string
+          user_type: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
           id?: string
           name?: string | null
@@ -198,8 +201,10 @@ export type Database = {
           role?: string | null
           updated_at?: string
           user_id: string
+          user_type?: string
         }
         Update: {
+          address?: string | null
           created_at?: string
           id?: string
           name?: string | null
@@ -207,6 +212,7 @@ export type Database = {
           role?: string | null
           updated_at?: string
           user_id?: string
+          user_type?: string
         }
         Relationships: []
       }

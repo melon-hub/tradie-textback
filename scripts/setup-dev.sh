@@ -48,12 +48,12 @@ sed -i '' '/alias sdb-pull=/d' "$SHELL_PROFILE" 2>/dev/null || true
 sed -i '' '/alias sdb-types=/d' "$SHELL_PROFILE" 2>/dev/null || true
 
 # Add new aliases (using environment variable for security)
-cat >> "$SHELL_PROFILE" << EOF
+cat >> "$SHELL_PROFILE" << 'EOF'
 
 # Tradie Textback - Supabase Development Aliases
 # Load environment variables from .env.local before running commands
-alias sdb-push="cd \$(git rev-parse --show-toplevel) && source .env.local && supabase db push --password \"\$PGPASSWORD\""
-alias sdb-pull="cd \$(git rev-parse --show-toplevel) && source .env.local && supabase db pull --password \"\$PGPASSWORD\""
+alias sdb-push="cd $(git rev-parse --show-toplevel) && source .env.local && supabase db push --password \"\$PGPASSWORD\""
+alias sdb-pull="cd $(git rev-parse --show-toplevel) && source .env.local && supabase db pull --password \"\$PGPASSWORD\""
 alias sdb-types="supabase gen types typescript --project-id cjxejmljovszxuleibqn > src/types/database.types.ts"
 EOF
 

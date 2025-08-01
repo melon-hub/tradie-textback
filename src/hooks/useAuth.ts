@@ -8,6 +8,8 @@ interface Profile {
   phone?: string;
   name?: string;
   role: string;
+  user_type: string;
+  address?: string;
 }
 
 export const useAuth = () => {
