@@ -33,6 +33,12 @@ Use the Task tool with:
 - **code-reviewer**: After implementing major features
 - **security-auditor**: Before going to production
 
+### IMPORTANT: Subagent Announcement Rule
+**ALWAYS announce which subagent you're about to use before invoking the Task tool, even if it's the general subagent. For example:**
+- "I'll use the ui-generator subagent to create this component"
+- "I'll use the database-architect subagent to design this schema"
+- "I'll use the general subagent to search across the codebase"
+
 ## CRITICAL RULES TO REMEMBER
 
 ### 1. Database & Supabase
@@ -41,6 +47,19 @@ Use the Task tool with:
 - **The .env.local contains sensitive PGPASSWORD** - never overwrite without checking
 - **Use environment variables** for all sensitive data
 - **Database structure**: jobs table has client_id field linking to auth.users
+
+#### IMPORTANT: Finding .env.local files
+- **Hidden files start with a dot (.)** - use `ls -la` not just `ls`
+- **Always check with**: `ls -la | grep .env` to find all env files
+- **If .env.local is missing**, check these locations:
+  - Current directory: `ls -la .env*`
+  - Check if it exists: `test -f .env.local && echo "exists" || echo "missing"`
+  - Read it directly: `cat .env.local` (if it exists)
+- **The .env.local file should contain**:
+  - SUPABASE_PROJECT_ID=cjxejmljovszxuleibqn
+  - SUPABASE_API_KEY (service role key)
+  - PGPASSWORD (database password)
+  - DB_URL (full connection string)
 
 ### 2. Authentication & User Types
 - **Two user types**: 'client' (tradies who receive jobs) and 'tradie' (admin users)

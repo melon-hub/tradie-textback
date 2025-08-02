@@ -457,11 +457,67 @@ const DevToolsPanel = ({
                 <div>
                   <p className="font-medium">Logged in as: {profile?.name}</p>
                   <p className="text-muted-foreground">Type: {profile?.user_type || 'Unknown'}</p>
+                  {profile?.is_admin && (
+                    <p className="text-green-600 font-medium">✓ Admin User</p>
+                  )}
                 </div>
               ) : (
                 <p className="text-muted-foreground">Not logged in - use Quick Login first</p>
               )}
             </div>
+            
+            {/* Admin Toggle for Development - REMOVE FOR PRODUCTION */}
+            {/* TODO: This is a security risk and should only be used in development */}
+            {user && profile?.user_type === 'tradie' && (
+              <div className="space-y-2">
+                <Button
+                  onClick={async () => {
+                    setIsProcessing(true);
+                    try {
+                      const newAdminStatus = !profile.is_admin;
+                      const { error } = await supabase
+                        .from('profiles')
+                        .update({ is_admin: newAdminStatus })
+                        .eq('user_id', user.id);
+                      
+                      if (error) throw error;
+                      
+                      toast({
+                        title: "Admin Status Updated",
+                        description: `You are now ${newAdminStatus ? 'an admin' : 'not an admin'}`,
+                      });
+                      
+                      // Refresh the page to update auth state
+                      window.location.reload();
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to update admin status",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsProcessing(false);
+                    }
+                  }}
+                  size="sm"
+                  variant={profile?.is_admin ? "destructive" : "default"}
+                  className="w-full"
+                  disabled={isProcessing}
+                >
+                  {profile?.is_admin ? "Remove Admin Access" : "Make Me Admin"}
+                </Button>
+                {profile?.is_admin && (
+                  <Button
+                    onClick={() => window.location.href = '/admin'}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Go to Admin Dashboard
+                  </Button>
+                )}
+              </div>
+            )}
             
             <div className="space-y-2">
               {user && profile?.user_type === 'client' && (

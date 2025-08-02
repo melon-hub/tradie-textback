@@ -5,9 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Smartphone, Mail, ArrowLeft, CheckCircle, Clock } from 'lucide-react';
+import { Smartphone, Mail, ArrowLeft, CheckCircle, Clock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
 const AuthPage = () => {
   const [step, setStep] = useState<'phone' | 'sent' | 'verified'>('phone');
@@ -23,6 +23,7 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
+  const location = useLocation();
 
   // Check if user is already authenticated
   useEffect(() => {

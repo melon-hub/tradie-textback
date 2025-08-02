@@ -202,6 +202,7 @@ export type Database = {
           address: string | null
           created_at: string
           id: string
+          is_admin: boolean | null
           name: string | null
           phone: string | null
           role: string | null
@@ -213,6 +214,7 @@ export type Database = {
           address?: string | null
           created_at?: string
           id?: string
+          is_admin?: boolean | null
           name?: string | null
           phone?: string | null
           role?: string | null
@@ -224,6 +226,7 @@ export type Database = {
           address?: string | null
           created_at?: string
           id?: string
+          is_admin?: boolean | null
           name?: string | null
           phone?: string | null
           role?: string | null
