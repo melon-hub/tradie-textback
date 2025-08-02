@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -10,6 +10,7 @@ interface Profile {
   role: string;
   user_type: string;
   address?: string;
+  is_admin?: boolean;
 }
 
 export const useAuth = () => {
@@ -17,21 +18,30 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const fetchingRef = useRef<string | null>(null); // Track ongoing fetches
 
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
     const getSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Error getting session:', error);
-      } else {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        } else if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          }
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
         }
       }
-      setLoading(false);
     };
 
     getSession();
@@ -39,39 +49,111 @@ export const useAuth = () => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
         console.log('Auth event:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
+        // Only fetch profile if we have a user and don't already have a profile
+        // or if the user has changed
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          // Don't fetch if we already have a profile for this user
+          if (!profile || profile.user_id !== session.user.id) {
+            // Don't set loading to false until profile is fetched
+            await fetchProfile(session.user.id);
+          }
+          if (mounted) {
+            setLoading(false);
+          }
         } else {
           setProfile(null);
+          if (mounted) {
+            setLoading(false);
+          }
         }
-        
-        setLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchProfile = async (userId: string) => {
+    // Prevent duplicate fetches
+    if (fetchingRef.current === userId) {
+      console.log('Already fetching profile for user:', userId);
+      return;
+    }
+    
+    // Check cache first
+    const cacheKey = `profile_${userId}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const cachedData = JSON.parse(cached);
+        console.log('Using cached profile for user:', userId);
+        setProfile(cachedData);
+        setProfileLoading(false);
+        return;
+      } catch (e) {
+        // Invalid cache, continue with fetch
+        sessionStorage.removeItem(cacheKey);
+      }
+    }
+    
     try {
-      const { data, error } = await supabase
+      console.log('Fetching profile for user:', userId);
+      fetchingRef.current = userId;
+      setProfileLoading(true);
+      
+      // Create a timeout promise - increased to 20s for slow connections
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timeout after 20s - this may indicate a database performance issue')), 20000);
+      });
+      
+      // Create the query promise
+      const queryPromise = supabase
         .from('profiles')
-        .select('*')
+        .select('id, user_id, phone, name, role, user_type, address, is_admin')
         .eq('user_id', userId)
         .maybeSingle();
+      
+      console.log('Waiting for profile query...');
+      
+      // Race between query and timeout
+      const { data, error } = await Promise.race([
+        queryPromise,
+        timeoutPromise.then(() => ({ data: null, error: new Error('Timeout') }))
+      ]) as { data: any, error: any };
+      
+      console.log('Profile query result:', { data, error });
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error);
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('No profile found for user');
+        } else {
+          console.error('Error fetching profile:', error);
+        }
+        fetchingRef.current = null;
+        setProfileLoading(false);
         return;
       }
 
+      console.log('Profile fetched successfully:', data);
       setProfile(data);
+      // Cache the profile
+      sessionStorage.setItem(cacheKey, JSON.stringify(data));
+      fetchingRef.current = null;
+      setProfileLoading(false);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Unexpected error fetching profile:', error);
+      fetchingRef.current = null;
+      setProfileLoading(false);
+      // Set profile to null on error to prevent indefinite loading
+      setProfile(null);
     }
   };
 
@@ -80,6 +162,8 @@ export const useAuth = () => {
     if (error) {
       console.error('Error signing out:', error);
     }
+    // Clear profile cache on signout
+    sessionStorage.clear();
   };
 
   const isAuthenticated = !!session;
@@ -89,7 +173,7 @@ export const useAuth = () => {
     user,
     session,
     profile,
-    loading,
+    loading: loading || profileLoading, // Combined loading state
     isAuthenticated,
     isTradie,
     signOut,

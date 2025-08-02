@@ -10,6 +10,10 @@ import Dashboard from "./pages/Dashboard";
 import AuthPage from "./pages/AuthPage";
 import SecureJobAccess from "./pages/SecureJobAccess";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
+import Settings from "./pages/Settings";
+import { AdminRoute } from "./components/AdminRoute";
+import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
 
 const queryClient = new QueryClient();
 
@@ -19,13 +23,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ImpersonationBanner />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/intake" element={<Intake />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/login" element={<AuthPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/job/:jobId" element={<JobCard />} />
           <Route path="/secure/:jobId" element={<SecureJobAccess />} />
+          <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
