@@ -18,6 +18,17 @@
           "onConfirm": "git add docs/"
         }
       ]
+    },
+    "git": {
+      "description": "Streamlined git commit, tag, and push workflow",
+      "steps": [
+        {
+          "type": "script",
+          "script": "bin/git-autopush",
+          "args": "$ARGUMENTS",
+          "description": "Auto-commit, tag, and push changes"
+        }
+      ]
     }
   }
 }

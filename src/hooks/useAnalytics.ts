@@ -28,6 +28,7 @@ export const useAnalytics = () => {
 
       if (!user || !profile) {
         setAnalytics(null);
+        setLoading(false);
         return;
       }
 
@@ -155,6 +156,10 @@ export const useAnalytics = () => {
   useEffect(() => {
     if (user && profile) {
       fetchAnalytics();
+    } else {
+      // No user or profile, set loading to false
+      setLoading(false);
+      setAnalytics(null);
     }
 
     // Set up real-time subscription for updates

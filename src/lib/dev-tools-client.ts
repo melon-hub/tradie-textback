@@ -231,3 +231,41 @@ export const devLoginClient = async (): Promise<DevLoginResponse> => {
     };
   }
 };
+
+// API function for admin development login (bypasses email/SMS)
+export const devLoginAdmin = async (): Promise<DevLoginResponse> => {
+  try {
+    // Call the edge function to create a test admin and get login URL
+    const { data, error } = await devToolsClient.functions.invoke('dev-login', {
+      body: {
+        email: 'testadmin@dev.local',
+        name: 'Test Admin',
+        userType: 'tradie', // Admin is a tradie with is_admin flag
+        address: '789 Admin HQ, Brisbane, QLD 4000',
+        isAdmin: true // This will set the is_admin flag
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      success: data.success,
+      userId: data.userId,
+      email: data.email,
+      name: data.name,
+      userType: data.userType,
+      loginUrl: data.loginUrl,
+      message: data.message,
+      instructions: data.instructions,
+      error: undefined
+    };
+  } catch (error: any) {
+    console.error('Error with dev admin login:', error);
+    return {
+      success: false,
+      error: error.message || 'Unknown error'
+    };
+  }
+};

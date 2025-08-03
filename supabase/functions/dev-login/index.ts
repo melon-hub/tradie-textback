@@ -20,8 +20,8 @@ serve(async (req) => {
     )
 
     // Get the request body
-    const { email, name, userType, address } = await req.json()
-    console.log('Dev login request:', { email, name, userType, address })
+    const { email, name, userType, address, isAdmin } = await req.json()
+    console.log('Dev login request:', { email, name, userType, address, isAdmin })
 
     // Create or get user
     const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
@@ -31,7 +31,8 @@ serve(async (req) => {
         name: name,
         email: email,
         user_type: userType,
-        address: address || null
+        address: address || null,
+        is_admin: isAdmin || false
       }
     })
 
@@ -56,7 +57,7 @@ serve(async (req) => {
         type: 'magiclink',
         email: email,
         options: {
-          redirectTo: 'http://localhost:8082/dashboard'
+          redirectTo: 'http://localhost:8080/dashboard'
         }
       })
       
@@ -93,7 +94,7 @@ serve(async (req) => {
       type: 'magiclink',
       email: email,
       options: {
-        redirectTo: 'http://localhost:8082/dashboard'
+        redirectTo: 'http://localhost:8080/dashboard'
       }
     })
     

@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
 import { AdminRoute } from "./components/AdminRoute";
 import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
+import { DevDrawer } from "./components/DevDrawer";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ImpersonationBanner />
+        <DevDrawer />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/intake" element={<Intake />} />

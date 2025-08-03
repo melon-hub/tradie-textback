@@ -81,17 +81,10 @@ const Dashboard = () => {
           .eq('customer_phone', profile.phone)
           .order('created_at', { ascending: false });
       } else {
-        // For tradies: only see their own jobs with their profile info
+        // For tradies: only see their own jobs
         query = supabase
           .from('jobs')
-          .select(`
-            *,
-            profiles!client_id (
-              name,
-              user_id,
-              user_type
-            )
-          `)
+          .select('*')
           .eq('client_id', user?.id)
           .order('created_at', { ascending: false });
       }
@@ -109,7 +102,7 @@ const Dashboard = () => {
       if (profile?.user_type === 'tradie' && profile?.name) {
         const enhancedJobs = jobsData.map((job: any) => ({
           ...job,
-          tradie_name: job.profiles?.name || profile.name,
+          tradie_name: profile.name,
           tradie_id: job.client_id,
           tradie_business_name: profile.business_name // if available
         }));
