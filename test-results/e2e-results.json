@@ -1,0 +1,988 @@
+{
+  "config": {
+    "configFile": "/Users/michaelhofstein/Coding/tradie-textback/playwright.config.ts",
+    "rootDir": "/Users/michaelhofstein/Coding/tradie-textback/tests-e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/e2e-results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/michaelhofstein/Coding/tradie-textback/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/michaelhofstein/Coding/tradie-textback/tests-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/michaelhofstein/Coding/tradie-textback/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/michaelhofstein/Coding/tradie-textback/tests-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "port": 8080,
+      "reuseExistingServer": true
+    }
+  },
+  "suites": [
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication E2E Tests",
+          "file": "auth.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should complete full login flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-d00bdca5603c7facc5d7",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should validate phone number format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-5337dbf664ad4fdd3d5b",
+              "file": "auth.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "should format phone number automatically",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-86add5b9a9e7122fc2b6",
+              "file": "auth.spec.ts",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "should handle network errors gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-8f6c03f7e382734c2384",
+              "file": "auth.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "should persist authentication across page reloads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-0eea08864737b0f7ee48",
+              "file": "auth.spec.ts",
+              "line": 67,
+              "column": 3
+            },
+            {
+              "title": "should complete full login flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-2beb2a967c6fe1ab0fc0",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should validate phone number format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-113252c907d892055a91",
+              "file": "auth.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "should format phone number automatically",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-5b6d31095d17c77313ca",
+              "file": "auth.spec.ts",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "should handle network errors gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-e421ad20d2c15e5d49d6",
+              "file": "auth.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "should persist authentication across page reloads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-962e92946c6e4e617c8a",
+              "file": "auth.spec.ts",
+              "line": 67,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Protected Routes",
+          "file": "auth.spec.ts",
+          "line": 113,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should redirect to login when accessing protected route",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-546339e4ae874a1c8afe",
+              "file": "auth.spec.ts",
+              "line": 114,
+              "column": 3
+            },
+            {
+              "title": "should redirect to requested page after login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-fef37b7deaaf7a08ca31",
+              "file": "auth.spec.ts",
+              "line": 122,
+              "column": 3
+            },
+            {
+              "title": "should redirect to login when accessing protected route",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-446f54b98c0343ff8cf8",
+              "file": "auth.spec.ts",
+              "line": 114,
+              "column": 3
+            },
+            {
+              "title": "should redirect to requested page after login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-917b9a367a2c5d1fc619",
+              "file": "auth.spec.ts",
+              "line": 122,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Mobile Responsiveness",
+          "file": "auth.spec.ts",
+          "line": 134,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should be mobile responsive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-0283bb7d97bf34546b0b",
+              "file": "auth.spec.ts",
+              "line": 139,
+              "column": 3
+            },
+            {
+              "title": "should be mobile responsive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-08d0f0b5ef584034e138",
+              "file": "auth.spec.ts",
+              "line": 139,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "job-management.spec.ts",
+      "file": "job-management.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Job Management E2E Tests",
+          "file": "job-management.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display jobs list on dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-351b9450d18785b7bfd3",
+              "file": "job-management.spec.ts",
+              "line": 71,
+              "column": 3
+            },
+            {
+              "title": "should navigate to job details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-65d6a8e83647ab122fe6",
+              "file": "job-management.spec.ts",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "should filter jobs by status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-8f60b309c86f8730f2d2",
+              "file": "job-management.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "should update job status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-e6962640794bdb303358",
+              "file": "job-management.spec.ts",
+              "line": 116,
+              "column": 3
+            },
+            {
+              "title": "should edit job quote as tradie",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-fb11ad70f90bce20c2b3",
+              "file": "job-management.spec.ts",
+              "line": 141,
+              "column": 3
+            },
+            {
+              "title": "should not allow clients to edit quotes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-3a96a9b1227305a160ca",
+              "file": "job-management.spec.ts",
+              "line": 156,
+              "column": 3
+            },
+            {
+              "title": "should search jobs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-f9e340118cccb873ba78",
+              "file": "job-management.spec.ts",
+              "line": 164,
+              "column": 3
+            },
+            {
+              "title": "should sort jobs by urgency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-8e42d4cf0666b014bd68",
+              "file": "job-management.spec.ts",
+              "line": 176,
+              "column": 3
+            },
+            {
+              "title": "should handle empty jobs list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-90b27d61021258607404",
+              "file": "job-management.spec.ts",
+              "line": 193,
+              "column": 3
+            },
+            {
+              "title": "should refresh jobs list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-a58c7bbe7c31fbc851d3",
+              "file": "job-management.spec.ts",
+              "line": 210,
+              "column": 3
+            },
+            {
+              "title": "should export job to SMS format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-e56cfeb5cf426604e8a1",
+              "file": "job-management.spec.ts",
+              "line": 227,
+              "column": 3
+            },
+            {
+              "title": "should handle job update errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-0c077f456fc9f899d7b1",
+              "file": "job-management.spec.ts",
+              "line": 239,
+              "column": 3
+            },
+            {
+              "title": "should display jobs list on dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-b5f530e29527716d3e15",
+              "file": "job-management.spec.ts",
+              "line": 71,
+              "column": 3
+            },
+            {
+              "title": "should navigate to job details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-25cf03498bf8b4204725",
+              "file": "job-management.spec.ts",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "should filter jobs by status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-87461bdde7c4b1943d88",
+              "file": "job-management.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "should update job status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-0d01c531fddb6508d5bc",
+              "file": "job-management.spec.ts",
+              "line": 116,
+              "column": 3
+            },
+            {
+              "title": "should edit job quote as tradie",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-b7e5915fd4c2444a98a9",
+              "file": "job-management.spec.ts",
+              "line": 141,
+              "column": 3
+            },
+            {
+              "title": "should not allow clients to edit quotes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-8c5be387de468c0a3a86",
+              "file": "job-management.spec.ts",
+              "line": 156,
+              "column": 3
+            },
+            {
+              "title": "should search jobs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-339cbf71912a59267692",
+              "file": "job-management.spec.ts",
+              "line": 164,
+              "column": 3
+            },
+            {
+              "title": "should sort jobs by urgency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-f869caf8287774407d2b",
+              "file": "job-management.spec.ts",
+              "line": 176,
+              "column": 3
+            },
+            {
+              "title": "should handle empty jobs list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-549a2f4e7da85b615f7a",
+              "file": "job-management.spec.ts",
+              "line": 193,
+              "column": 3
+            },
+            {
+              "title": "should refresh jobs list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-30e9dd628edc8a9a27ea",
+              "file": "job-management.spec.ts",
+              "line": 210,
+              "column": 3
+            },
+            {
+              "title": "should export job to SMS format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-9f09bda65bc4327036e5",
+              "file": "job-management.spec.ts",
+              "line": 227,
+              "column": 3
+            },
+            {
+              "title": "should handle job update errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-c5c0f183f248a4328327",
+              "file": "job-management.spec.ts",
+              "line": 239,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Mobile Job Management",
+          "file": "job-management.spec.ts",
+          "line": 265,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should be usable on mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-bdc0d11082afc1c949b6",
+              "file": "job-management.spec.ts",
+              "line": 270,
+              "column": 3
+            },
+            {
+              "title": "should be usable on mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "548e23ee2620780e6f2d-f401ec1b00e4ca6c816a",
+              "file": "job-management.spec.ts",
+              "line": 270,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-02T19:22:54.612Z",
+    "duration": 23.610000000000014,
+    "expected": 0,
+    "skipped": 42,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

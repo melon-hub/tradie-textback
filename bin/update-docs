@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Claude Code Documentation Updater
+# Run this to analyze changes and update docs
+
+set -e
+
+echo "📚 Documentation Update Tool"
+echo "==========================="
+echo ""
+
+# Function to get all local changes
+get_changes() {
+    {
+        git diff --name-only 2>/dev/null || true
+        git diff --cached --name-only 2>/dev/null || true
+        git ls-files --others --exclude-standard 2>/dev/null || true
+        # Also check last commit in case we're updating after commit
+        git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null || true
+    } | sort -u | grep -v -E "(node_modules|dist|build|coverage|.git)" || echo ""
+}
+
+# Get all changes
+CHANGES=$(get_changes)
+
+if [ -z "$CHANGES" ]; then
+    echo "✅ No changes detected!"
+    exit 0
+fi
+
+echo "📝 Found changes in these files:"
+echo "$CHANGES" | sed 's/^/   - /'
+echo ""
+
+# Create a temporary file with the changes
+TEMP_FILE="/tmp/claude-doc-update-$(date +%s).txt"
+
+cat > "$TEMP_FILE" << EOF
+Please update the documentation based on these recent changes:
+
+Changed Files:
+$CHANGES
+
+Instructions:
+1. Read each changed file to understand what was modified
+2. Identify which documentation needs updating in the docs/ folder
+3. Update the relevant documentation files:
+   - docs/README.md - Main documentation index
+   - docs/TESTING.md - Test-related changes
+   - docs/guides/* - Implementation guides
+   - docs/critical/* - Critical configuration/setup
+   - docs/reference/* - API and component docs
+   - docs/status/* - Project status updates
+   - docs/USER_FLOWS*.md - UI/UX flow changes
+
+4. For each update:
+   - Keep changes minimal and focused
+   - Add a changelog comment: <!-- Updated: $(date +%Y-%m-%d) - Description -->
+   - Preserve existing structure
+   - Update any affected Mermaid diagrams
+
+5. After updating, provide a summary of what was changed
+
+6. Finally, stage the documentation with: git add docs/
+
+Please proceed with the documentation updates.
+EOF
+
+echo "🤖 I'll now analyze these changes and update the documentation..."
+echo ""
+echo "Reading changed files and updating docs..."
+echo ""
+
+# Here we'll let Claude handle the actual updates
+cat "$TEMP_FILE"
+
+# Clean up
+rm -f "$TEMP_FILE"
+
+echo ""
+echo "📌 After docs are updated, stage them with:"
+echo "   git add docs/"
+echo ""
+echo "Then commit:"
+echo "   git commit -m \"docs: update documentation for recent changes\""

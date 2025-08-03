@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 export interface AnalyticsData {
   totalJobs: number;
@@ -18,17 +19,38 @@ export const useAnalytics = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, profile } = useAuth();
 
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Fetch all jobs for analysis
-      const { data: jobs, error: jobsError } = await supabase
-        .from('jobs')
-        .select('*')
-        .order('created_at', { ascending: false });
+      if (!user || !profile) {
+        setAnalytics(null);
+        return;
+      }
+
+      // Fetch jobs based on user type - same logic as Dashboard
+      let query: any;
+      
+      if (profile.user_type === 'client') {
+        // For customers: query by phone number to see jobs from ALL tradies
+        query = supabase
+          .from('customer_jobs_view')
+          .select('*')
+          .eq('customer_phone', profile.phone)
+          .order('created_at', { ascending: false });
+      } else {
+        // For tradies: only see their own jobs
+        query = supabase
+          .from('jobs')
+          .select('*')
+          .eq('client_id', user.id)
+          .order('created_at', { ascending: false });
+      }
+
+      const { data: jobs, error: jobsError } = await query;
 
       if (jobsError) throw jobsError;
 
@@ -131,7 +153,9 @@ export const useAnalytics = () => {
   };
 
   useEffect(() => {
-    fetchAnalytics();
+    if (user && profile) {
+      fetchAnalytics();
+    }
 
     // Set up real-time subscription for updates
     const subscription = supabase
@@ -144,7 +168,9 @@ export const useAnalytics = () => {
           table: 'jobs'
         },
         () => {
-          fetchAnalytics(); // Refresh analytics when jobs change
+          if (user && profile) {
+            fetchAnalytics(); // Refresh analytics when jobs change
+          }
         }
       )
       .subscribe();
@@ -152,7 +178,7 @@ export const useAnalytics = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [user, profile]);
 
   return {
     analytics,

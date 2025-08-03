@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- region "Notifications (F8)":
+  - list
+- heading "TradiePro Access" [level=1]
+- paragraph: Quick & secure mobile login
+- heading "Login with Phone" [level=3]:
+  - img
+  - text: Login with Phone
+- text: User Type
+- button "Tradie"
+- button "Client"
+- text: Login Method
+- button "Email":
+  - img
+  - text: Email
+- button "Phone":
+  - img
+  - text: Phone
+- text: Full Name
+- textbox "Full Name"
+- text: Address
+- textbox "Address"
+- text: Email Address
+- textbox "Email Address"
+- paragraph: We'll send you a secure login link via email
+- button "Send Login Link":
+  - img
+  - text: Send Login Link
+- link "Back to Home":
+  - /url: /
+  - button "Back to Home":
+    - img
+    - text: Back to Home
+- paragraph: Secure authentication powered by Supabase
+- paragraph: Your phone number is used only for login verification
+- img
+- heading "Dev Tools" [level=3]
+- button:
+  - img
+- paragraph: Testing utilities for development
+- img
+- text: Quick Login
+- button "🔧 Tradie"
+- button "👤 Client"
+- img
+- text: Test Job Status
+- combobox: John Doe - Plumbing
+- combobox: New (Awaiting Response)
+- button "Update Status"
+- img
+- text: Test Data
+- paragraph: Not logged in - use Quick Login first
+- paragraph: Login first to create test data
+- button "Reset All Data"
+- text: Only visible in development mode
+```

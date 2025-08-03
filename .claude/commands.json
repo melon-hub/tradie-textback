@@ -1,0 +1,23 @@
+{
+  "commands": {
+    "update-docs": {
+      "description": "Update documentation based on local changes",
+      "steps": [
+        {
+          "type": "script",
+          "script": "scripts/update-docs.sh",
+          "description": "Analyze local changes and prepare update"
+        },
+        {
+          "type": "prompt",
+          "prompt": "Review the changes listed above and update the relevant documentation files in the docs/ directory. Focus on keeping docs accurate and up-to-date with the code changes."
+        },
+        {
+          "type": "confirm",
+          "message": "Stage documentation updates?",
+          "onConfirm": "git add docs/"
+        }
+      ]
+    }
+  }
+}

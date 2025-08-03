@@ -164,6 +164,102 @@ npm run dev
 - **Urgency levels**: 'low', 'medium', 'high', 'urgent'
 - **User types**: 'client', 'tradie'
 
+## Testing
+
+The project has a comprehensive test suite. When making changes:
+
+### Running Tests
+```bash
+# Run all tests
+npm test
+
+# Run specific test types
+npm run test:unit
+npm run test:integration
+npm run test:e2e
+
+# Watch mode for development
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+```
+
+### Test Requirements
+- All new features must have tests
+- Maintain 80% code coverage
+- Test both happy and error paths
+- E2E tests for critical workflows
+
+### Test Files
+- Unit tests: `tests/unit/`
+- Integration tests: `tests/integration/`
+- E2E tests: `tests/e2e/`
+- Test utilities: `tests/helpers/`, `tests/mocks/`
+
+### Before Committing
+Always run tests to ensure nothing is broken:
+```bash
+npm test
+npm run lint
+```
+
+## Custom Slash Commands
+
+### Available Commands
+Claude Code supports custom slash commands for quick actions:
+
+- `/docs` - Quick check of what files have changed
+- `/update-docs` - Full documentation update process (analyzes changes and updates all docs)
+- `/git` - Complete git workflow: commit, auto-tag, and push to GitHub
+
+### Command Details
+
+- **`/docs`**: Just runs the script to show changed files. Quick way to see what's been modified.
+- **`/update-docs`**: Full process - runs script, analyzes changes, updates documentation, and stages updates.
+- **`/git [message]`**: All-in-one git workflow that:
+  - Shows current status and changes
+  - Stages all files
+  - Commits with your message (or auto-generates one)
+  - Auto-increments version tag (v1.0.1 → v1.0.2)
+  - Pushes both commits and tags to GitHub
+  - Shows summary with links
+  
+  Example: `/git Fixed authentication bug and updated tests`
+
+### Adding New Slash Commands
+1. **Location**: Commands must be placed in `~/.claude/commands/` (personal) or `.claude/commands/` (project)
+2. **Format**: Create a `.md` file with the command name (e.g., `mycommand.md` becomes `/mycommand`)
+3. **Structure**:
+   ```markdown
+   ---
+   description: "Brief description of command"
+   allowed-tools: ["bash", "read", "write", "edit"]
+   ---
+   
+   # Command Title
+   
+   Your prompt here. Use $ARGUMENTS for dynamic input.
+   ```
+4. **Activation**: Restart Claude Code after adding new commands
+5. **Testing**: Type `/` to see all available commands
+
+### Example Command File
+```markdown
+---
+description: "Run project tests"
+allowed-tools: ["bash"]
+---
+
+Run the test suite with: npm test $ARGUMENTS
+```
+
+### Troubleshooting
+- Commands not showing? Restart Claude Code
+- Check file permissions: `ls -la ~/.claude/commands/`
+- Ensure `.md` extension on command files
+- Personal commands in `~/.claude/commands/` work more reliably
+
 ## Remember
 This is a business-critical application for tradies' livelihoods. Always prioritize:
 - Reliability over features

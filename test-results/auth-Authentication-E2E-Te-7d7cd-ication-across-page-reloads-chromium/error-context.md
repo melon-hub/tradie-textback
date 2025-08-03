@@ -1,0 +1,218 @@
+# Page snapshot
+
+```yaml
+- region "Notifications (F8)":
+  - list
+- banner:
+  - link "CallCatch":
+    - /url: /
+  - navigation:
+    - link "How it Works":
+      - /url: "#how-it-works"
+    - link "Pricing":
+      - /url: "#pricing"
+    - link "FAQ":
+      - /url: "#faq"
+    - link "Demo":
+      - /url: /intake
+      - button "Demo"
+    - link "Tradie Login":
+      - /url: /auth
+      - button "Tradie Login"
+    - link "Start 14-Day Trial":
+      - /url: /intake
+      - button "Start 14-Day Trial"
+- text: For Australian Tradies 🇦🇺
+- heading "Never Miss a Hot Lead Again" [level=1]
+- paragraph: When you miss a call on the tools, we instantly text the caller for their suburb + photos. You get a tidy job card by SMS and call back with one tap.
+- img
+- text: Capture leads you'd normally lose
+- img
+- text: Faster quotes with photos upfront
+- img
+- text: Zero new app to learn
+- button "Start 14-Day Free Trial"
+- button "See How It Works"
+- img
+- text: Keep Your Number
+- img
+- text: 30 Min Setup
+- img
+- text: No App Required
+- img "Tradie using phone on job site"
+- text: Never miss a lead +127% More callbacks
+- heading "How It Works" [level=2]
+- paragraph: Three simple steps to turn missed calls into qualified leads
+- img
+- text: "1"
+- heading "Caller rings → not answered" [level=3]
+- paragraph: Your phone rings while you're on the tools. No worries if you can't pick up.
+- img
+- text: "2"
+- heading "Instant SMS to caller" [level=3]
+- paragraph: They get a text with a link to send suburb, photos, and job details in 30 seconds.
+- img
+- text: "3"
+- heading "You get a job card" [level=3]
+- paragraph: SMS with one-tap call back, photos, and all the details you need to quote fast.
+- heading "Simple, Fair Pricing" [level=2]
+- paragraph: One extra job a month usually pays for itself
+- text: Most Popular
+- heading "Starter" [level=3]
+- text: $49/mo + $149 one-off setup
+- list:
+  - listitem:
+    - img
+    - text: Missed call text-back
+  - listitem:
+    - img
+    - text: Job cards by SMS
+  - listitem:
+    - img
+    - text: Photo collection
+  - listitem:
+    - img
+    - text: 6pm daily summary
+  - listitem:
+    - img
+    - text: Keep your current number
+  - listitem:
+    - img
+    - text: Fair usage limits
+- button "Start 14-Day Free Trial"
+- heading "Pro" [level=3]
+- text: $64/mo Starter + $15/mo
+- list:
+  - listitem:
+    - img
+    - text: Everything in Starter
+  - listitem:
+    - img
+    - text: Branded business number
+  - listitem:
+    - img
+    - text: WhatsApp intake (coming soon)
+  - listitem:
+    - img
+    - text: Priority support
+  - listitem:
+    - img
+    - text: Advanced analytics
+- button "Upgrade Later"
+- paragraph: 14-day free trial • Cancel anytime • No lock-in contracts
+- paragraph: "\"If you don't see an extra job, cancel\" - that's our promise"
+- heading "Common Questions" [level=2]
+- paragraph: Everything you need to know about CallCatch
+- heading "Do I need a new number?" [level=3]:
+  - button "Do I need a new number?":
+    - text: Do I need a new number?
+    - img
+- heading "Is there any spam risk?" [level=3]:
+  - button "Is there any spam risk?":
+    - text: Is there any spam risk?
+    - img
+- heading "Does it work on iPhone and Android?" [level=3]:
+  - button "Does it work on iPhone and Android?":
+    - text: Does it work on iPhone and Android?
+    - img
+- heading "Will this replace my current invoicing software?" [level=3]:
+  - button "Will this replace my current invoicing software?":
+    - text: Will this replace my current invoicing software?
+    - img
+- heading "What exactly do I see when I get a job?" [level=3]:
+  - button "What exactly do I see when I get a job?":
+    - text: What exactly do I see when I get a job?
+    - img
+- heading "How long does setup take?" [level=3]:
+  - button "How long does setup take?":
+    - text: How long does setup take?
+    - img
+- heading "What if customers send too many photos?" [level=3]:
+  - button "What if customers send too many photos?":
+    - text: What if customers send too many photos?
+    - img
+- heading "Can I cancel anytime?" [level=3]:
+  - button "Can I cancel anytime?":
+    - text: Can I cancel anytime?
+    - img
+- heading "Ready to Catch Every Lead?" [level=2]
+- paragraph: Join hundreds of tradies who never miss a hot lead. Start your 14-day free trial today.
+- button "Start Free Trial"
+- button "Book a Demo"
+- img
+- text: 30-min setup Keep your number
+- img
+- text: 14-day trial Cancel anytime
+- img
+- text: More leads Guaranteed results
+- contentinfo:
+  - img
+  - text: CallCatch
+  - paragraph: Never miss a hot lead again. For Australian tradies who want to capture every opportunity.
+  - heading "Product" [level=4]
+  - list:
+    - listitem:
+      - link "How It Works":
+        - /url: /#how-it-works
+    - listitem:
+      - link "Pricing":
+        - /url: /#pricing
+    - listitem:
+      - link "Demo":
+        - /url: /demo
+    - listitem:
+      - link "Try Intake Form":
+        - /url: /intake
+  - heading "Support" [level=4]
+  - list:
+    - listitem:
+      - link "FAQ":
+        - /url: /#faq
+    - listitem:
+      - link "Contact":
+        - /url: /contact
+    - listitem:
+      - link "Help Center":
+        - /url: /help
+    - listitem:
+      - link "System Status":
+        - /url: /status
+  - heading "Contact" [level=4]
+  - list:
+    - listitem:
+      - img
+      - text: 1300 CATCH 1
+    - listitem:
+      - img
+      - text: hello@callcatch.com.au
+    - listitem:
+      - img
+      - text: Melbourne, Australia
+  - paragraph: © 2024 CallCatch. All rights reserved.
+  - link "Privacy Policy":
+    - /url: /privacy
+  - link "Terms of Service":
+    - /url: /terms
+  - link "Cookie Policy":
+    - /url: /cookies
+- img
+- heading "Dev Tools" [level=3]
+- button:
+  - img
+- paragraph: Testing utilities for development
+- img
+- text: Quick Login
+- button "🔧 Tradie"
+- button "👤 Client"
+- img
+- text: Test Job Status
+- combobox: Test Client - Electrical
+- combobox: New (Awaiting Response)
+- button "Update Status"
+- img
+- text: Test Data
+- paragraph: Not logged in - use Quick Login first
+- paragraph: Login first to create test data
+- button "Reset All Data"
+- text: Only visible in development mode
+```

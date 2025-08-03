@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tradie Textback - Test Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #2563eb;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .test-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .test-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .test-card h2 {
+      color: #1e40af;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .test-card p {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .test-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background-color: #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-secondary:hover {
+      background-color: #d1d5db;
+    }
+
+    .status-section {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .status-item {
+      text-align: center;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #f9fafb;
+    }
+
+    .status-item.success {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-item.warning {
+      background-color: #fed7aa;
+      color: #92400e;
+    }
+
+    .status-item.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .status-label {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .commands-section {
+      background: #1e293b;
+      color: white;
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 40px;
+    }
+
+    .commands-section h2 {
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .command {
+      background: #334155;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .command code {
+      flex: 1;
+    }
+
+    .copy-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .copy-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .timestamp {
+      text-align: center;
+      color: #666;
+      margin-top: 40px;
+      font-size: 0.9rem;
+    }
+
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .report-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .report-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Tradie Textback - Test Dashboard</h1>
+
+    <div class="status-section">
+      <h2>Test Overview</h2>
+      <div class="status-grid">
+        <div class="status-item success">
+          <div class="status-number" id="unit-pass">0</div>
+          <div class="status-label">Unit Tests Passed</div>
+        </div>
+        <div class="status-item warning">
+          <div class="status-number" id="integration-pass">0</div>
+          <div class="status-label">Integration Tests</div>
+        </div>
+        <div class="status-item success">
+          <div class="status-number" id="e2e-pass">0</div>
+          <div class="status-label">E2E Tests Passed</div>
+        </div>
+        <div class="status-item" id="coverage-status">
+          <div class="status-number" id="coverage">0%</div>
+          <div class="status-label">Code Coverage</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-grid">
+      <div class="test-card">
+        <h2>🔧 Unit Tests</h2>
+        <p>Test individual components, hooks, and utilities in isolation.</p>
+        <div class="test-actions">
+          <button class="btn btn-primary" onclick="runCommand('npm run test:unit')">Run Unit Tests</button>
+          <a href="./coverage/index.html" class="btn btn-secondary report-link" target="_blank">
+            📊 Coverage Report
+          </a>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <h2>🔌 Integration Tests</h2>
+        <p>Test how different parts of the application work together.</p>
+        <div class="test-actions">
+          <button class="btn btn-primary" onclick="runCommand('npm run test:integration')">Run Integration</button>
+          <a href="./test-results/index.html" class="btn btn-secondary report-link" target="_blank">
+            📄 View Report
+          </a>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <h2>🌐 E2E Tests</h2>
+        <p>Test complete user workflows from start to finish.</p>
+        <div class="test-actions">
+          <button class="btn btn-primary" onclick="runCommand('npm run test:e2e')">Run E2E Tests</button>
+          <a href="./playwright-report/index.html" class="btn btn-secondary report-link" target="_blank">
+            🎭 Playwright Report
+          </a>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <h2>🚀 All Tests</h2>
+        <p>Run the complete test suite with coverage analysis.</p>
+        <div class="test-actions">
+          <button class="btn btn-primary" onclick="runCommand('npm test')">Run All Tests</button>
+          <button class="btn btn-secondary" onclick="runCommand('npm run test:watch')">Watch Mode</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="commands-section">
+      <h2>📝 Test Commands</h2>
+      
+      <div class="command">
+        <code>npm test</code>
+        <button class="copy-btn" onclick="copyCommand('npm test')">Copy</button>
+      </div>
+      
+      <div class="command">
+        <code>npm run test:unit</code>
+        <button class="copy-btn" onclick="copyCommand('npm run test:unit')">Copy</button>
+      </div>
+      
+      <div class="command">
+        <code>npm run test:integration</code>
+        <button class="copy-btn" onclick="copyCommand('npm run test:integration')">Copy</button>
+      </div>
+      
+      <div class="command">
+        <code>npm run test:e2e</code>
+        <button class="copy-btn" onclick="copyCommand('npm run test:e2e')">Copy</button>
+      </div>
+      
+      <div class="command">
+        <code>npm run test:coverage</code>
+        <button class="copy-btn" onclick="copyCommand('npm run test:coverage')">Copy</button>
+      </div>
+      
+      <div class="command">
+        <code>npm run test:watch</code>
+        <button class="copy-btn" onclick="copyCommand('npm run test:watch')">Copy</button>
+      </div>
+    </div>
+
+    <div class="timestamp">
+      Last updated: <span id="last-updated"></span>
+    </div>
+  </div>
+
+  <script>
+    // Update timestamp
+    document.getElementById('last-updated').textContent = new Date().toLocaleString();
+
+    // Copy command to clipboard
+    function copyCommand(command) {
+      navigator.clipboard.writeText(command).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+
+    // Run command (in real implementation, this would trigger the actual test run)
+    function runCommand(command) {
+      alert(`To run this command, open your terminal and execute:\n\n${command}`);
+      
+      // In a real implementation, this could:
+      // 1. Trigger a CI/CD pipeline
+      // 2. Use a WebSocket to communicate with a test runner
+      // 3. Fetch results from a test API
+    }
+
+    // Load test results (mock data for demonstration)
+    function loadTestResults() {
+      // In a real implementation, this would fetch from test result files
+      const mockResults = {
+        unitTests: { passed: 12, total: 12 },
+        integrationTests: { passed: 5, total: 5 },
+        e2eTests: { passed: 8, total: 8 },
+        coverage: 82
+      };
+
+      document.getElementById('unit-pass').textContent = 
+        `${mockResults.unitTests.passed}/${mockResults.unitTests.total}`;
+      
+      document.getElementById('integration-pass').textContent = 
+        `${mockResults.integrationTests.passed}/${mockResults.integrationTests.total}`;
+      
+      document.getElementById('e2e-pass').textContent = 
+        `${mockResults.e2eTests.passed}/${mockResults.e2eTests.total}`;
+      
+      document.getElementById('coverage').textContent = `${mockResults.coverage}%`;
+      
+      // Update coverage status color based on threshold
+      const coverageStatus = document.getElementById('coverage-status');
+      if (mockResults.coverage >= 80) {
+        coverageStatus.classList.add('success');
+      } else if (mockResults.coverage >= 60) {
+        coverageStatus.classList.add('warning');
+      } else {
+        coverageStatus.classList.add('error');
+      }
+    }
+
+    // Auto-refresh results every 30 seconds
+    loadTestResults();
+    setInterval(loadTestResults, 30000);
+
+    // Check if running locally
+    if (window.location.protocol === 'file:') {
+      console.log('Running locally - test reports may not be available');
+    }
+  </script>
+</body>
+</html>

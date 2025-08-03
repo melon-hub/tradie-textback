@@ -81,10 +81,17 @@ const Dashboard = () => {
           .eq('customer_phone', profile.phone)
           .order('created_at', { ascending: false });
       } else {
-        // For tradies: only see their own jobs (current behavior)
+        // For tradies: only see their own jobs with their profile info
         query = supabase
           .from('jobs')
-          .select('*')
+          .select(`
+            *,
+            profiles!client_id (
+              name,
+              user_id,
+              user_type
+            )
+          `)
           .eq('client_id', user?.id)
           .order('created_at', { ascending: false });
       }
@@ -97,7 +104,19 @@ const Dashboard = () => {
       }
       
       const jobsData = data || [];
-      setJobs(jobsData);
+      
+      // For tradies, enhance jobs with their own info
+      if (profile?.user_type === 'tradie' && profile?.name) {
+        const enhancedJobs = jobsData.map((job: any) => ({
+          ...job,
+          tradie_name: job.profiles?.name || profile.name,
+          tradie_id: job.client_id,
+          tradie_business_name: profile.business_name // if available
+        }));
+        setJobs(enhancedJobs);
+      } else {
+        setJobs(jobsData);
+      }
       
       // Extract unique tradies for filtering (only for customers)
       if (profile?.user_type === 'client' && jobsData.length > 0) {
@@ -559,10 +578,14 @@ const Dashboard = () => {
                             SMS BLOCKED
                           </Badge>
                         )}
-                        {/* Show tradie name for customers */}
-                        {profile?.user_type === 'client' && job.tradie_name && (
+                        {/* Show tradie name - for all users to see assignment */}
+                        {job.tradie_name ? (
                           <Badge variant="secondary" className="text-xs">
                             {job.tradie_business_name || job.tradie_name}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            Unassigned
                           </Badge>
                         )}
                       </div>

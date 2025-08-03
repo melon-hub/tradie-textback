@@ -1,0 +1,15 @@
+{
+  "commands": [
+    {
+      "name": "update-docs",
+      "description": "Automatically update documentation based on git changes",
+      "command": "node .claude/hooks/update-docs.js",
+      "options": [
+        {
+          "name": "--dry-run",
+          "description": "Preview changes without applying them"
+        }
+      ]
+    }
+  ]
+}

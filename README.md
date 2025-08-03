@@ -84,6 +84,67 @@ supabase gen types typescript --project-id cjxejmljovszxuleibqn > src/types/data
 
 **🔐 Security Note**: The aliases and manual commands above automatically load your password from `.env.local` so it's never visible in terminal history or process lists.
 
+## Testing
+
+This project includes a comprehensive test suite to ensure reliability and quality.
+
+### Quick Start
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Open test dashboard
+npm run test:dashboard
+```
+
+### Test Types
+
+- **Unit Tests**: Test individual components and hooks in isolation
+- **Integration Tests**: Test how different parts work together
+- **E2E Tests**: Test complete user workflows
+
+For detailed testing documentation, see [docs/TESTING.md](docs/TESTING.md).
+
+## Development Tools
+
+### Claude Code Slash Commands
+
+When using Claude Code CLI, you have access to custom slash commands for common tasks:
+
+- `/docs` - Quick check to see what files have changed in the project
+- `/update-docs` - Full documentation update process that analyzes changes and updates all relevant documentation
+
+#### Using Slash Commands
+
+1. Type `/` followed by the command name (e.g., `/docs`)
+2. The command will execute and show results
+3. For `/update-docs`, it will also stage the documentation changes
+
+#### Creating Custom Commands
+
+You can add your own slash commands:
+
+1. Create a `.md` file in `~/.claude/commands/` (e.g., `mycommand.md`)
+2. Add frontmatter and command content:
+   ```markdown
+   ---
+   description: "Brief description"
+   allowed-tools: ["bash", "read", "write"]
+   ---
+   
+   Your command prompt here. Use $ARGUMENTS for input.
+   ```
+3. Restart Claude Code to activate new commands
+
+See [CLAUDE.md](CLAUDE.md#custom-slash-commands) for more details on slash commands.
+
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).
@@ -105,6 +166,7 @@ This project is built with:
 - **Frontend**: Vite, TypeScript, React, shadcn-ui, Tailwind CSS
 - **Backend**: Supabase (Database, Auth, Real-time, Storage)
 - **External APIs**: Twilio (SMS), Google Maps (Location)
+- **Testing**: Vitest, React Testing Library, Playwright
 
 ## How can I deploy this project?
 

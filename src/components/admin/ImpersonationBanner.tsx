@@ -56,6 +56,9 @@ export function ImpersonationBanner() {
         } 
       });
       
+      // Force page reload to clear the banner
+      window.location.reload();
+      
     } catch (error) {
       console.error('Error exiting impersonation:', error);
       

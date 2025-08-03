@@ -1,0 +1,5 @@
+#!/bin/bash
+# Quick documentation updater - just type: ./update-docs
+
+echo "📚 Running documentation updater..."
+/Users/michaelhofstein/Coding/tradie-textback/bin/update-docs

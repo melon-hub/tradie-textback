@@ -12,19 +12,19 @@ import { useNavigate } from 'react-router-dom';
 
 interface Job {
   id: string;
-  client_id: string;
   customer_name: string;
-  customer_contact: string;
-  customer_address: string;
+  phone: string;
+  location: string;
   job_type: string;
-  job_details: string | null;
+  description: string | null;
   urgency: string;
   status: string;
   created_at: string;
-  profiles?: {
-    name: string | null;
-    user_type: string;
-  };
+  estimated_value?: number;
+  preferred_time?: string;
+  last_contact?: string;
+  sms_blocked?: boolean;
+  updated_at?: string;
 }
 
 const statusColors = {
@@ -62,20 +62,30 @@ export function JobManagementTable() {
     try {
       setLoading(true);
       
+      // Simplified query without client_id and profiles join to avoid schema issues
       let query = supabase
         .from('jobs')
         .select(`
-          *,
-          profiles!jobs_client_id_fkey (
-            name,
-            user_type
-          )
+          id,
+          customer_name,
+          phone,
+          location,
+          job_type,
+          description,
+          urgency,
+          status,
+          created_at,
+          estimated_value,
+          preferred_time,
+          last_contact,
+          sms_blocked,
+          updated_at
         `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1);
 
       if (searchTerm) {
-        query = query.or(`customer_name.ilike.%${searchTerm}%,customer_address.ilike.%${searchTerm}%,job_type.ilike.%${searchTerm}%`);
+        query = query.or(`customer_name.ilike.%${searchTerm}%,location.ilike.%${searchTerm}%,job_type.ilike.%${searchTerm}%`);
       }
 
       if (statusFilter !== 'all') {
@@ -90,7 +100,8 @@ export function JobManagementTable() {
 
       if (error) throw error;
 
-      setJobs(data || []);
+      // Type assertion to ensure data matches Job interface
+      setJobs((data as Job[]) || []);
       setTotalCount(count || 0);
     } catch (error) {
       console.error('Error fetching jobs:', error);
@@ -242,7 +253,7 @@ export function JobManagementTable() {
                     <div>
                       <div className="font-medium">{job.customer_name}</div>
                       <div className="text-sm text-muted-foreground">
-                        {job.customer_contact}
+                        {job.phone}
                       </div>
                     </div>
                   </TableCell>
@@ -273,7 +284,7 @@ export function JobManagementTable() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {job.profiles?.name || 'Unassigned'}
+                    Unassigned
                   </TableCell>
                   <TableCell>
                     {format(new Date(job.created_at), 'MMM d, yyyy')}

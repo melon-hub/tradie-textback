@@ -94,8 +94,9 @@ export function LoginAsButton({ userId, userName }: LoginAsButtonProps) {
 
       setDialogOpen(false);
       
-      // Reload to show impersonation banner
-      window.location.reload();
+      // Navigate to the dashboard where they can use dev tools
+      // This way admins see what the tradie would see
+      window.location.href = '/dashboard';
       
     } catch (error) {
       console.error('Error setting up impersonation:', error);
