@@ -128,9 +128,11 @@ npm run dev
 
 ### When Starting Work
 1. Check current branch and status
-2. Run `npm run dev` to start server
-3. Open DevToolsPanel to test logins
-4. Use `sdb-push` if database changes are needed
+2. **FIRST**: Check for .env.local file with `ls -la .env*`
+3. **SECOND**: Sync remote migrations with `supabase db pull`
+4. Run `npm run dev` to start server
+5. Open DevToolsPanel to test logins
+6. Use `sdb-push` if database changes are needed
 
 ### When Database Issues Occur
 1. Check .env.local has correct PGPASSWORD
@@ -145,6 +147,27 @@ npm run dev
 4. Use DevToolsPanel to test different user types
 
 ## Common Issues & Solutions
+
+### Session Startup Issues
+**VERY COMMON**: Every new session encounters these errors:
+```bash
+Error: (eval):source:1: no such file or directory: .env.local
+Error: Remote migration versions not found in local migrations directory
+```
+
+**Solution Steps (IN ORDER):**
+1. **Check for .env.local**: `ls -la .env*`
+   - If missing, you need the PGPASSWORD and project secrets
+   - Create .env.local with required environment variables
+2. **Sync remote migrations**: `supabase db pull`
+   - This downloads missing migration files from remote database
+   - Always run this before attempting sdb-push
+3. **Then proceed**: `sdb-push` should work after syncing
+
+**Prevention:**
+- Always run `supabase db pull` at start of each session
+- Keep .env.local in .gitignore but backed up elsewhere
+- Add this to daily startup checklist
 
 ### RLS Policy Infinite Recursion
 - **Symptom**: 500 errors, "infinite recursion detected in policy"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { 
@@ -59,7 +59,19 @@ const isDemoMode = import.meta.env.VITE_DEMO_TOOLS === 'true';
 const isEnabled = isDevMode || isDemoMode;
 
 // Demo presets for quick scenario setup
-const DEMO_PRESETS = [
+interface DemoPreset {
+  id: string;
+  name: string;
+  description: string;
+  role: DevRole;
+  route: string;
+  trade?: string;
+  location?: string;
+  onboardingStep?: string;
+  twilioStatus?: string;
+}
+
+const DEMO_PRESETS: DemoPreset[] = [
   {
     id: 'new-job-flow',
     name: 'New Job Flow',
@@ -81,6 +93,50 @@ const DEMO_PRESETS = [
     role: 'admin' as DevRole,
     route: '/admin',
   },
+  {
+    id: 'plumber-sydney',
+    name: 'Plumber Sydney',
+    description: 'Complete profile, licensed plumber',
+    role: 'tradie' as DevRole,
+    route: '/dashboard',
+    trade: 'plumbing',
+    location: 'Sydney',
+    onboardingStep: 'complete',
+  },
+  {
+    id: 'electrician-melbourne',
+    name: 'Electrician Melbourne',
+    description: 'Licensed electrician with certifications',
+    role: 'tradie' as DevRole,
+    route: '/dashboard',
+    trade: 'electrical',
+    location: 'Melbourne',
+    onboardingStep: 'complete',
+  },
+  {
+    id: 'incomplete-onboarding',
+    name: 'Incomplete Setup',
+    description: 'Tradie stuck at step 2 onboarding',
+    role: 'tradie' as DevRole,
+    route: '/onboarding',
+    onboardingStep: '2',
+  },
+  {
+    id: 'twilio-configured',
+    name: 'SMS Ready',
+    description: 'Twilio configured and active',
+    role: 'tradie' as DevRole,
+    route: '/dashboard',
+    twilioStatus: 'configured',
+  },
+  {
+    id: 'twilio-pending',
+    name: 'SMS Pending',
+    description: 'Twilio setup pending verification',
+    role: 'tradie' as DevRole,
+    route: '/settings',
+    twilioStatus: 'pending',
+  },
 ];
 
 export function DevDrawer() {
@@ -92,13 +148,14 @@ export function DevDrawer() {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const devAuth = new DevAuthSwitch(queryClient);
+  
+  // Memoize DevAuthSwitch to prevent recreation on every render
+  const devAuth = useMemo(() => new DevAuthSwitch(queryClient), [queryClient]);
 
-  // Only show in development or demo mode
-  if (!isEnabled) return null;
-
-  // Keyboard shortcut: Ctrl+`
+  // Keyboard shortcut: Ctrl+` - must be called before early return
   useEffect(() => {
+    if (!isEnabled) return;
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === '`') {
         e.preventDefault();
@@ -110,6 +167,9 @@ export function DevDrawer() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Only show in development or demo mode
+  if (!isEnabled) return null;
+
   // Filter routes based on search
   const filteredRoutes = ROUTES.filter(route =>
     route.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -119,16 +179,25 @@ export function DevDrawer() {
   // Handle role switch
   const handleRoleSwitch = async (role: DevRole) => {
     setLoading(true);
-    const result = await devAuth.switchToRole(role);
+    const result = await devAuth.switchToRole(role, { 
+      navigateTo: getDefaultRouteForRole(role),
+      clearAll: false 
+    });
     
     if (result.success) {
       toast({
         title: "✅ Switched Role",
         description: `Now logged in as ${role}`,
       });
-      // Close drawer and reload to ensure clean state
+      
+      // Close drawer
       setOpen(false);
-      setTimeout(() => window.location.reload(), 500);
+      
+      // Navigate to appropriate route for the role
+      const targetRoute = result.navigateTo || getDefaultRouteForRole(role);
+      if (targetRoute) {
+        navigate(targetRoute);
+      }
     } else {
       toast({
         title: "❌ Switch Failed",
@@ -137,6 +206,20 @@ export function DevDrawer() {
       });
     }
     setLoading(false);
+  };
+
+  // Get default route for role
+  const getDefaultRouteForRole = (role: DevRole): string => {
+    switch (role) {
+      case 'admin':
+        return '/admin';
+      case 'tradie':
+        return '/dashboard';
+      case 'client':
+        return '/intake';
+      default:
+        return '/';
+    }
   };
 
   // Handle navigation
@@ -207,9 +290,23 @@ export function DevDrawer() {
   };
 
   // Copy deep link
-  const copyDeepLink = () => {
-    const role = devAuth.getCurrentRole() || 'client';
-    const deepLink = `${window.location.origin}${location.pathname}?devRole=${role}`;
+  const copyDeepLink = (preset?: DemoPreset) => {
+    const currentRole = devAuth.getCurrentRole() || 'client';
+    const params = new URLSearchParams();
+    
+    // Add role parameter
+    params.set('devRole', preset?.role || currentRole);
+    
+    // Add preset-specific parameters if provided
+    if (preset) {
+      params.set('preset', preset.id);
+      if (preset.trade) params.set('trade', preset.trade);
+      if (preset.location) params.set('location', preset.location);
+      if (preset.onboardingStep) params.set('onboardingStep', preset.onboardingStep);
+      if (preset.twilioStatus) params.set('twilioStatus', preset.twilioStatus);
+    }
+    
+    const deepLink = `${window.location.origin}${preset?.route || location.pathname}?${params.toString()}`;
     navigator.clipboard.writeText(deepLink);
     toast({
       title: "✅ Link Copied",
@@ -229,21 +326,30 @@ export function DevDrawer() {
   };
 
   // Apply demo preset
-  const applyPreset = async (preset: typeof DEMO_PRESETS[0]) => {
+  const applyPreset = async (preset: DemoPreset) => {
     setLoading(true);
     
-    // First switch role
-    const result = await devAuth.switchToRole(preset.role);
+    // First switch role with preset-specific navigation
+    const result = await devAuth.switchToRole(preset.role, {
+      navigateTo: preset.route,
+      clearAll: false
+    });
+    
     if (result.success) {
-      // Then navigate
-      setTimeout(() => {
-        navigate(preset.route);
-        setOpen(false);
-        toast({
-          title: "✅ Preset Applied",
-          description: `Switched to ${preset.name}`,
-        });
-      }, 500);
+      // Store preset-specific data for the application to use
+      if (preset.trade) localStorage.setItem('devTrade', preset.trade);
+      if (preset.location) localStorage.setItem('devLocation', preset.location);
+      if (preset.onboardingStep) localStorage.setItem('devOnboardingStep', preset.onboardingStep);
+      if (preset.twilioStatus) localStorage.setItem('devTwilioStatus', preset.twilioStatus);
+      
+      // Navigate to preset route
+      navigate(preset.route);
+      setOpen(false);
+      
+      toast({
+        title: "✅ Preset Applied",
+        description: `Switched to ${preset.name}`,
+      });
     } else {
       toast({
         title: "❌ Preset Failed",
@@ -472,19 +578,30 @@ export function DevDrawer() {
                 </p>
                 <div className="space-y-2">
                   {DEMO_PRESETS.map((preset) => (
-                    <Button
-                      key={preset.id}
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => applyPreset(preset)}
-                      disabled={loading}
-                    >
-                      <Navigation className="h-4 w-4 mr-2" />
-                      {preset.name}
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        {preset.description}
-                      </span>
-                    </Button>
+                    <div key={preset.id} className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1 justify-start"
+                        onClick={() => applyPreset(preset)}
+                        disabled={loading}
+                      >
+                        <Navigation className="h-4 w-4 mr-2" />
+                        <div className="flex-1 text-left">
+                          <div className="font-medium">{preset.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {preset.description}
+                          </div>
+                        </div>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyDeepLink(preset)}
+                        title="Copy deep link for this preset"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -496,10 +613,10 @@ export function DevDrawer() {
                 <Button
                   variant="outline"
                   className="w-full justify-start"
-                  onClick={copyDeepLink}
+                  onClick={() => copyDeepLink()}
                 >
                   <Copy className="h-4 w-4 mr-2" />
-                  Copy Deep Link
+                  Copy Current Deep Link
                 </Button>
 
                 <Button

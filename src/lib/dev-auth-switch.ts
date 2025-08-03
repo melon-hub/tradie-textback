@@ -10,6 +10,11 @@ interface DevUser {
   role: DevRole;
 }
 
+interface SwitchOptions {
+  navigateTo?: string;
+  clearAll?: boolean;
+}
+
 // Dev users configuration (only available in development)
 const DEV_USERS: Record<DevRole, DevUser> = {
   admin: {
@@ -43,7 +48,7 @@ export class DevAuthSwitch {
    * Switch to a different dev user role
    * This signs out the current user and signs in as the specified role
    */
-  async switchToRole(role: DevRole): Promise<{ success: boolean; error?: string }> {
+  async switchToRole(role: DevRole, options: SwitchOptions = {}): Promise<{ success: boolean; error?: string; navigateTo?: string }> {
     // Only allow in development
     if (import.meta.env.PROD) {
       return { success: false, error: 'Dev auth switch is only available in development' };
@@ -56,9 +61,16 @@ export class DevAuthSwitch {
       // Clear all caches
       this.queryClient.clear();
       
-      // Clear any stored dev state
-      localStorage.removeItem('devRole');
-      localStorage.removeItem('devTenantId');
+      // Clear any stored dev state and session storage
+      if (options.clearAll) {
+        localStorage.clear();
+        sessionStorage.clear();
+      } else {
+        localStorage.removeItem('devRole');
+        localStorage.removeItem('devTenantId');
+        sessionStorage.removeItem('authToken');
+        sessionStorage.removeItem('userSession');
+      }
       
       // Get dev user credentials
       const devUser = DEV_USERS[role];
@@ -105,10 +117,13 @@ export class DevAuthSwitch {
       // Small delay to ensure auth state propagates
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      return { success: true };
-    } catch (error: any) {
+      return { 
+        success: true, 
+        navigateTo: options.navigateTo 
+      };
+    } catch (error) {
       console.error('Dev auth switch error:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 

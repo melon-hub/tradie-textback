@@ -38,6 +38,42 @@ export type Database = {
         }
         Relationships: []
       }
+      business_settings: {
+        Row: {
+          abn: string | null
+          business_name: string | null
+          created_at: string | null
+          logo_url: string | null
+          operating_hours: Json | null
+          primary_color: string | null
+          service_areas: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          abn?: string | null
+          business_name?: string | null
+          created_at?: string | null
+          logo_url?: string | null
+          operating_hours?: Json | null
+          primary_color?: string | null
+          service_areas?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          abn?: string | null
+          business_name?: string | null
+          created_at?: string | null
+          logo_url?: string | null
+          operating_hours?: Json | null
+          primary_color?: string | null
+          service_areas?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       job_links: {
         Row: {
           accessed_count: number | null
@@ -199,40 +235,235 @@ export type Database = {
       }
       profiles: {
         Row: {
+          abn: string | null
           address: string | null
+          after_hours_enabled: boolean | null
+          business_name: string | null
+          callback_window_minutes: number | null
           created_at: string
           id: string
+          insurance_expiry: string | null
+          insurance_provider: string | null
           is_admin: boolean | null
+          languages_spoken: Json | null
+          license_expiry: string | null
+          license_number: string | null
           name: string | null
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
           phone: string | null
           role: string | null
+          service_postcodes: string[] | null
+          service_radius_km: number | null
+          specializations: Json | null
+          timezone: string | null
+          trade_primary: string | null
+          trade_secondary: string[] | null
           updated_at: string
           user_id: string
           user_type: string
+          years_experience: number | null
         }
         Insert: {
+          abn?: string | null
           address?: string | null
+          after_hours_enabled?: boolean | null
+          business_name?: string | null
+          callback_window_minutes?: number | null
           created_at?: string
           id?: string
+          insurance_expiry?: string | null
+          insurance_provider?: string | null
           is_admin?: boolean | null
+          languages_spoken?: Json | null
+          license_expiry?: string | null
+          license_number?: string | null
           name?: string | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
           phone?: string | null
           role?: string | null
+          service_postcodes?: string[] | null
+          service_radius_km?: number | null
+          specializations?: Json | null
+          timezone?: string | null
+          trade_primary?: string | null
+          trade_secondary?: string[] | null
           updated_at?: string
           user_id: string
           user_type?: string
+          years_experience?: number | null
         }
         Update: {
+          abn?: string | null
           address?: string | null
+          after_hours_enabled?: boolean | null
+          business_name?: string | null
+          callback_window_minutes?: number | null
           created_at?: string
           id?: string
+          insurance_expiry?: string | null
+          insurance_provider?: string | null
           is_admin?: boolean | null
+          languages_spoken?: Json | null
+          license_expiry?: string | null
+          license_number?: string | null
           name?: string | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
           phone?: string | null
           role?: string | null
+          service_postcodes?: string[] | null
+          service_radius_km?: number | null
+          specializations?: Json | null
+          timezone?: string | null
+          trade_primary?: string | null
+          trade_secondary?: string[] | null
           updated_at?: string
           user_id?: string
           user_type?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      service_locations: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          postcode: string
+          state: string | null
+          suburb: string | null
+          surcharge: number | null
+          travel_time: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          postcode: string
+          state?: string | null
+          suburb?: string | null
+          surcharge?: number | null
+          travel_time?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          postcode?: string
+          state?: string | null
+          suburb?: string | null
+          surcharge?: number | null
+          travel_time?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      tenant_sms_templates: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          template_type: string
+          updated_at: string | null
+          user_id: string | null
+          variables: string[] | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          template_type: string
+          updated_at?: string | null
+          user_id?: string | null
+          variables?: string[] | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          template_type?: string
+          updated_at?: string | null
+          user_id?: string | null
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
+      trade_types: {
+        Row: {
+          category: string | null
+          code: string
+          created_at: string | null
+          icon_name: string | null
+          label: string
+          typical_urgency: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          code: string
+          created_at?: string | null
+          icon_name?: string | null
+          label: string
+          typical_urgency?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          code?: string
+          created_at?: string | null
+          icon_name?: string | null
+          label?: string
+          typical_urgency?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      twilio_settings: {
+        Row: {
+          capabilities: Json | null
+          created_at: string | null
+          id: string
+          phone_number: string
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+          vault_secret_name: string | null
+          verified_at: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          capabilities?: Json | null
+          created_at?: string | null
+          id?: string
+          phone_number: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          vault_secret_name?: string | null
+          verified_at?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          capabilities?: Json | null
+          created_at?: string | null
+          id?: string
+          phone_number?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          vault_secret_name?: string | null
+          verified_at?: string | null
+          webhook_url?: string | null
         }
         Relationships: []
       }
@@ -264,8 +495,33 @@ export type Database = {
       }
     }
     Functions: {
+      create_default_sms_templates: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       create_job_link: {
         Args: { p_job_id: string; p_phone?: string; p_expires_hours?: number }
+        Returns: string
+      }
+      get_twilio_settings: {
+        Args: { target_user_id: string }
+        Returns: {
+          id: string
+          phone_number: string
+          webhook_url: string
+          capabilities: Json
+          status: string
+          vault_secret_name: string
+          verified_at: string
+        }[]
+      }
+      store_twilio_credentials: {
+        Args: {
+          target_user_id: string
+          account_sid: string
+          auth_token: string
+          phone_number: string
+        }
         Returns: string
       }
     }

@@ -1,10 +1,21 @@
 # Testing Guide - Tradie Textback
 
-<!-- Updated: 2025-08-03 - Added test dashboard info and updated current metrics -->
+<!-- Updated: 2025-08-03 - Added onboarding schema changes notice and updated test requirements -->
 
 ## Overview
 
 This guide covers the comprehensive testing strategy for the Tradie Textback application. We use a combination of unit tests, integration tests, and end-to-end (E2E) tests to ensure high quality and reliability.
+
+## ⚠️ Important Notice - Database Schema Changes (2025-08-03)
+
+The database schema has been significantly updated with new onboarding-related tables:
+- `trade_types` - Trade classification system
+- `service_locations` - Postcode-based service areas
+- `tenant_sms_templates` - Customizable SMS templates
+- `twilio_settings` - Secure phone configuration
+- Enhanced `profiles` table with 18 new columns
+
+**Action Required**: Tests that depend on database schemas may need updates. See [TESTING_UPDATES_REQUIRED.md](TESTING_UPDATES_REQUIRED.md) for specific changes needed.
 
 ## Test Stack
 
@@ -40,6 +51,7 @@ As of 2025-08-03:
 - **Test Files**: 4 unit test files, 2 E2E test files
 - **Coverage Target**: 80% lines, functions, statements; 70% branches
 - **Test Infrastructure**: Fully configured with Vitest, React Testing Library, Playwright
+- **⚠️ Schema Changes**: Database schema updated with onboarding tables - tests may need updating
 
 ### Passing Tests:
 ✅ Example tests (4/4)
@@ -51,6 +63,7 @@ As of 2025-08-03:
 - 2 hook tests need fixing (mocking configuration)
 - Coverage reporting configured but needs baseline generation
 - E2E tests require dev server running on port 8080
+- **Schema-dependent tests may fail** until test data is updated for new onboarding tables
 
 ## Test Types
 
@@ -370,6 +383,24 @@ global.console = console;
 3. Write tests following existing patterns
 4. Run tests to verify
 5. Update this documentation
+
+### Testing Onboarding Features (2025-08-03)
+
+New onboarding system requires tests for:
+- Trade type selection and validation
+- Service area configuration (postcodes vs radius)
+- SMS template customization
+- Twilio integration (mocked)
+- Multi-step wizard navigation
+- Auto-save functionality
+- Onboarding completion tracking
+
+Use the new DevDrawer presets for testing:
+- `plumber-sydney`: Complete profile
+- `electrician-melbourne`: Licensed tradie
+- `incomplete-onboarding`: Mid-flow testing
+- `twilio-configured`: Post-Twilio setup
+- `twilio-pending`: Pre-verification state
 
 ### Custom Matchers
 

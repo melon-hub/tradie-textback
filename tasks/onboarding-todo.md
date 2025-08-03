@@ -4,9 +4,14 @@
 - [x] Created comprehensive plan document
 - [x] Analyzed existing code structure
 - [x] Identified all required changes
-- [ ] Update documentation
-- [ ] Push to git
-- [ ] Begin implementation
+- [x] Created Phase 1 database migration
+- [x] Built enhanced profiles schema
+- [x] Created all required tables with RLS
+- [x] Created SECURE migration (removed auth_token storage)
+- [x] Split migration into executable chunks
+- [x] Update documentation
+- [ ] Apply migration chunks in Supabase
+- [ ] Generate TypeScript types
 
 ## Immediate Next Steps
 1. [ ] Run update-docs function
@@ -15,33 +20,35 @@
 
 ## Phase 1: Database Schema (Day 1)
 ### Morning Session
-- [ ] Create migration file: 20250803_onboarding_schema.sql
-- [ ] Add trade_primary and trade_secondary to profiles
-- [ ] Add business fields (name, ABN, service areas)
-- [ ] Add onboarding tracking fields
-- [ ] Create trade_types reference table
+- [x] Create migration file: 20250803100000_onboarding_schema.sql
+- [x] Add trade_primary and trade_secondary to profiles
+- [x] Add business fields (name, ABN, service areas)
+- [x] Add onboarding tracking fields
+- [x] Create trade_types reference table
 
 ### Afternoon Session  
-- [ ] Create service_locations table
-- [ ] Create tenant_sms_templates table
-- [ ] Create twilio_settings table
-- [ ] Add all RLS policies
-- [ ] Test migration locally
+- [x] Create service_locations table
+- [x] Create tenant_sms_templates table
+- [x] Create twilio_settings table
+- [x] Add all RLS policies
+- [ ] Test migration locally (in progress)
 - [ ] Push migration to production
 
-## Phase 2: Dev Drawer Fixes (Day 2)
+## Phase 2: Dev Drawer Fixes (Day 2) ✅
 ### Morning Session
-- [ ] Fix DevAuthSwitch memoization issue
-- [ ] Remove window.location.reload() calls
-- [ ] Implement proper cache clearing
-- [ ] Add sessionStorage clearing on switch
+- [x] Fix DevAuthSwitch memoization issue
+- [x] Remove window.location.reload() calls
+- [x] Implement proper cache clearing
+- [x] Add sessionStorage clearing on switch
 
 ### Afternoon Session
-- [ ] Create onboarding test presets
-- [ ] Add preset application logic
-- [ ] Enhance deep links
-- [ ] Add status display for onboarding
-- [ ] Test all scenarios
+- [x] Create onboarding test presets
+- [x] Add preset application logic
+- [x] Enhance deep links
+- [x] Add status display for onboarding
+- [x] Test all scenarios
+
+**Status:** COMPLETE - Dev Drawer now supports seamless testing with onboarding presets
 
 ## Phase 3: Onboarding Wizard (Days 3-4)
 ### Day 3 - Structure
@@ -154,6 +161,37 @@ A feature is complete when:
 - Dev Drawer preset exists
 - Mobile tested
 - Deployed to production
+
+---
+
+## Migration Files Created
+
+### 20250803100000_onboarding_schema.sql
+**Status:** Created, ready for testing
+**Includes:**
+- Enhanced profiles table with trade types, business info, onboarding tracking
+- trade_types reference table with predefined Australian trade categories
+- service_locations table for postcode-based service areas
+- tenant_sms_templates table for customizable SMS messaging
+- twilio_settings table for phone number management
+- Complete RLS policies for all new tables
+- Performance indexes on frequently queried columns
+
+**Note:** Migration deployment issues have been resolved. The migration is structured to be idempotent and includes proper error handling for existing constraints.
+
+## Session Management Issues
+
+### Common Startup Problem
+When starting new sessions, we encounter:
+```bash
+Error: (eval):source:1: no such file or directory: .env.local
+Error: Remote migration versions not found in local migrations directory
+```
+
+### Solution Steps (Add to Todo)
+- [ ] Document .env.local setup requirements
+- [ ] Add supabase db pull to sync remote migrations
+- [ ] Update CLAUDE.md with session startup checklist
 
 ---
 
