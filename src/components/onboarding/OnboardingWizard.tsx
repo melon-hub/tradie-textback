@@ -177,47 +177,47 @@ export default function OnboardingWizard({
   };
 
   return (
-    <div className={cn("min-h-screen bg-gray-50 py-4 px-4", className)}>
+    <div className={cn("min-h-screen bg-gray-50 py-2 md:py-4 px-2 md:px-4", className)}>
       <div className="max-w-2xl mx-auto">
         {/* Integrated Header Card */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
+        <Card className="mb-4 md:mb-6">
+          <CardContent className="p-3 md:p-4">
             {/* Top row: Title, Progress Bar, Step counter */}
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-lg font-semibold text-gray-900">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h1 className="text-base md:text-lg font-semibold text-gray-900">
                 Account Setup
               </h1>
               
               {/* Center: Progress bar with percentage */}
-              <div className="flex-1 max-w-xs mx-6">
-                <div className="flex items-center space-x-3">
-                  <Progress value={progressPercentage} className="h-1.5 flex-1" />
-                  <span className="text-sm font-medium text-gray-600 whitespace-nowrap">
+              <div className="flex-1 max-w-xs mx-3 md:mx-6">
+                <div className="flex items-center space-x-2 md:space-x-3">
+                  <Progress value={progressPercentage} className="h-1 md:h-1.5 flex-1" />
+                  <span className="text-xs md:text-sm font-medium text-gray-600 whitespace-nowrap">
                     {Math.round(progressPercentage)}%
                   </span>
                 </div>
               </div>
 
               {/* Right: Step counter and close button */}
-              <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-500 whitespace-nowrap">
-                  Step {state.currentStep + 1} of {ONBOARDING_STEPS.length}
+              <div className="flex items-center space-x-2 md:space-x-3">
+                <span className="text-xs md:text-sm text-gray-500 whitespace-nowrap">
+                  {state.currentStep + 1}/{ONBOARDING_STEPS.length}
                 </span>
                 {showCloseButton && onClose && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={onClose}
-                    className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                    className="text-gray-400 hover:text-gray-600 flex-shrink-0 p-1"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3 md:w-4 md:h-4" />
                   </Button>
                 )}
               </div>
             </div>
 
             {/* Bottom row: Step indicators */}
-            <div className="border-t pt-4">
+            <div className="border-t pt-3 md:pt-4">
               {/* Desktop Step Indicators */}
               <div className="hidden md:block">
                 {/* Grid container for perfect alignment */}
@@ -289,8 +289,8 @@ export default function OnboardingWizard({
                 </div>
               </div>
 
-              {/* Mobile Step Indicators */}
-              <div className="md:hidden flex items-start space-x-1 overflow-x-auto pb-2">
+              {/* Mobile & Tablet Step Indicators */}
+              <div className="md:hidden flex items-start space-x-0.5 overflow-x-auto pb-2">
                 {ONBOARDING_STEPS.map((step, index) => {
                   const isActive = index === state.currentStep;
                   const isCompleted = Object.keys(state.stepValidation)
@@ -300,12 +300,12 @@ export default function OnboardingWizard({
                   const shortLabel = step.title.split(' ')[0];
 
                   return (
-                    <div key={step.id} className="flex flex-col items-center flex-shrink-0">
-                      {/* Step Circle Container - Fixed height with absolute positioning for perfect alignment */}
-                      <div className="relative flex items-center justify-center h-6 w-8">
+                    <div key={step.id} className="flex flex-col items-center flex-shrink-0 min-w-0">
+                      {/* Step Circle Container */}
+                      <div className="relative flex items-center justify-center h-6 w-6 sm:w-8">
                         <div className="absolute top-0.5 left-1/2 transform -translate-x-1/2">
                           <div className={cn(
-                            "flex items-center justify-center w-5 h-5 rounded-full border text-xs font-medium transition-colors",
+                            "flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 rounded-full border text-xs font-medium transition-colors",
                             isCompleted 
                               ? "bg-green-100 border-green-600 text-green-600"
                               : isActive 
@@ -317,7 +317,7 @@ export default function OnboardingWizard({
                         </div>
                       </div>
                       <span className={cn(
-                        "text-xs mt-1 transition-colors leading-tight",
+                        "text-xs mt-1 transition-colors leading-tight text-center truncate max-w-full",
                         isCompleted 
                           ? "text-green-700"
                           : isActive 
@@ -335,7 +335,7 @@ export default function OnboardingWizard({
         </Card>
 
         {/* Main content card */}
-        <Card className="mb-6">
+        <Card className="mb-4 md:mb-6">
           <CardContent className="px-6 py-6">
             {state.isLoading ? (
               <div className="flex items-center justify-center py-8">
