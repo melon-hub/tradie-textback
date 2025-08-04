@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { Phone, MessageSquare, Clock, DollarSign, Shield, Star } from "lucide-react";
-import Hero from "@/components/Hero";
+import { Phone, MessageSquare, Clock, DollarSign, Shield, Star, CheckCircle } from "lucide-react";
+import heroImage from "@/assets/hero-image.jpg";
 
 export default function LandingPageAlternative() {
   const navigate = useNavigate();
@@ -45,194 +45,254 @@ export default function LandingPageAlternative() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Enhanced Hero Section with Image */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-subtle opacity-50"></div>
-        <Hero />
-      </section>
-
-      {/* Enhanced Features Grid */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4 px-4 py-2 text-sm font-medium">
-              Everything You Need
-            </Badge>
-            <h2 className="text-4xl font-bold mb-4">
-              Complete Lead Management Solution
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Turn every missed call into a business opportunity with our automated SMS system
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="text-center group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-0 shadow-lg">
-                <CardHeader className="pb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
-                    <feature.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-base">{feature.description}</CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Enhanced How It Works */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
-              How It Works
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Get set up in minutes and start capturing leads immediately
-            </p>
-          </div>
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="space-y-8">
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
-                    1
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-xl mb-2">Sign Up & Set Your Trade</h3>
-                    <p className="text-muted-foreground text-lg">Tell us about your business and service areas</p>
-                  </div>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Enhanced Visual Hero Section - Merged from Hero component */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-white">
+        <div className="container mx-auto px-4 py-16">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div className="space-y-6 lg:space-y-8">
+              <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200" variant="secondary">
+                For Australian Tradies 🇦🇺
+              </Badge>
+              
+              <div className="space-y-6 lg:space-y-8">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight tracking-tight">
+                  Turn Missed Calls Into <span className="text-blue-600">Hot Leads</span>
+                </h1>
+                
+                <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-lg">
+                  Automatically respond to missed calls with SMS. Never lose a job because you were on site.
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <span className="text-lg">Capture leads you'd normally lose</span>
                 </div>
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
-                    2
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-xl mb-2">Customize Your Messages</h3>
-                    <p className="text-muted-foreground text-lg">Create SMS templates for different scenarios</p>
-                  </div>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <span className="text-lg">Faster quotes with photos upfront</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <span className="text-lg">Zero new app to learn</span>
                 </div>
               </div>
-              <div className="space-y-8">
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
-                    3
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-xl mb-2">Connect Your Phone</h3>
-                    <p className="text-muted-foreground text-lg">Get a dedicated number or use your existing one</p>
-                  </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-start">
+                <Button 
+                  size="lg" 
+                  onClick={() => navigate('/onboarding')}
+                  className="text-lg px-10 py-4 h-auto bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Start 14-Day Free Trial
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  onClick={() => navigate('/auth')}
+                  className="text-lg px-10 py-4 h-auto border-blue-200 text-blue-600 hover:bg-blue-50 transition-all duration-300"
+                >
+                  See How It Works
+                </Button>
+              </div>
+              
+              <div className="flex items-center space-x-8 pt-4">
+                <div className="flex items-center space-x-2">
+                  <Phone className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium">Keep Your Number</span>
                 </div>
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
-                    4
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-xl mb-2">Never Miss a Lead</h3>
-                    <p className="text-muted-foreground text-lg">Automatic SMS responses capture every opportunity</p>
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium">5 Min Setup</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium">No Credit Card</span>
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-500">
+                No credit card required • Set up in 5 minutes
+              </p>
+            </div>
+            
+            <div className="relative lg:mt-8">
+              <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+                <img 
+                  src={heroImage} 
+                  alt="Tradie using phone on job site" 
+                  className="w-full h-auto transform hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+              </div>
+              <div className="absolute -bottom-8 left-2 sm:-left-8 bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl">
+                <div className="text-sm font-semibold text-gray-600 mb-1">Never miss a lead</div>
+                <div className="text-3xl font-bold text-blue-600 mb-1">+127%</div>
+                <div className="text-sm text-gray-500">More callbacks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Grid - Enhanced from original */}
+      <div className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Everything You Need to Manage Leads
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((feature, index) => (
+            <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+              <CardHeader>
+                <feature.icon className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+                <CardTitle className="text-lg">{feature.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>{feature.description}</CardDescription>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* How It Works - Original structure with enhanced styling */}
+      <div className="bg-gray-100 py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            How It Works
+          </h2>
+          <div className="max-w-3xl mx-auto">
+            <div className="space-y-8">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                  1
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">Sign Up & Set Your Trade</h3>
+                  <p className="text-gray-600">Tell us about your business and service areas</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                  2
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">Customize Your Messages</h3>
+                  <p className="text-gray-600">Create SMS templates for different scenarios</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                  3
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">Connect Your Phone</h3>
+                  <p className="text-gray-600">Get a dedicated number or use your existing one</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                  4
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">Never Miss a Lead</h3>
+                  <p className="text-gray-600">Automatic SMS responses capture every opportunity</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Enhanced Testimonials */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
-              Trusted by Aussie Tradies
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              See how we're helping tradies across Australia grow their business
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-0 shadow-lg">
-                <CardContent className="p-8">
-                  <div className="flex gap-1 mb-6">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
+      {/* Testimonials - Enhanced styling */}
+      <div className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Trusted by Aussie Tradies
+        </h2>
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {testimonials.map((testimonial, index) => (
+            <Card key={index} className="hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+              <CardContent className="pt-6">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-600 mb-4 italic">"{testimonial.content}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="font-bold text-blue-600">{testimonial.name.charAt(0)}</span>
                   </div>
-                  <p className="text-muted-foreground mb-6 text-lg italic leading-relaxed">"{testimonial.content}"</p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span className="font-bold text-primary text-lg">{testimonial.name.charAt(0)}</span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-lg">{testimonial.name}</p>
-                      <p className="text-muted-foreground">{testimonial.trade}</p>
-                    </div>
+                  <div>
+                    <p className="font-semibold">{testimonial.name}</p>
+                    <p className="text-sm text-gray-500">{testimonial.trade}</p>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* Enhanced CTA Section - Front and Center */}
-      <section className="py-24 bg-gradient-to-r from-primary to-primary/90">
+      {/* MASSIVE Enhanced CTA Section - 14-Day Trial Front and Center */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-20">
         <div className="container mx-auto px-4 text-center">
-          <div className="max-w-4xl mx-auto">
-            <Badge variant="secondary" className="mb-6 px-6 py-2 text-lg font-semibold bg-white/20 text-white border-white/30">
-              Ready to Transform Your Business?
-            </Badge>
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white leading-tight">
-              Start Your <span className="text-accent">14-Day Free Trial</span>
-            </h2>
-            <p className="text-2xl mb-10 text-white/90 leading-relaxed max-w-2xl mx-auto">
-              Join hundreds of tradies who never miss a customer again
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
-              <Button 
-                size="lg" 
-                variant="secondary"
-                onClick={() => navigate('/onboarding')}
-                className="text-xl px-12 py-6 h-auto shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-white text-primary hover:bg-white/90 font-bold"
-              >
-                Get Started Now - It's Free!
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                onClick={() => navigate('/auth')}
-                className="text-xl px-12 py-6 h-auto border-white/30 text-white hover:bg-white/10 hover:border-white transition-all duration-300"
-              >
-                Watch Demo
-              </Button>
+          <Badge className="mb-6 bg-white/20 text-white border-white/30 px-6 py-2 text-lg">
+            🚀 Ready to Transform Your Business?
+          </Badge>
+          <h2 className="text-4xl md:text-6xl font-bold mb-6">
+            Start Your <span className="text-yellow-300">14-Day Free Trial</span>
+          </h2>
+          <p className="text-xl md:text-2xl mb-10 opacity-90 max-w-2xl mx-auto">
+            Join hundreds of tradies who never miss a customer again
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
+            <Button 
+              size="lg" 
+              variant="secondary"
+              onClick={() => navigate('/onboarding')}
+              className="text-xl px-12 py-6 h-auto bg-white text-blue-600 hover:bg-gray-100 font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
+            >
+              Get Started Now - It's FREE!
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={() => navigate('/auth')}
+              className="text-xl px-12 py-6 h-auto border-white/30 text-white hover:bg-white/10 transition-all duration-300"
+            >
+              Watch Demo Video
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-8 text-white/90 text-lg mb-4">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              <span>No credit card required</span>
             </div>
-            <div className="flex flex-wrap justify-center gap-8 text-white/80 text-lg">
-              <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                <span>No credit card required</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                <span>Set up in 5 minutes</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-5 h-5" />
-                <span>Cancel anytime</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              <span>Setup in 5 minutes</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="w-5 h-5" />
+              <span>Cancel anytime</span>
             </div>
           </div>
+          
+          <p className="text-sm opacity-75">
+            14 days free • No setup fees • Australian support team
+          </p>
         </div>
-      </section>
+      </div>
 
-      {/* Enhanced Footer */}
-      <footer className="bg-muted py-12">
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-400 py-8">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground text-lg">&copy; 2025 Tradie Textback. Made with ❤️ in Australia</p>
-          <p className="text-muted-foreground/70 mt-2">Helping tradies capture every lead, every time.</p>
+          <p>&copy; 2025 Tradie Textback. Made with ❤️ in Australia</p>
         </div>
       </footer>
     </div>
