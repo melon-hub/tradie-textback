@@ -2,6 +2,7 @@
 
 <!-- Updated: 2025-08-03 - Added onboarding system implementation and updated project status -->
 <!-- Updated: 2025-08-04 - Completed onboarding phases 3-7, enhanced settings, SMS templates, testing -->
+<!-- Updated: 2025-08-04 - Consolidated documentation structure and archived duplicates -->
 
 ## Overview
 This documentation covers the TradiePro missed-call management system for Australian tradies. The system automatically sends SMS responses to missed calls and provides a comprehensive job management dashboard.
@@ -10,22 +11,19 @@ This documentation covers the TradiePro missed-call management system for Austra
 
 ### 📌 Critical Documentation
 Essential project documentation for development and deployment:
-- [CLAUDE.md](critical/CLAUDE.md) - Project rules and guidelines for Claude Code
-- [ADMIN_DASHBOARD_PLAN.md](critical/ADMIN_DASHBOARD_PLAN.md) - Admin dashboard implementation roadmap
+- [PRODUCTION_CHECKLIST.md](critical/PRODUCTION_CHECKLIST.md) - Comprehensive production readiness checklist
+- [database-setup.md](critical/database-setup.md) - Database schema and migration guide
 - [MIGRATION_ISSUES.md](critical/MIGRATION_ISSUES.md) - Database migration sync issues and resolution
 - [PERFORMANCE_ISSUES.md](critical/PERFORMANCE_ISSUES.md) - Performance bottlenecks and solutions
-- [PRODUCTION_CHECKLIST.md](critical/PRODUCTION_CHECKLIST.md) - Must-do items before production
-- [database-setup.md](critical/database-setup.md) - Database schema and migration guide (2025-08-03)
 
 ### 📖 Guides
 Step-by-step guides for common tasks:
 - [ADMIN_SETUP.md](guides/ADMIN_SETUP.md) - How to set up admin users
 - [ONBOARDING_GUIDE.md](guides/ONBOARDING_GUIDE.md) - Complete guide to the onboarding system
-- [DEPLOYMENT_GUIDE.md](guides/DEPLOYMENT_GUIDE.md) - Deployment instructions (TO BE CREATED)
+- [CLIENT_ONBOARDING.md](guides/CLIENT_ONBOARDING.md) - Client onboarding and testing guide
+- [DEPLOYMENT_GUIDE.md](guides/DEPLOYMENT_GUIDE.md) - Supabase production deployment guide
 - [MIGRATION_PROCESS.md](guides/MIGRATION_PROCESS.md) - Database migration best practices
-- [SUPABASE_DEPLOYMENT_GUIDE.md](guides/SUPABASE_DEPLOYMENT_GUIDE.md) - Supabase-specific deployment
-- [TESTING.md](../TESTING.md) - Comprehensive testing guide with unit, integration, and E2E tests
-- [TESTING_GUIDE.md](guides/TESTING_GUIDE.md) - Detailed testing implementation guide
+- [TWILIO_VAULT_SETUP.md](guides/TWILIO_VAULT_SETUP.md) - Secure Twilio credential management
 - [URGENT_PERFORMANCE_FIX.md](guides/URGENT_PERFORMANCE_FIX.md) - Emergency performance fixes
 
 ### 📚 Reference
@@ -44,11 +42,21 @@ Current implementation status:
 - [USER_FLOWS_MERMAID.md](USER_FLOWS_MERMAID.md) - Interactive Mermaid diagrams
 - [view-diagrams.html](view-diagrams.html) - Browser-viewable flow diagrams
 
+### 📁 Testing Documentation
+- [TESTING.md](TESTING.md) - Comprehensive testing guide with unit, integration, and E2E tests
+
+### 🗄️ Archive
+Historical documentation and outdated plans are stored in the `archive/` folder:
+- `archive/onboarding/` - Onboarding phase summaries and implementation details
+- `archive/testing/` - Previous testing documentation versions
+- `archive/plans/` - Completed implementation plans
+- `archive/misc/` - Other outdated documentation
+
 ## Quick Links
 
 ### For Developers
-1. Start with [CLAUDE.md](critical/CLAUDE.md) for project rules
-2. Check [database-setup.md](critical/database-setup.md) for schema changes (2025-08-03)
+1. Start with [CLAUDE.md](../CLAUDE.md) for project rules
+2. Check [database-setup.md](critical/database-setup.md) for schema changes
 3. Check [PRODUCTION_CHECKLIST.md](critical/PRODUCTION_CHECKLIST.md) before deploying
 4. See [MIGRATION_ISSUES.md](critical/MIGRATION_ISSUES.md) for database sync status
 

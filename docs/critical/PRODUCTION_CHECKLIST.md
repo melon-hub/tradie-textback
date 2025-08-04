@@ -1,6 +1,12 @@
-# Production Checklist
+# Production Readiness Checklist
 
-## ✅ RESOLVED ISSUES
+<!-- Updated: 2025-08-04 - Merged from PRODUCTION_CHECKLIST.md and PRODUCTION_READINESS_CHECKLIST.md -->
+
+## Executive Summary
+
+**Overall Status**: Strong MVP with excellent onboarding system, but **not yet production-ready**. Critical gaps exist in security, reliability, observability, and compliance.
+
+## ✅ Resolved Issues
 
 ### 1. Profile Query Performance - FIXED ✅
 **Previous Issue**: Profile queries were taking 30+ seconds
@@ -18,110 +24,137 @@ CREATE INDEX IF NOT EXISTS idx_profiles_user_type ON profiles(user_type);
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id_is_admin ON profiles(user_id, is_admin);
 ```
 
-## Remaining Tasks Before Production
+### 2. Onboarding System - COMPLETE ✅
+- 6-step wizard with public signup flow
+- Secure Twilio integration with Vault
+- Professional SMS template library
+- 106 passing tests with full coverage
 
-### 1. Admin System Security
-- [ ] **REMOVE** the admin toggle from DevToolsPanel (lines 469-519 in DevToolsPanel.tsx)
-- [ ] Implement proper admin invitation system (only admins can create other admins)
-- [ ] Add admin audit logging (nice to have, not blocking)
+## 🚨 Critical Issues (Must Fix Before Production)
 
-### 1.1 User Impersonation System
-- [ ] **CRITICAL**: Implement proper backend impersonation system
-  - Current implementation is development-only (manual login required)
+### 1. Security Vulnerabilities
+- [ ] **Dependency vulnerabilities**: Run `npm audit fix` (7 vulnerabilities found)
+- [ ] **CSP & Security Headers**: Not configured (X-Frame-Options, CSP, etc.)
+- [ ] **Google Maps API**: Add referrer restrictions
+- [ ] **Remove DevToolsPanel**: Must be disabled/removed for production
+- [ ] **Admin toggle removal**: Remove lines 469-519 in DevToolsPanel.tsx
+
+### 2. User Impersonation System
+- [ ] Implement proper backend impersonation system
+  - Current implementation is development-only
   - Need server-side API to generate impersonation tokens
   - Should create temporary session without exposing credentials
 - [ ] Add audit logging for all impersonation activities
 - [ ] Add time limits on impersonation sessions
-- [ ] Require re-authentication for sensitive actions during impersonation
+- [ ] Require re-authentication for sensitive actions
 
-### 2. Environment & Configuration
-- [ ] Move all sensitive data to environment variables
-- [ ] Remove or disable DevToolsPanel entirely for production
-- [ ] Set up proper CORS policies
-- [ ] Configure rate limiting
+### 3. Legal & Compliance
+- [ ] **GDPR/CCPA Compliance**: No consent management
+- [ ] **Terms of Service**: Not present
+- [ ] **Privacy Policy**: Not present
+- [ ] **PII Retention Policy**: Not documented
+- [ ] **Audit Trail**: No logging for critical actions
 
-### 3. Database Security
-- [x] Apply all pending migrations properly - ✅ COMPLETE
-- [x] Review and tighten RLS policies - ✅ FIXED RECURSION
-- [ ] Remove any development-only database access
-- [ ] Backup strategy in place
+## 📋 Production Readiness Assessment
 
-### 4. Authentication
-- [ ] Review magic link expiration times
-- [ ] Implement proper session management
-- [ ] Add MFA for admin accounts (optional but recommended)
+### Gate 1: Security ⚠️
+- ✅ TLS/HTTPS (handled by Supabase)
+- 🟡 OWASP Top-10 (partial - needs verification)
+- 🟡 Secrets management (good practices, needs API key restrictions)
+- 🟡 RBAC (client-side good, verify server-side RLS)
+- ✅ Rate limiting (handled by Supabase)
+- ❌ **Dependency scan** (vulnerabilities found)
+- ❌ **Security headers** (not configured)
+- ❌ **GDPR/CCPA** (no compliance measures)
 
-### 5. Technical Debt Status
+### Gate 2: Reliability & Performance ⚠️
+- 🟡 E2E tests (setup exists, coverage unverified)
+- ❌ **Automated rollback** (manual deployment)
+- ❌ **Error tracking** (no Sentry/LogRocket)
+- ❌ **Monitoring & alerts** (not implemented)
+- ❌ **Load testing** (not performed)
+- ✅ Database indexes (performance optimized)
 
-#### Migration Sync Issues - RESOLVED ✅
-**Previous Issue**: 12 migrations were out of sync
-**Resolution**: All migrations successfully applied on 2025-08-02
-**Current State**: 
-- All 12 migrations are applied and in sync
-- Performance indexes applied
-- Admin features working
-- No more sync errors
+### Gate 3: UX / Accessibility ✅
+- ✅ Mobile-first layouts (excellent)
+- 🟡 WCAG AA (good foundation, needs audit)
+- ✅ Error pages (custom 404)
+- ❓ Performance metrics (needs testing)
+- ✅ Keyboard navigation
 
-#### Admin Features - IMPLEMENTED ✅
-**Status**: Complete UI implementation
-**Working Features**:
-- ✅ User management with search/filter/pagination
-- ✅ Job management interface
-- ✅ Analytics dashboard with charts
-- ✅ Business settings form
-- ✅ Twilio configuration UI
+### Gate 4: Data & Compliance ❌
+- ✅ Backups (Supabase managed)
+- ❌ **PII retention policy** (not documented)
+- ❌ **Audit trail** (not implemented)
+- ❌ **Legal documents** (ToS, Privacy Policy missing)
 
-**Backend Enhancements (Nice to Have)**:
-- [ ] Admin audit log table (not blocking)
-- [ ] Database triggers for is_admin protection
-- [ ] JWT claims for better auth
+### Gate 5: DevOps & CI/CD ❌
+- ❌ **CI/CD pipeline** (manual process)
+- ✅ Infrastructure as Code (Supabase migrations)
+- ❌ **Rollback capability** (not implemented)
+- ❌ **Environment validation** (no CI)
 
-#### Confusing User Type Naming
-- Current: `client` = tradie (business owner), `tradie` = admin
-- Should be: `tradie` = business owner, `admin` = platform admin
-- Requires database migration and code updates
+### Gate 6: Observability ❌
+- ❌ **Structured logging** (using console.log)
+- ❌ **Metrics dashboard** (not implemented)
+- ❌ **Business analytics** (not implemented)
+- ❌ **APM** (no performance monitoring)
 
-### 6. Testing Before Production
-- [x] Test all user flows (client, tradie, admin) - ✅ COMPLETE
-- [x] Verify RLS policies work correctly - ✅ WORKING
-- [ ] Load testing for expected traffic
-- [ ] Security audit
+## 🎯 Immediate Action Items
 
-### 7. Monitoring & Logging
-- [ ] Set up error tracking (Sentry, etc.)
-- [ ] Configure performance monitoring
-- [ ] Set up admin action audit log alerts
-- [ ] Database backup monitoring
+### Week 1: Security & Legal
+1. Run `npm audit fix` to resolve vulnerabilities
+2. Implement security headers (CSP, X-Frame-Options)
+3. Add Google Maps API referrer restrictions
+4. Create Terms of Service and Privacy Policy
+5. Remove/disable DevToolsPanel for production
 
-## Quick Reference Commands
+### Week 2: Reliability
+1. Set up error tracking (Sentry recommended)
+2. Implement structured logging
+3. Configure monitoring & alerts
+4. Set up CI/CD pipeline
+5. Perform load testing
 
-```bash
-# Check migration status
-supabase migration list --password "$PGPASSWORD"
+### Week 3: Compliance & Operations
+1. Implement audit logging
+2. Document PII retention policy
+3. Add GDPR consent management
+4. Set up automated backups testing
+5. Create runbooks for common issues
 
-# Fix migration sync issues
-supabase migration repair --status reverted 20250801
+## 🚀 Production Deployment Steps
 
-# Apply migrations
-sdb-push
+1. **Pre-deployment**:
+   - [ ] All critical issues resolved
+   - [ ] Security audit passed
+   - [ ] Load testing completed
+   - [ ] Legal documents in place
+   - [ ] Monitoring configured
 
-# Generate fresh types
-sdb-types
-```
+2. **Deployment**:
+   - [ ] Use CI/CD pipeline
+   - [ ] Enable gradual rollout
+   - [ ] Monitor error rates
+   - [ ] Have rollback ready
 
-## Files to Review Before Production
-1. `/src/components/DevToolsPanel.tsx` - Remove admin toggle (lines 469-519)
-2. `/.env.local` - Ensure not in version control
-3. Remove development-only features:
-   - Admin toggle in DevToolsPanel
-   - Development-only impersonation code
+3. **Post-deployment**:
+   - [ ] Monitor performance metrics
+   - [ ] Review error logs
+   - [ ] Gather user feedback
+   - [ ] Plan iteration cycle
 
-## Completed Items Summary ✅
-1. **Database Performance**: Fixed with indexes (30s → 1.3s)
-2. **Migration Sync**: All 12 migrations applied successfully
-3. **Admin Dashboard**: Fully implemented with all features
-4. **Business Settings**: Complete UI for business configuration
-5. **Twilio Settings**: Configuration interface ready
+## 📊 Success Metrics
 
-## Contact for Questions
-Document any questions or concerns in GitHub issues before deploying to production.
+- Error rate < 1%
+- Page load time < 3s
+- Uptime > 99.9%
+- Security scan: 0 high/critical issues
+- Test coverage > 80%
+
+## 🔗 Resources
+
+- [Security Best Practices](https://owasp.org/www-project-top-ten/)
+- [Performance Monitoring](https://web.dev/metrics/)
+- [GDPR Compliance](https://gdpr.eu/checklist/)
+- [Production Deployment Guide](../guides/DEPLOYMENT_GUIDE.md)
