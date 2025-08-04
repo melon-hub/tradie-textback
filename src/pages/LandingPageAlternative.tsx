@@ -82,27 +82,29 @@ export default function LandingPageAlternative() {
           </p>
         </div>
 
-        {/* Image and Benefits Section */}
-        <div className="grid lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
-          <div className="space-y-6">
-            <div className="space-y-4">
+        {/* Two Column Layout */}
+        <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto mt-16">
+          {/* Left Column - Content */}
+          <div className="space-y-8">
+            <div className="space-y-6">
               <div className="flex items-center space-x-3">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span>Capture leads you'd normally lose</span>
+                <CheckCircle className="h-6 w-6 text-green-500" />
+                <span className="text-lg">Capture leads you'd normally lose</span>
               </div>
               <div className="flex items-center space-x-3">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span>Faster quotes with photos upfront</span>
+                <CheckCircle className="h-6 w-6 text-green-500" />
+                <span className="text-lg">Faster quotes with photos upfront</span>
               </div>
               <div className="flex items-center space-x-3">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span>Zero new app to learn</span>
+                <CheckCircle className="h-6 w-6 text-green-500" />
+                <span className="text-lg">Zero new app to learn</span>
               </div>
             </div>
           </div>
           
-          <div className="relative">
-            <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+          {/* Right Column - Image */}
+          <div className="relative flex justify-center">
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl max-w-md">
               <img 
                 src={heroImage} 
                 alt="Tradie using phone on job site" 
