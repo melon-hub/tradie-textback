@@ -53,7 +53,7 @@ export default function LandingPageAlternative() {
           <Badge className="mb-4" variant="secondary">
             For Australian Tradies
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
             Turn Missed Calls Into
             <br />
             <span className="text-blue-600">Customers</span>
