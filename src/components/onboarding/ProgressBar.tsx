@@ -60,7 +60,7 @@ const getStepIcon = (component: string, isActive: boolean, isCompleted: boolean)
 // Get shorter labels for mobile
 const getShortLabel = (title: string) => {
   const shortLabels: Record<string, string> = {
-    'Welcome': 'Welcome',
+    'Welcome': 'Start',
     'Basic Information': 'Basic',
     'Business Details': 'Business',
     'Service Area': 'Area',
@@ -230,18 +230,12 @@ export default function ProgressBar({
       </div>
 
       {/* Step Indicators - Mobile/Tablet View */}
-      <div className="lg:hidden relative">
-        {/* Scroll Container with Fade Indicators */}
+      <div className="lg:hidden">
+        {/* Scroll Container */}
         <div className="relative">
-          {/* Left Fade Indicator */}
-          <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-          
-          {/* Right Fade Indicator */}
-          <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-          
           {/* Scrollable Content */}
           <div 
-            className="flex items-center space-x-3 overflow-x-auto pb-2 px-4 [&::-webkit-scrollbar]:hidden"
+            className="flex items-center overflow-x-auto pb-1 px-1 snap-x snap-mandatory no-scrollbar"
             style={{ 
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
@@ -253,62 +247,57 @@ export default function ProgressBar({
               const isClickable = isStepClickable(index);
 
               return (
-                <div key={step.id} className="flex-shrink-0 min-w-fit">
-                  <div className="flex items-center space-x-2">
-                    {/* Step Circle */}
-                    <div className="flex-shrink-0">
-                      {isClickable ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onStepClick?.(index)}
-                          className="p-1 h-auto hover:bg-transparent"
-                        >
-                          {getStepIndicator(index, step)}
-                        </Button>
-                      ) : (
-                        getStepIndicator(index, step)
-                      )}
-                    </div>
-
-                    {/* Step Label - Fixed height container */}
-                    <div className="flex flex-col min-w-[60px] h-12 justify-center">
-                      <div className="flex items-center space-x-1">
-                        {getStepIcon(step.component, status === 'active', status === 'completed')}
-                        <span className={cn(
-                          "text-xs font-medium whitespace-nowrap transition-colors",
-                          status === 'completed' ? "text-green-700" :
-                          status === 'active' ? "text-blue-700" :
-                          "text-gray-500"
-                        )}>
-                          {getShortLabel(step.title)}
-                        </span>
+                <div key={step.id} className="flex-shrink-0 first:ml-2">
+                  <div className="flex items-center">
+                    {/* Compact Step Display */}
+                    <div className="flex flex-col items-center">
+                      {/* Step Circle */}
+                      <div className="flex-shrink-0">
+                        {isClickable ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onStepClick?.(index)}
+                            className="p-0 h-auto hover:bg-transparent"
+                          >
+                            <div className={cn(
+                              "flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium transition-all",
+                              status === 'completed' ? "bg-green-100 text-green-700 border-2 border-green-600" :
+                              status === 'active' ? "bg-blue-100 text-blue-700 border-2 border-blue-600 ring-2 ring-blue-200" :
+                              status === 'previous' ? "bg-gray-100 text-gray-600 border-2 border-gray-400" :
+                              "bg-white text-gray-400 border-2 border-gray-300"
+                            )}>
+                              {status === 'completed' ? '✓' : index + 1}
+                            </div>
+                          </Button>
+                        ) : (
+                          <div className={cn(
+                            "flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium transition-all",
+                            status === 'completed' ? "bg-green-100 text-green-700 border-2 border-green-600" :
+                            status === 'active' ? "bg-blue-100 text-blue-700 border-2 border-blue-600 ring-2 ring-blue-200" :
+                            status === 'previous' ? "bg-gray-100 text-gray-600 border-2 border-gray-400" :
+                            "bg-white text-gray-400 border-2 border-gray-300"
+                          )}>
+                            {status === 'completed' ? '✓' : index + 1}
+                          </div>
+                        )}
                       </div>
                       
-                      {/* Status indicators - Fixed positioning */}
-                      <div className="flex items-center space-x-1 mt-1 h-4">
-                        {status === 'active' && (
-                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 px-1 py-0 h-4 leading-none">
-                            Now
-                          </Badge>
-                        )}
-                        {status === 'completed' && (
-                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 px-1 py-0 h-4 leading-none">
-                            ✓
-                          </Badge>
-                        )}
-                        {!step.required && status !== 'completed' && (
-                          <Badge variant="outline" className="text-xs px-1 py-0 h-4 leading-none">
-                            Opt
-                          </Badge>
-                        )}
-                      </div>
+                      {/* Step Label Below Circle */}
+                      <span className={cn(
+                        "text-[10px] font-medium mt-1 whitespace-nowrap",
+                        status === 'completed' ? "text-green-700" :
+                        status === 'active' ? "text-blue-700" :
+                        "text-gray-500"
+                      )}>
+                        {getShortLabel(step.title)}
+                      </span>
                     </div>
 
-                    {/* Connection Line for mobile */}
+                    {/* Connection Line */}
                     {index < steps.length - 1 && (
                       <div className={cn(
-                        "w-3 h-0.5 transition-colors flex-shrink-0",
+                        "w-3 h-0.5 mx-0.5 mt-[-16px] flex-shrink-0",
                         status === 'completed' ? "bg-green-600" :
                         status === 'active' ? "bg-blue-600" : "bg-gray-300"
                       )} />
@@ -318,13 +307,14 @@ export default function ProgressBar({
               );
             })}
             {/* Extra padding to ensure last step is fully visible */}
-            <div className="w-2 flex-shrink-0" />
+            <div className="w-8 flex-shrink-0" />
           </div>
+          
         </div>
         
-        {/* Scroll Hint */}
-        <div className="text-center mt-2">
-          <span className="text-xs text-gray-400">← Swipe to see all steps →</span>
+        {/* Mobile Step Info */}
+        <div className="text-center mt-3 text-xs text-gray-600">
+          Step {currentStep + 1} of {totalSteps} • Swipe to navigate
         </div>
       </div>
 
