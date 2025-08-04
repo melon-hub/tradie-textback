@@ -51,7 +51,7 @@ export default function LandingPageAlternative() {
         {/* Header - Centered */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <Badge className="mb-4" variant="secondary">
-            For Australian Tradies
+            🇦🇺 For Australian Tradies
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
             Turn Missed Calls Into
