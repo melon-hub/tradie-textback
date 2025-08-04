@@ -63,7 +63,7 @@ export default function LandingPageAlternative() {
         {/* Two Column Layout */}
         <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">
           {/* Left Column - All Content */}
-          <div className="space-y-8">
+          <div className="space-y-8 pl-8">
             <p className="text-xl text-gray-600 mb-8">
               Automatically respond to missed calls with SMS. Never lose a job because you were on site.
             </p>
