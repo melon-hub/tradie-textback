@@ -37,11 +37,14 @@ import {
   Shield,
   Briefcase,
   LogIn,
-  Search
+  Search,
+  FormInput
 } from "lucide-react";
 import { DevAuthSwitch, DevRole } from "@/lib/dev-auth-switch";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { OnboardingMockDataFiller } from "@/components/dev/OnboardingMockDataFiller";
+import { OnboardingPresets } from "@/components/dev/OnboardingPresets";
 
 // Route configuration
 const ROUTES = [
@@ -410,7 +413,7 @@ export function DevDrawer() {
           </div>
 
           <Tabs defaultValue="navigate" className="mt-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="navigate">
                 <Navigation className="h-4 w-4 mr-1" />
                 Navigate
@@ -422,6 +425,10 @@ export function DevDrawer() {
               <TabsTrigger value="tools">
                 <Database className="h-4 w-4 mr-1" />
                 Tools
+              </TabsTrigger>
+              <TabsTrigger value="onboarding">
+                <FormInput className="h-4 w-4 mr-1" />
+                Onboard
               </TabsTrigger>
             </TabsList>
 
@@ -464,6 +471,14 @@ export function DevDrawer() {
 
             {/* Auth Tab */}
             <TabsContent value="auth" className="space-y-4">
+              {/* Onboarding Test Users (Dev Only) */}
+              {isDevMode && !isDemoMode && (
+                <>
+                  <OnboardingPresets />
+                  <Separator />
+                </>
+              )}
+              
               <div>
                 <Label>Quick Dev Login</Label>
                 <p className="text-sm text-muted-foreground mb-3">
@@ -684,6 +699,11 @@ export function DevDrawer() {
                   </p>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* Onboarding Tab */}
+            <TabsContent value="onboarding" className="space-y-4">
+              <OnboardingMockDataFiller />
             </TabsContent>
           </Tabs>
         </SheetContent>

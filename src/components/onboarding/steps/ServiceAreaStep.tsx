@@ -19,6 +19,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { X, MapPin, Radius, Plus } from 'lucide-react';
 import { useOnboarding } from '../OnboardingContext';
+import ServiceAreaMap from '@/components/maps/ServiceAreaMap';
 
 // Form validation schema
 const serviceAreaSchema = z.object({
@@ -27,7 +28,7 @@ const serviceAreaSchema = z.object({
   }),
   service_postcodes: z.array(z.string().regex(/^\d{4}$/, 'Postcode must be 4 digits')).optional(),
   service_radius_km: z.number().min(1).max(200).optional(),
-  radius_center_address: z.string().optional(),
+  radius_center_address: z.string().min(1, 'Please enter your base location').optional(),
 }).refine((data) => {
   if (data.area_type === 'postcodes') {
     return data.service_postcodes && data.service_postcodes.length > 0;
@@ -38,11 +39,11 @@ const serviceAreaSchema = z.object({
   path: ["service_postcodes"],
 }).refine((data) => {
   if (data.area_type === 'radius') {
-    return data.service_radius_km && data.service_radius_km > 0;
+    return data.service_radius_km && data.service_radius_km > 0 && data.radius_center_address;
   }
   return true;
 }, {
-  message: "Radius is required when using radius-based service area",
+  message: "Radius and base location are required when using radius-based service area",
   path: ["service_radius_km"],
 });
 
@@ -74,13 +75,26 @@ export default function ServiceAreaStep() {
                   'postcodes') as 'postcodes' | 'radius',
       service_postcodes: state.formData.serviceArea.service_postcodes || [],
       service_radius_km: state.formData.serviceArea.service_radius_km || 25,
-      radius_center_address: '',
+      radius_center_address: state.formData.serviceArea.radius_center_address || '',
     },
     mode: 'onChange',
   });
 
-  const { watch, setValue, getValues } = form;
+  const { watch, setValue, getValues, reset } = form;
   const watchedValues = watch();
+
+  // Update form when context data changes
+  useEffect(() => {
+    const contextData = state.formData.serviceArea;
+    if (contextData && Object.keys(contextData).length > 0) {
+      reset({
+        area_type: contextData.area_type || 'postcodes',
+        service_postcodes: contextData.service_postcodes || [],
+        service_radius_km: contextData.service_radius_km || undefined,
+        radius_center_address: contextData.radius_center_address || '',
+      });
+    }
+  }, [state.formData.serviceArea, reset]);
 
   // Auto-save form data changes
   useEffect(() => {
@@ -147,7 +161,7 @@ export default function ServiceAreaStep() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-2">
       <Form {...form}>
         <form className="space-y-6">
           {/* Service Area Type Selection */}
@@ -318,17 +332,54 @@ export default function ServiceAreaStep() {
                   )}
                 />
 
-                {/* Map placeholder */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
-                  <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 font-medium">Interactive Map</p>
-                  <p className="text-sm text-gray-500">
-                    Map view will be available to visualize your service area
-                  </p>
-                  {watchedValues.service_radius_km && (
-                    <p className="text-sm text-blue-600 mt-2">
-                      Current radius: {watchedValues.service_radius_km}km
-                    </p>
+                {/* Address input */}
+                <FormField
+                  control={form.control}
+                  name="radius_center_address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Base Location Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your base location (e.g., 123 Main St, Suburb)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        This is the central point from which your service radius will be measured
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Map visualization */}
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-gray-900">Service Area Visualization</h4>
+                    {watchedValues.radius_center_address && watchedValues.service_radius_km && (
+                      <span className="text-sm text-blue-600">
+                        {watchedValues.service_radius_km}km radius
+                      </span>
+                    )}
+                  </div>
+                  
+                  {watchedValues.radius_center_address ? (
+                    <ServiceAreaMap 
+                      centerAddress={watchedValues.radius_center_address}
+                      radiusKm={watchedValues.service_radius_km || 25}
+                      className="w-full h-64"
+                    />
+                  ) : (
+                    <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-8 text-center h-64 flex items-center justify-center">
+                      <div>
+                        <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-600 font-medium">Enter your base address</p>
+                        <p className="text-sm text-gray-500">
+                          Please enter your base location to visualize your service area
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
               </CardContent>

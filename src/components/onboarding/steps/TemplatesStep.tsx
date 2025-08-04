@@ -102,14 +102,33 @@ export default function TemplatesStep() {
     mode: 'onChange',
   });
 
-  const { watch, setValue, getValues } = form;
+  const { watch, setValue, getValues, reset } = form;
   const watchedValues = watch();
+
+  // Update form when context data changes
+  useEffect(() => {
+    const contextTemplates = state.formData.smsTemplates;
+    if (contextTemplates && Array.isArray(contextTemplates) && contextTemplates.length > 0) {
+      const formData: any = {};
+      contextTemplates.forEach((template: any) => {
+        if (template.template_type && template.content) {
+          formData[template.template_type] = template.content;
+        }
+      });
+      
+      reset({
+        missed_call: formData.missed_call || TEMPLATE_CONFIGS.find(t => t.type === 'missed_call')?.defaultContent || '',
+        after_hours: formData.after_hours || TEMPLATE_CONFIGS.find(t => t.type === 'after_hours')?.defaultContent || '',
+        job_confirmation: formData.job_confirmation || TEMPLATE_CONFIGS.find(t => t.type === 'job_confirmation')?.defaultContent || '',
+      });
+    }
+  }, [state.formData.smsTemplates, reset]);
 
   // Auto-save form data changes
   useEffect(() => {
     const subscription = form.watch((value) => {
       const templates: SMSTemplateData[] = Object.entries(value).map(([type, content]) => ({
-        template_type: type,
+        template_type: type as any, // Type assertion for template_type
         content: content || '',
         variables: TEMPLATE_CONFIGS.find(config => config.type === type)?.availableVariables || [],
       }));
@@ -168,13 +187,9 @@ export default function TemplatesStep() {
   const currentTemplate = getCurrentTemplate();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-2">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="flex items-center justify-center space-x-2">
-          <MessageSquare className="h-5 w-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">SMS Templates</h3>
-        </div>
         <p className="text-sm text-gray-600">
           Customize your automated messages to customers. You can use variables like {'{customer_name}'} 
           to personalize each message.

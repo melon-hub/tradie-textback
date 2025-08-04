@@ -1,8 +1,46 @@
 # User Flow Diagrams
 
+<!-- Updated: 2025-08-04 - Added comprehensive onboarding flow with 6-step wizard -->
+
 ## Current System Flows
 
-### 1. New Visitor Flow (Unauthenticated)
+### 1. New Tradie Onboarding Flow (Public Signup)
+
+```
+┌─────────────────┐
+│   Landing Page  │
+│       (/)       │
+│ "Start 14-Day  │
+│  Free Trial"    │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────┐
+│          Onboarding Wizard                  │
+│         (/get-started)                      │
+│                                             │
+│  Step 1: Welcome                            │
+│  Step 2: Basic Info (Name, Trade, Phone)   │
+│  Step 3: Business Details (ABN, License)   │
+│  Step 4: Service Areas (Postcodes/Radius)  │
+│  Step 5: SMS Templates (Optional)          │
+│  Step 6: Review & Confirm                  │
+└────────────────┬────────────────────────────┘
+                 │
+                 ▼
+         ┌───────────────┐
+         │ Email Capture │
+         │  & Preview    │
+         └───────┬───────┘
+                 │
+                 ▼
+         ┌───────────────┐     ┌──────────────┐
+         │  Magic Link   │────▶│  Dashboard   │
+         │   Sent        │     │ (Onboarded) │
+         └───────────────┘     └──────────────┘
+```
+
+### 2. Existing User Login Flow
 
 ```
 ┌─────────────────┐
@@ -31,7 +69,7 @@
                       └─────────────────┘
 ```
 
-### 2. Client Flow (Customer) - NEEDS FIXING
+### 3. Client Flow (Customer) - NEEDS FIXING
 
 ```
 ┌─────────────────┐
@@ -60,7 +98,7 @@
 Note: Clients can only see their own jobs
 ```
 
-### 3. Tradie Flow (Business Owner) - NEEDS FIXING
+### 4. Tradie Flow (Business Owner) - NEEDS FIXING
 
 ```
 ┌─────────────────────┐
@@ -89,7 +127,7 @@ Note: Clients can only see their own jobs
              └──────────┘
 ```
 
-### 4. Admin Flow
+### 5. Admin Flow
 
 ```
 ┌────────────────────┐

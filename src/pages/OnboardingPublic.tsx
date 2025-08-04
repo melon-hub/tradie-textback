@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Mail } from 'lucide-react';
+import { EmailPreview } from '@/components/onboarding/EmailPreview';
 
 /**
  * Public onboarding flow for new users
@@ -86,57 +87,70 @@ export default function OnboardingPublic() {
   // Show email collection step
   if (showEmailStep) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Mail className="w-8 h-8 text-green-600" />
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Email Collection Card */}
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-8 h-8 text-green-600" />
+              </div>
+              <CardTitle className="text-2xl">Almost Done!</CardTitle>
+              <CardDescription>
+                Enter your email to create your account and start your free trial
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleCreateAccount} className="space-y-4">
+                <div>
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoFocus
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    We'll send you a magic link to sign in
+                  </p>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isSubmitting || !email}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating Account...
+                    </>
+                  ) : (
+                    'Start Free Trial'
+                  )}
+                </Button>
+
+                <div className="text-center text-sm text-gray-500">
+                  <p>By signing up, you agree to our Terms of Service</p>
+                  <p>and Privacy Policy</p>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Email Preview */}
+          {email && onboardingData && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4 text-center">
+                Here's what you'll receive:
+              </h3>
+              <EmailPreview formData={onboardingData} email={email} />
             </div>
-            <CardTitle className="text-2xl">Almost Done!</CardTitle>
-            <CardDescription>
-              Enter your email to create your account and start your free trial
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreateAccount} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoFocus
-                />
-                <p className="text-sm text-gray-500 mt-1">
-                  We'll send you a magic link to sign in
-                </p>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isSubmitting || !email}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating Account...
-                  </>
-                ) : (
-                  'Start Free Trial'
-                )}
-              </Button>
-
-              <div className="text-center text-sm text-gray-500">
-                <p>By signing up, you agree to our Terms of Service</p>
-                <p>and Privacy Policy</p>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+          )}
+        </div>
       </div>
     );
   }

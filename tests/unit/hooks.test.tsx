@@ -3,7 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { supabase } from '@/integrations/supabase/client';
-import { testUser, testTradieProfile } from '../setup-test';
+import { testUser, testTradieProfile, createIncompleteProfile } from '../setup-test';
 
 // Remove the global mock for now
 // vi.mock('@/hooks/useAuth');
@@ -42,7 +42,7 @@ describe('useAuth Hook', () => {
     expect(result.current.profile).toBeNull();
   });
 
-  it('should load user and profile', async () => {
+  it('should load user and complete profile', async () => {
     // Setup mock to return user
     vi.mocked(supabase.auth.getSession).mockResolvedValue({
       data: { session: { user: testUser } as any },
@@ -68,6 +68,49 @@ describe('useAuth Hook', () => {
 
     expect(result.current.user).toEqual(testUser);
     expect(result.current.profile).toEqual(testTradieProfile);
+    
+    // Test enhanced profile fields
+    expect(result.current.profile?.onboarding_completed).toBe(true);
+    expect(result.current.profile?.trade_primary).toBe('plumber');
+    expect(result.current.profile?.business_name).toBe('Test Plumbing Services');
+  });
+
+  it('should load user with incomplete onboarding profile', async () => {
+    const incompleteProfile = createIncompleteProfile({
+      user_id: testUser.id,
+      onboarding_step: 3,
+    });
+
+    // Setup mock to return user
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: { user: testUser } as any },
+      error: null,
+    } as any);
+    
+    // Mock the profiles query using maybeSingle
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: incompleteProfile,
+        error: null,
+      }),
+    } as any);
+
+    const { result } = renderHook(() => useAuth());
+
+    await waitFor(() => {
+      expect(result.current).toBeDefined();
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.user).toEqual(testUser);
+    expect(result.current.profile).toEqual(incompleteProfile);
+    
+    // Test incomplete onboarding state
+    expect(result.current.profile?.onboarding_completed).toBe(false);
+    expect(result.current.profile?.onboarding_step).toBe(3);
+    expect(result.current.profile?.trade_primary).toBeNull();
   });
 });
 
@@ -114,5 +157,31 @@ describe('useAnalytics Hook', () => {
     
     expect(result.current.analytics).toBeNull();
     expect(result.current.error).toBeNull();
+  });
+
+  it('should handle profile with enhanced schema fields', async () => {
+    // Mock supabase for auth
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: { user: testUser } as any },
+      error: null,
+    } as any);
+    
+    vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+      data: { 
+        subscription: { 
+          unsubscribe: vi.fn() 
+        } 
+      },
+      error: null
+    } as any);
+
+    const { result } = renderHook(() => useAnalytics());
+    
+    await waitFor(() => {
+      expect(result.current).toBeDefined();
+    });
+    
+    // Should handle the enhanced profile schema without errors
+    expect(result.current.loading).toBe(false);
   });
 });

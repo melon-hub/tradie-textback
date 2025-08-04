@@ -70,9 +70,11 @@ Use the Task tool with:
 
 ### 3. Development Server
 - **Default port is 8080** (configured in vite.config.ts)
+- **IMPORTANT: Always check what's running before starting server** with `lsof -i :8080`
+- **Only run on port 8080** - do not let Vite auto-increment ports
+- **If port 8080 is in use**, the existing server is already running - use that instead
 - **Never hardcode ports** - use dynamic port detection
 - **Dev tools should use**: `window.location.port || '8080'`
-- **Server may use different ports** if 8080 is busy
 
 ### 4. RLS (Row Level Security) Policies
 - **Clients can only see their own jobs** (filtered by client_id)
@@ -130,7 +132,9 @@ npm run dev
 1. Check current branch and status
 2. **FIRST**: Check for .env.local file with `ls -la .env*`
 3. **SECOND**: Sync remote migrations with `supabase db pull`
-4. Run `npm run dev` to start server
+4. **CHECK SERVER**: Run `lsof -i :8080` to see if dev server is already running
+   - If running, use existing server at http://localhost:8080
+   - If not running, then run `npm run dev` to start server
 5. Open DevToolsPanel to test logins
 6. Use `sdb-push` if database changes are needed
 

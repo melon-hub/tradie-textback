@@ -103,10 +103,9 @@ export default function ReviewStep() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-2">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h3 className="text-lg font-semibold text-gray-900">Review Your Information</h3>
         <p className="text-sm text-gray-600">
           Please review all details before completing your account setup
         </p>

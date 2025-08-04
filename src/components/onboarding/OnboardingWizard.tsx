@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useOnboarding } from './OnboardingContext';
 import { ONBOARDING_STEPS } from '@/types/onboarding';
 import { cn } from '@/lib/utils';
+import { useOnboardingDevTools } from '@/hooks/useOnboardingDevTools';
 
 // Step components imports
 import BasicInfoStep from './steps/BasicInfoStep';
@@ -37,13 +38,33 @@ export default function OnboardingWizard({
     previousStep, 
     goToStep,
     validateCurrentStep,
-    saveProgress 
+    saveProgress,
+    dispatch
   } = useOnboarding();
+  
+  // Enable dev tools in development mode
+  useOnboardingDevTools();
 
   const currentStepData = ONBOARDING_STEPS[state.currentStep];
   const isFirstStep = state.currentStep === 0;
   const isLastStep = state.currentStep === ONBOARDING_STEPS.length - 1;
-  const canGoNext = validateCurrentStep() || !currentStepData?.required;
+  
+  // Automatically validate welcome step (step 0) since it has no required fields
+  const canGoNext = state.currentStep === 0 ? true : (validateCurrentStep() || !currentStepData?.required);
+
+  // Automatically mark welcome step as valid
+  React.useEffect(() => {
+    if (state.currentStep === 0) {
+      dispatch({
+        type: 'SET_STEP_VALIDATION',
+        payload: {
+          stepId: 0,
+          isValid: true,
+          errors: [],
+        },
+      });
+    }
+  }, [state.currentStep, dispatch]);
   const progressPercentage = ((state.currentStep + 1) / ONBOARDING_STEPS.length) * 100;
 
   const handleNext = async () => {
@@ -158,53 +179,164 @@ export default function OnboardingWizard({
   return (
     <div className={cn("min-h-screen bg-gray-50 py-4 px-4", className)}>
       <div className="max-w-2xl mx-auto">
-        {/* Header with close button */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-lg font-semibold text-gray-900">
-              Account Setup
-            </h1>
-            {showCloseButton && onClose && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
+        {/* Integrated Header Card */}
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            {/* Top row: Title, Progress Bar, Step counter */}
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-lg font-semibold text-gray-900">
+                Account Setup
+              </h1>
+              
+              {/* Center: Progress bar with percentage */}
+              <div className="flex-1 max-w-xs mx-6">
+                <div className="flex items-center space-x-3">
+                  <Progress value={progressPercentage} className="h-1.5 flex-1" />
+                  <span className="text-sm font-medium text-gray-600 whitespace-nowrap">
+                    {Math.round(progressPercentage)}%
+                  </span>
+                </div>
+              </div>
 
-          {/* Progress Bar Component */}
-          <ProgressBar
-            currentStep={state.currentStep}
-            totalSteps={ONBOARDING_STEPS.length}
-            steps={ONBOARDING_STEPS}
-            onStepClick={goToStep}
-            allowSkip={!currentStepData?.required}
-            completedSteps={Object.keys(state.stepValidation)
-              .filter(stepId => state.stepValidation[parseInt(stepId)]?.isValid)
-              .map(stepId => parseInt(stepId))}
-            validSteps={Object.keys(state.stepValidation)
-              .filter(stepId => state.stepValidation[parseInt(stepId)]?.isValid)
-              .map(stepId => parseInt(stepId))}
-          />
-        </div>
+              {/* Right: Step counter and close button */}
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  Step {state.currentStep + 1} of {ONBOARDING_STEPS.length}
+                </span>
+                {showCloseButton && onClose && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClose}
+                    className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Bottom row: Step indicators */}
+            <div className="border-t pt-4">
+              {/* Desktop Step Indicators */}
+              <div className="hidden md:block">
+                {/* Grid container for perfect alignment */}
+                <div className="grid grid-cols-7 gap-0 items-start">
+                  {ONBOARDING_STEPS.map((step, index) => {
+                    const isActive = index === state.currentStep;
+                    const isCompleted = Object.keys(state.stepValidation)
+                      .filter(stepId => state.stepValidation[parseInt(stepId)]?.isValid)
+                      .map(stepId => parseInt(stepId))
+                      .includes(index);
+                    const isClickable = index < state.currentStep || 
+                      (index === state.currentStep + 1 && Object.keys(state.stepValidation)
+                        .filter(stepId => state.stepValidation[parseInt(stepId)]?.isValid)
+                        .map(stepId => parseInt(stepId))
+                        .includes(state.currentStep));
+
+                    return (
+                      <div key={step.id} className="flex flex-col items-center">
+                        {/* Circle container */}
+                        <div className="flex items-center justify-center mb-1">
+                            {isClickable && goToStep ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => goToStep(index)}
+                                className="p-0 h-auto hover:bg-transparent"
+                              >
+                                <div className={cn(
+                                  "flex items-center justify-center w-6 h-6 rounded-full border text-xs font-medium transition-colors",
+                                  isCompleted 
+                                    ? "bg-green-100 border-green-600 text-green-600"
+                                    : isActive 
+                                    ? "bg-blue-100 border-blue-600 text-blue-600"
+                                    : "bg-white border-gray-300 text-gray-400"
+                                )}>
+                                  {isCompleted ? "✓" : index + 1}
+                                </div>
+                              </Button>
+                            ) : (
+                              <div className={cn(
+                                "flex items-center justify-center w-6 h-6 rounded-full border text-xs font-medium transition-colors",
+                                isCompleted 
+                                  ? "bg-green-100 border-green-600 text-green-600"
+                                  : isActive 
+                                  ? "bg-blue-100 border-blue-600 text-blue-600"
+                                  : "bg-white border-gray-300 text-gray-400"
+                              )}>
+                                {isCompleted ? "✓" : index + 1}
+                              </div>
+                            )}
+                        </div>
+
+                        {/* Step Label */}
+                        <div className="px-1">
+                          <span className={cn(
+                            "text-xs text-center block transition-colors leading-tight",
+                            isCompleted 
+                              ? "text-green-700 font-medium"
+                              : isActive 
+                              ? "text-blue-700 font-medium"
+                              : "text-gray-500"
+                          )}>
+                            {step.title}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Mobile Step Indicators */}
+              <div className="md:hidden flex items-start space-x-1 overflow-x-auto pb-2">
+                {ONBOARDING_STEPS.map((step, index) => {
+                  const isActive = index === state.currentStep;
+                  const isCompleted = Object.keys(state.stepValidation)
+                    .filter(stepId => state.stepValidation[parseInt(stepId)]?.isValid)
+                    .map(stepId => parseInt(stepId))
+                    .includes(index);
+                  const shortLabel = step.title.split(' ')[0];
+
+                  return (
+                    <div key={step.id} className="flex flex-col items-center flex-shrink-0">
+                      {/* Step Circle Container - Fixed height with absolute positioning for perfect alignment */}
+                      <div className="relative flex items-center justify-center h-6 w-8">
+                        <div className="absolute top-0.5 left-1/2 transform -translate-x-1/2">
+                          <div className={cn(
+                            "flex items-center justify-center w-5 h-5 rounded-full border text-xs font-medium transition-colors",
+                            isCompleted 
+                              ? "bg-green-100 border-green-600 text-green-600"
+                              : isActive 
+                              ? "bg-blue-100 border-blue-600 text-blue-600"
+                              : "bg-white border-gray-300 text-gray-400"
+                          )}>
+                            {isCompleted ? "✓" : index + 1}
+                          </div>
+                        </div>
+                      </div>
+                      <span className={cn(
+                        "text-xs mt-1 transition-colors leading-tight",
+                        isCompleted 
+                          ? "text-green-700"
+                          : isActive 
+                          ? "text-blue-700"
+                          : "text-gray-500"
+                      )}>
+                        {shortLabel}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Main content card */}
         <Card className="mb-6">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl">
-              {currentStepData?.title || 'Loading...'}
-            </CardTitle>
-            {currentStepData?.description && (
-              <p className="text-gray-600 text-sm">
-                {currentStepData.description}
-              </p>
-            )}
-          </CardHeader>
-          <CardContent className="px-6 pb-6">
+          <CardContent className="px-6 py-6">
             {state.isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -247,7 +379,7 @@ export default function OnboardingWizard({
 
             <Button
               onClick={handleNext}
-              disabled={!canGoNext || state.isLoading || isLastStep}
+              disabled={!canGoNext || state.isLoading}
               className="flex items-center space-x-2"
             >
               <span>{isLastStep ? 'Complete' : 'Next'}</span>

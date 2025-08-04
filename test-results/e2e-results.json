@@ -974,14 +974,639 @@
           ]
         }
       ]
+    },
+    {
+      "title": "onboarding.spec.ts",
+      "file": "onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Onboarding Flow E2E Tests",
+          "file": "onboarding.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should redirect new user to onboarding after login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-89700a9a3ba57febeb03",
+              "file": "onboarding.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "should resume onboarding at correct step for partial user",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-60ce397376a590b5e400",
+              "file": "onboarding.spec.ts",
+              "line": 59,
+              "column": 3
+            },
+            {
+              "title": "should complete basic info step",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-eb5e1c5ef1b1d5457f1c",
+              "file": "onboarding.spec.ts",
+              "line": 78,
+              "column": 3
+            },
+            {
+              "title": "should complete business details step",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-6e5dc128d94cf8edc305",
+              "file": "onboarding.spec.ts",
+              "line": 109,
+              "column": 3
+            },
+            {
+              "title": "should handle service area configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-4de0d1852d49ba2411c0",
+              "file": "onboarding.spec.ts",
+              "line": 130,
+              "column": 3
+            },
+            {
+              "title": "should show SMS templates configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-1be30113b1a6c0739c3c",
+              "file": "onboarding.spec.ts",
+              "line": 151,
+              "column": 3
+            },
+            {
+              "title": "should complete full onboarding flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-96fdd22734b2626f0b4d",
+              "file": "onboarding.spec.ts",
+              "line": 175,
+              "column": 3
+            },
+            {
+              "title": "should redirect completed user to dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-89a106a081790baf0f10",
+              "file": "onboarding.spec.ts",
+              "line": 233,
+              "column": 3
+            },
+            {
+              "title": "should show progress throughout onboarding",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-4b35fd8132ae4113e6a9",
+              "file": "onboarding.spec.ts",
+              "line": 249,
+              "column": 3
+            },
+            {
+              "title": "should allow skipping optional steps",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-bb24bf95d6f41fa29e4c",
+              "file": "onboarding.spec.ts",
+              "line": 272,
+              "column": 3
+            },
+            {
+              "title": "should validate required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-783d13532e76d3af3bcb",
+              "file": "onboarding.spec.ts",
+              "line": 292,
+              "column": 3
+            },
+            {
+              "title": "should be mobile responsive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-ce13290b2b17f217f3a4",
+              "file": "onboarding.spec.ts",
+              "line": 315,
+              "column": 3
+            },
+            {
+              "title": "should redirect new user to onboarding after login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-32634e0f0634b3b7ef40",
+              "file": "onboarding.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "should resume onboarding at correct step for partial user",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-7eaf20532edec0220dc9",
+              "file": "onboarding.spec.ts",
+              "line": 59,
+              "column": 3
+            },
+            {
+              "title": "should complete basic info step",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-adb588b9f1c82dbfa982",
+              "file": "onboarding.spec.ts",
+              "line": 78,
+              "column": 3
+            },
+            {
+              "title": "should complete business details step",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-9f0b2498bd8719112654",
+              "file": "onboarding.spec.ts",
+              "line": 109,
+              "column": 3
+            },
+            {
+              "title": "should handle service area configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-d54d7b7e978d11d71e37",
+              "file": "onboarding.spec.ts",
+              "line": 130,
+              "column": 3
+            },
+            {
+              "title": "should show SMS templates configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-363ba710d50d7536830f",
+              "file": "onboarding.spec.ts",
+              "line": 151,
+              "column": 3
+            },
+            {
+              "title": "should complete full onboarding flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-2cc3f3c48bfbbdcb2561",
+              "file": "onboarding.spec.ts",
+              "line": 175,
+              "column": 3
+            },
+            {
+              "title": "should redirect completed user to dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-90a4575576d6302e5a98",
+              "file": "onboarding.spec.ts",
+              "line": 233,
+              "column": 3
+            },
+            {
+              "title": "should show progress throughout onboarding",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-43dbf165112285aa340a",
+              "file": "onboarding.spec.ts",
+              "line": 249,
+              "column": 3
+            },
+            {
+              "title": "should allow skipping optional steps",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-0de836b153693984f247",
+              "file": "onboarding.spec.ts",
+              "line": 272,
+              "column": 3
+            },
+            {
+              "title": "should validate required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-7d68c3984b6dc7685f99",
+              "file": "onboarding.spec.ts",
+              "line": 292,
+              "column": 3
+            },
+            {
+              "title": "should be mobile responsive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-d1d0ec4b796c7f37c11b",
+              "file": "onboarding.spec.ts",
+              "line": 315,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Onboarding Navigation & UX",
+          "file": "onboarding.spec.ts",
+          "line": 345,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should allow navigating back and forth between steps",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-2dc8fb617060b4b1c77b",
+              "file": "onboarding.spec.ts",
+              "line": 346,
+              "column": 3
+            },
+            {
+              "title": "should save progress automatically",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-5c174a391adf2bfc4c4e",
+              "file": "onboarding.spec.ts",
+              "line": 370,
+              "column": 3
+            },
+            {
+              "title": "should show helpful tooltips and instructions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-4048a9f5266285babe8d",
+              "file": "onboarding.spec.ts",
+              "line": 397,
+              "column": 3
+            },
+            {
+              "title": "should allow navigating back and forth between steps",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-32ae4099e67329238f82",
+              "file": "onboarding.spec.ts",
+              "line": 346,
+              "column": 3
+            },
+            {
+              "title": "should save progress automatically",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-069164e120fc2a6dfc06",
+              "file": "onboarding.spec.ts",
+              "line": 370,
+              "column": 3
+            },
+            {
+              "title": "should show helpful tooltips and instructions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe534f0825407f213faa-d326fc4c5cb479b9aec3",
+              "file": "onboarding.spec.ts",
+              "line": 397,
+              "column": 3
+            }
+          ]
+        }
+      ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-02T19:22:54.612Z",
-    "duration": 23.610000000000014,
+    "startTime": "2025-08-04T13:01:56.472Z",
+    "duration": 154.49899999999997,
     "expected": 0,
-    "skipped": 42,
+    "skipped": 72,
     "unexpected": 0,
     "flaky": 0
   }

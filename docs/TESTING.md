@@ -1,6 +1,7 @@
 # Testing Guide - Tradie Textback
 
 <!-- Updated: 2025-08-03 - Added onboarding schema changes notice and updated test requirements -->
+<!-- Updated: 2025-08-04 - Updated test status to reflect all 106 passing tests and new coverage areas -->
 
 ## Overview
 
@@ -45,25 +46,29 @@ npm run test:dashboard
 
 ## Current Test Status
 
-As of 2025-08-03:
-- **Unit Tests**: 12/14 passing (86% pass rate)
-- **E2E Tests**: 42 tests configured (21 desktop + 21 mobile)
-- **Test Files**: 4 unit test files, 2 E2E test files
+As of 2025-08-04:
+- **Unit Tests**: 106/106 passing (100% pass rate) ✅
+- **E2E Tests**: 72 tests total (30 onboarding + 42 general)
+- **Test Files**: 9 unit test files, 3 E2E test files
 - **Coverage Target**: 80% lines, functions, statements; 70% branches
 - **Test Infrastructure**: Fully configured with Vitest, React Testing Library, Playwright
-- **⚠️ Schema Changes**: Database schema updated with onboarding tables - tests may need updating
+- **✅ Schema Updates Complete**: All tests updated for new onboarding tables
 
-### Passing Tests:
-✅ Example tests (4/4)
-✅ Utility function tests (5/5)
-✅ Auth hook basic test (1/2)
-✅ Component tests (2/2)
+### Test Suite Breakdown:
+✅ Trade Types Service (12/12)
+✅ Service Locations Service (18/18)
+✅ SMS Templates Service (22/22)
+✅ Onboarding Integration (17/17)
+✅ RLS Security Policies (18/18)
+✅ Component Tests (10/10)
+✅ Hook Tests (5/5)
+✅ Utility Tests (4/4)
 
-### Known Issues:
-- 2 hook tests need fixing (mocking configuration)
-- Coverage reporting configured but needs baseline generation
-- E2E tests require dev server running on port 8080
-- **Schema-dependent tests may fail** until test data is updated for new onboarding tables
+### Test Infrastructure:
+- Comprehensive mock system for all new tables
+- Factory functions for test data generation
+- E2E tests for complete onboarding flow
+- Security tests for RLS policy validation
 
 ## Test Types
 

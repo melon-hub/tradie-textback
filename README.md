@@ -168,6 +168,24 @@ This project is built with:
 - **External APIs**: Twilio (SMS), Google Maps (Location)
 - **Testing**: Vitest, React Testing Library, Playwright
 
+## Google Maps API Setup
+
+To enable the service area visualization feature, you need to set up a Google Maps API key:
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the following APIs:
+   - Maps JavaScript API
+   - Geocoding API
+4. Create an API key under "Credentials"
+5. Add your API key to the `.env` file:
+   ```env
+   VITE_GOOGLE_MAPS_API_KEY=your-actual-api-key-here
+   ```
+6. For development, also add it to `.env.local` if you have that file
+
+**Note**: The map feature will work without an API key, but it's recommended to add one for production use.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/17ebc76a-2297-472d-aba2-aae2d54dd873) and click on Share -> Publish.

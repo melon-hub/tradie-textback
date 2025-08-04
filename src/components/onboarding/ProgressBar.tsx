@@ -151,32 +151,35 @@ export default function ProgressBar({
       </div>
 
       {/* Step Indicators - Desktop View */}
-      <div className="hidden lg:flex items-center justify-between space-x-4">
+      <div className="hidden lg:flex items-start justify-between space-x-4">
         {steps.map((step, index) => {
           const status = getStepStatus(index);
           const isClickable = isStepClickable(index);
 
           return (
-            <div key={step.id} className="flex flex-col items-center space-y-2 flex-1">
-              {/* Step Indicator */}
-              <div className="relative">
-                {isClickable ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onStepClick?.(index)}
-                    className="p-0 h-auto hover:bg-transparent"
-                  >
-                    {getStepIndicator(index, step)}
-                  </Button>
-                ) : (
-                  getStepIndicator(index, step)
-                )}
+            <div key={step.id} className="flex flex-col items-center flex-1">
+              {/* Step Indicator Row - All indicators aligned on same horizontal line */}
+              <div className="relative flex items-center justify-center h-8 w-full">
+                {/* Step Circle - Centered in fixed height container */}
+                <div className="flex items-center justify-center">
+                  {isClickable ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onStepClick?.(index)}
+                      className="p-0 h-auto hover:bg-transparent"
+                    >
+                      {getStepIndicator(index, step)}
+                    </Button>
+                  ) : (
+                    getStepIndicator(index, step)
+                  )}
+                </div>
                 
-                {/* Connection Line */}
+                {/* Connection Line - Positioned absolutely to not affect alignment */}
                 {index < steps.length - 1 && (
                   <div className={cn(
-                    "absolute top-4 left-8 h-0.5 w-16 transition-colors",
+                    "absolute top-4 left-1/2 ml-4 h-0.5 w-16 transition-colors",
                     status === 'completed' || (status === 'active' && index < currentStep)
                       ? "bg-green-600"
                       : status === 'active'
@@ -186,8 +189,8 @@ export default function ProgressBar({
                 )}
               </div>
 
-              {/* Step Info */}
-              <div className="text-center space-y-1">
+              {/* Step Info - Positioned below the aligned indicators */}
+              <div className="text-center space-y-1 mt-2 flex flex-col">
                 <div className="flex items-center justify-center space-x-1">
                   {getStepIcon(step.component, status === 'active', status === 'completed')}
                   <p className={cn(
@@ -200,22 +203,24 @@ export default function ProgressBar({
                   </p>
                 </div>
                 
-                {/* Step Status Badge */}
-                {status === 'active' && (
-                  <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
-                    Current
-                  </Badge>
-                )}
-                {status === 'completed' && (
-                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                    Complete
-                  </Badge>
-                )}
-                {!step.required && status !== 'completed' && (
-                  <Badge variant="outline" className="text-xs">
-                    Optional
-                  </Badge>
-                )}
+                {/* Step Status Badge Container - Fixed space allocation */}
+                <div className="flex flex-col items-center space-y-1 min-h-[1.5rem]">
+                  {status === 'active' && (
+                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                      Current
+                    </Badge>
+                  )}
+                  {status === 'completed' && (
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                      Complete
+                    </Badge>
+                  )}
+                  {!step.required && status !== 'completed' && (
+                    <Badge variant="outline" className="text-xs">
+                      Optional
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           );

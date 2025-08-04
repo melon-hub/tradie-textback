@@ -72,8 +72,25 @@ export default function BasicInfoStep() {
     mode: 'onChange',
   });
 
-  const { watch, setValue, getValues } = form;
+  const { watch, setValue, getValues, reset } = form;
   const watchedValues = watch();
+
+  // Update form when context data changes
+  useEffect(() => {
+    const contextData = state.formData.basicInfo;
+    
+    if (contextData && Object.keys(contextData).length > 0) {
+      const resetData = {
+        name: contextData.name || '',
+        phone: contextData.phone || '',
+        email: contextData.email || '',
+        trade_primary: contextData.trade_primary || '',
+        trade_secondary: contextData.trade_secondary || [],
+        years_experience: contextData.years_experience || 0,
+      };
+      reset(resetData);
+    }
+  }, [state.formData.basicInfo, reset]);
 
   // Auto-save form data changes
   useEffect(() => {
@@ -117,13 +134,11 @@ export default function BasicInfoStep() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-2">
       <Form {...form}>
         <form className="space-y-6">
           {/* Personal Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
-            
             <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}

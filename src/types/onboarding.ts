@@ -24,6 +24,7 @@ export interface BusinessDetailsData {
 export interface ServiceAreaData {
   service_postcodes?: string[];
   service_radius_km?: number;
+  radius_center_address?: string;
 }
 
 export interface SMSTemplateData {

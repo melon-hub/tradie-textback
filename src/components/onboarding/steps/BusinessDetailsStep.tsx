@@ -92,8 +92,27 @@ export default function BusinessDetailsStep() {
     mode: 'onChange',
   });
 
-  const { watch } = form;
+  const { watch, reset } = form;
   const watchedValues = watch();
+
+  // Update form when context data changes
+  useEffect(() => {
+    const contextData = state.formData.businessDetails;
+    if (contextData && Object.keys(contextData).length > 0) {
+      reset({
+        business_name: contextData.business_name || '',
+        abn: contextData.abn || '',
+        license_number: contextData.license_number || '',
+        license_expiry: contextData.license_expiry 
+          ? new Date(contextData.license_expiry) 
+          : undefined,
+        insurance_provider: contextData.insurance_provider || '',
+        insurance_expiry: contextData.insurance_expiry 
+          ? new Date(contextData.insurance_expiry) 
+          : undefined,
+      });
+    }
+  }, [state.formData.businessDetails, reset]);
 
   // Auto-save form data changes
   useEffect(() => {
@@ -138,12 +157,11 @@ export default function BusinessDetailsStep() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-2">
       <Form {...form}>
         <form className="space-y-6">
           {/* Business Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Business Information</h3>
             
             <FormField
               control={form.control}

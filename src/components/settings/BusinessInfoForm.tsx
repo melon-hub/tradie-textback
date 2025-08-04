@@ -6,10 +6,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Building2, Clock, MapPin, Phone, Mail, Globe } from 'lucide-react';
+import { Building2, Clock, MapPin, Phone, Mail, Globe, CalendarIcon, Shield } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface BusinessSettings {
   id?: string;
@@ -25,8 +29,12 @@ interface BusinessSettings {
   };
   emergency_available: boolean;
   business_description?: string;
+  bio?: string;
   abn?: string;
   license_number?: string;
+  license_expiry?: Date | null;
+  insurance_provider?: string;
+  insurance_expiry?: Date | null;
 }
 
 const DAYS_OF_WEEK = [
@@ -46,7 +54,7 @@ const DEFAULT_HOURS = {
 };
 
 export function BusinessInfoForm() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -65,8 +73,12 @@ export function BusinessInfoForm() {
     }), {}),
     emergency_available: false,
     business_description: '',
+    bio: '',
     abn: '',
-    license_number: ''
+    license_number: '',
+    license_expiry: null,
+    insurance_provider: '',
+    insurance_expiry: null,
   });
 
   useEffect(() => {
@@ -78,22 +90,39 @@ export function BusinessInfoForm() {
   const fetchBusinessSettings = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch business settings
+      const { data: businessData, error: businessError } = await supabase
         .from('business_settings')
         .select('*')
         .eq('user_id', user!.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (businessError && businessError.code !== 'PGRST116') {
+        throw businessError;
       }
 
-      if (data) {
-        setSettings({
-          ...data,
-          operating_hours: data.operating_hours || settings.operating_hours
-        });
+      // Also get profile data for bio, insurance and license info
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('bio, insurance_provider, insurance_expiry, license_expiry')
+        .eq('user_id', user!.id)
+        .single();
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        throw profileError;
       }
+
+      const combinedData = {
+        ...businessData,
+        operating_hours: businessData?.operating_hours || settings.operating_hours,
+        bio: profileData?.bio || '',
+        insurance_provider: profileData?.insurance_provider || '',
+        insurance_expiry: profileData?.insurance_expiry ? new Date(profileData.insurance_expiry) : null,
+        license_expiry: profileData?.license_expiry ? new Date(profileData.license_expiry) : null,
+      };
+
+      setSettings(combinedData);
     } catch (error) {
       console.error('Error fetching business settings:', error);
       toast({
@@ -112,28 +141,46 @@ export function BusinessInfoForm() {
     try {
       setSaving(true);
 
-      const dataToSave = {
+      const businessDataToSave = {
         ...settings,
         user_id: user!.id,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        // Remove profile-specific fields
+        bio: undefined,
+        insurance_provider: undefined,
+        insurance_expiry: undefined,
+        license_expiry: undefined,
       };
 
+      const profileDataToSave = {
+        bio: settings.bio,
+        insurance_provider: settings.insurance_provider,
+        insurance_expiry: settings.insurance_expiry?.toISOString(),
+        license_expiry: settings.license_expiry?.toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      // Update/create business settings
       if (settings.id) {
-        // Update existing settings
         const { error } = await supabase
           .from('business_settings')
-          .update(dataToSave)
+          .update(businessDataToSave)
           .eq('id', settings.id);
-
         if (error) throw error;
       } else {
-        // Create new settings
         const { error } = await supabase
           .from('business_settings')
-          .insert([dataToSave]);
-
+          .insert([businessDataToSave]);
         if (error) throw error;
       }
+
+      // Update profile data
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update(profileDataToSave)
+        .eq('user_id', user!.id);
+      
+      if (profileError) throw profileError;
 
       toast({
         title: 'Success',
@@ -296,8 +343,131 @@ export function BusinessInfoForm() {
               value={settings.business_description}
               onChange={(e) => setSettings({ ...settings, business_description: e.target.value })}
               placeholder="Describe your services and specialties..."
-              rows={3}
+              rows={4}
             />
+            <p className="text-sm text-muted-foreground">
+              This description will be visible to customers and helps them understand your expertise
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bio">Professional Bio</Label>
+            <Textarea
+              id="bio"
+              value={settings.bio || ''}
+              onChange={(e) => setSettings({ ...settings, bio: e.target.value })}
+              placeholder="Tell customers about your background, experience, and what makes you unique..."
+              rows={4}
+            />
+            <p className="text-sm text-muted-foreground">
+              Share your professional story, certifications, or what sets you apart from competitors
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Licensing & Insurance */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Licensing & Insurance
+          </CardTitle>
+          <CardDescription>
+            Professional credentials and insurance information
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Licensing Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-gray-900">License Information</h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="license_expiry">License Expiry Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !settings.license_expiry && "text-muted-foreground"
+                      )}
+                    >
+                      {settings.license_expiry ? (
+                        format(settings.license_expiry, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={settings.license_expiry}
+                      onSelect={(date) => setSettings({ ...settings, license_expiry: date || null })}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+          </div>
+
+          {/* Insurance Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-gray-900">Insurance Information</h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="insurance_provider">Insurance Provider</Label>
+                <Input
+                  id="insurance_provider"
+                  value={settings.insurance_provider}
+                  onChange={(e) => setSettings({ ...settings, insurance_provider: e.target.value })}
+                  placeholder="e.g., AAMI, Allianz"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="insurance_expiry">Insurance Expiry Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !settings.insurance_expiry && "text-muted-foreground"
+                      )}
+                    >
+                      {settings.insurance_expiry ? (
+                        format(settings.insurance_expiry, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={settings.insurance_expiry}
+                      onSelect={(date) => setSettings({ ...settings, insurance_expiry: date || null })}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-900 mb-2">Professional Credibility</h4>
+              <p className="text-sm text-blue-800">
+                Adding license and insurance information helps build trust with customers and
+                demonstrates your professionalism and compliance with industry standards.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -384,8 +554,9 @@ export function BusinessInfoForm() {
         </CardContent>
       </Card>
 
-      {/* Submit Button */}
-      <div className="flex justify-end">
+      {/* Auto-save status */}
+      <div className="flex justify-between items-center text-sm text-muted-foreground">
+        <span>Changes are saved when you click the button</span>
         <Button type="submit" disabled={saving}>
           {saving ? 'Saving...' : 'Save Business Information'}
         </Button>
