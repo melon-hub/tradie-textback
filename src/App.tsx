@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import LandingPage from "./pages/LandingPage";
 import Intake from "./pages/Intake";
 import JobCard from "./pages/JobCard";
 import Dashboard from "./pages/Dashboard";
@@ -12,9 +13,13 @@ import SecureJobAccess from "./pages/SecureJobAccess";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
+import Onboarding from "./pages/Onboarding";
+import OnboardingPublic from "./pages/OnboardingPublic";
+import AuthCallback from "./pages/AuthCallback";
 import { AdminRoute } from "./components/AdminRoute";
 import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
 import { DevDrawer } from "./components/DevDrawer";
+import { RequireOnboarding } from "./components/RequireOnboarding";
 
 const queryClient = new QueryClient();
 
@@ -27,15 +32,20 @@ const App = () => (
         <ImpersonationBanner />
         <DevDrawer />
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/index" element={<Index />} />
+          <Route path="/get-started" element={<OnboardingPublic />} />
+          <Route path="/onboarding" element={<OnboardingPublic />} />
           <Route path="/intake" element={<Intake />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/login" element={<AuthPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<RequireOnboarding><Dashboard /></RequireOnboarding>} />
           <Route path="/job/:jobId" element={<JobCard />} />
           <Route path="/secure/:jobId" element={<SecureJobAccess />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={<RequireOnboarding><Settings /></RequireOnboarding>} />
+          <Route path="/onboarding/complete" element={<Onboarding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

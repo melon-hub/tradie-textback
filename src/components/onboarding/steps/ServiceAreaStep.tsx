@@ -1,0 +1,360 @@
+import React, { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { X, MapPin, Radius, Plus } from 'lucide-react';
+import { useOnboarding } from '../OnboardingContext';
+
+// Form validation schema
+const serviceAreaSchema = z.object({
+  area_type: z.enum(['postcodes', 'radius'], {
+    required_error: 'Please select how you want to define your service area',
+  }),
+  service_postcodes: z.array(z.string().regex(/^\d{4}$/, 'Postcode must be 4 digits')).optional(),
+  service_radius_km: z.number().min(1).max(200).optional(),
+  radius_center_address: z.string().optional(),
+}).refine((data) => {
+  if (data.area_type === 'postcodes') {
+    return data.service_postcodes && data.service_postcodes.length > 0;
+  }
+  return true;
+}, {
+  message: "At least one postcode is required when using postcode-based service area",
+  path: ["service_postcodes"],
+}).refine((data) => {
+  if (data.area_type === 'radius') {
+    return data.service_radius_km && data.service_radius_km > 0;
+  }
+  return true;
+}, {
+  message: "Radius is required when using radius-based service area",
+  path: ["service_radius_km"],
+});
+
+type ServiceAreaFormData = z.infer<typeof serviceAreaSchema>;
+
+// Common Australian postcodes for suggestions
+const COMMON_POSTCODES = [
+  { postcode: '2000', suburb: 'Sydney', state: 'NSW' },
+  { postcode: '3000', suburb: 'Melbourne', state: 'VIC' },
+  { postcode: '4000', suburb: 'Brisbane', state: 'QLD' },
+  { postcode: '5000', suburb: 'Adelaide', state: 'SA' },
+  { postcode: '6000', suburb: 'Perth', state: 'WA' },
+  { postcode: '7000', suburb: 'Hobart', state: 'TAS' },
+  { postcode: '0800', suburb: 'Darwin', state: 'NT' },
+  { postcode: '2600', suburb: 'Canberra', state: 'ACT' },
+];
+
+export default function ServiceAreaStep() {
+  const { state, updateStepData, dispatch } = useOnboarding();
+  const [postcodeInput, setPostcodeInput] = useState('');
+  const [postcodeSearch, setPostcodeSearch] = useState('');
+  const [suggestions, setSuggestions] = useState<typeof COMMON_POSTCODES>([]);
+
+  const form = useForm<ServiceAreaFormData>({
+    resolver: zodResolver(serviceAreaSchema),
+    defaultValues: {
+      area_type: (state.formData.serviceArea.service_postcodes?.length ? 'postcodes' : 
+                  state.formData.serviceArea.service_radius_km ? 'radius' : 
+                  'postcodes') as 'postcodes' | 'radius',
+      service_postcodes: state.formData.serviceArea.service_postcodes || [],
+      service_radius_km: state.formData.serviceArea.service_radius_km || 25,
+      radius_center_address: '',
+    },
+    mode: 'onChange',
+  });
+
+  const { watch, setValue, getValues } = form;
+  const watchedValues = watch();
+
+  // Auto-save form data changes
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      updateStepData('serviceArea', value);
+      
+      // Validate current step
+      form.trigger().then((isValid) => {
+        dispatch({
+          type: 'SET_STEP_VALIDATION',
+          payload: {
+            stepId: 3,
+            isValid,
+            errors: isValid ? [] : ['Please define your service area'],
+          },
+        });
+      });
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, updateStepData, dispatch]);
+
+  // Filter suggestions based on search
+  useEffect(() => {
+    if (postcodeSearch.length >= 2) {
+      const filtered = COMMON_POSTCODES.filter(
+        item =>
+          item.postcode.includes(postcodeSearch) ||
+          item.suburb.toLowerCase().includes(postcodeSearch.toLowerCase()) ||
+          item.state.toLowerCase().includes(postcodeSearch.toLowerCase())
+      );
+      setSuggestions(filtered.slice(0, 8)); // Limit to 8 suggestions
+    } else {
+      setSuggestions([]);
+    }
+  }, [postcodeSearch]);
+
+  const handleAddPostcode = (postcode: string) => {
+    if (postcode && /^\d{4}$/.test(postcode)) {
+      const currentPostcodes = getValues('service_postcodes') || [];
+      if (!currentPostcodes.includes(postcode)) {
+        setValue('service_postcodes', [...currentPostcodes, postcode]);
+      }
+      setPostcodeInput('');
+      setPostcodeSearch('');
+      setSuggestions([]);
+    }
+  };
+
+  const handleRemovePostcode = (postcodeToRemove: string) => {
+    const currentPostcodes = getValues('service_postcodes') || [];
+    setValue('service_postcodes', currentPostcodes.filter(pc => pc !== postcodeToRemove));
+  };
+
+  const handlePostcodeInputChange = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 4);
+    setPostcodeInput(digits);
+    setPostcodeSearch(digits);
+  };
+
+  const getSuburbForPostcode = (postcode: string) => {
+    const match = COMMON_POSTCODES.find(item => item.postcode === postcode);
+    return match ? `${match.suburb}, ${match.state}` : '';
+  };
+
+  return (
+    <div className="space-y-6">
+      <Form {...form}>
+        <form className="space-y-6">
+          {/* Service Area Type Selection */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900">How do you want to define your service area?</h3>
+            
+            <FormField
+              control={form.control}
+              name="area_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="postcodes" id="postcodes" />
+                        <Label htmlFor="postcodes" className="flex items-center space-x-2 cursor-pointer">
+                          <MapPin className="w-4 h-4" />
+                          <span>Specific Postcodes</span>
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="radius" id="radius" />
+                        <Label htmlFor="radius" className="flex items-center space-x-2 cursor-pointer">
+                          <Radius className="w-4 h-4" />
+                          <span>Distance Radius</span>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Postcodes Configuration */}
+          {watchedValues.area_type === 'postcodes' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Service Postcodes</CardTitle>
+                <p className="text-sm text-gray-600">
+                  Add the postcodes where you provide services
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Selected postcodes */}
+                {watchedValues.service_postcodes && watchedValues.service_postcodes.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Selected Postcodes:</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {watchedValues.service_postcodes.map((postcode) => (
+                        <Badge key={postcode} variant="secondary" className="flex items-center gap-1">
+                          <span className="font-mono">{postcode}</span>
+                          <span className="text-xs text-gray-500">
+                            {getSuburbForPostcode(postcode)}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-4 w-4 p-0 hover:bg-transparent"
+                            onClick={() => handleRemovePostcode(postcode)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Add postcode input */}
+                <div className="space-y-2">
+                  <Label>Add Postcode:</Label>
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <Input
+                        placeholder="Search by postcode or suburb"
+                        value={postcodeInput}
+                        onChange={(e) => handlePostcodeInputChange(e.target.value)}
+                        maxLength={4}
+                        className="font-mono"
+                      />
+                      
+                      {/* Suggestions dropdown */}
+                      {suggestions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 z-10 bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-48 overflow-y-auto">
+                          {suggestions.map((suggestion) => (
+                            <button
+                              key={suggestion.postcode}
+                              type="button"
+                              className="w-full px-3 py-2 text-left hover:bg-gray-50 flex justify-between items-center"
+                              onClick={() => handleAddPostcode(suggestion.postcode)}
+                            >
+                              <span className="font-mono font-medium">{suggestion.postcode}</span>
+                              <span className="text-sm text-gray-600">
+                                {suggestion.suburb}, {suggestion.state}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleAddPostcode(postcodeInput)}
+                      disabled={!postcodeInput || postcodeInput.length !== 4}
+                      className="px-4"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="service_postcodes"
+                  render={() => (
+                    <FormItem>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Radius Configuration */}
+          {watchedValues.area_type === 'radius' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Service Radius</CardTitle>
+                <p className="text-sm text-gray-600">
+                  Set the distance you're willing to travel from your base location
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="service_radius_km"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Service Radius (kilometers)</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center space-x-3">
+                          <Input
+                            type="number"
+                            min="1"
+                            max="200"
+                            placeholder="25"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            className="w-24"
+                          />
+                          <span className="text-sm text-gray-600">km</span>
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Choose a radius between 1-200 kilometers
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Map placeholder */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+                  <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600 font-medium">Interactive Map</p>
+                  <p className="text-sm text-gray-500">
+                    Map view will be available to visualize your service area
+                  </p>
+                  {watchedValues.service_radius_km && (
+                    <p className="text-sm text-blue-600 mt-2">
+                      Current radius: {watchedValues.service_radius_km}km
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Help section */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 mb-2">Service Area Tips</h4>
+            <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+              <li>
+                <strong>Postcodes:</strong> Best for urban areas or if you service specific regions
+              </li>
+              <li>
+                <strong>Radius:</strong> Ideal for rural areas or if you travel based on distance
+              </li>
+              <li>You can update your service area anytime in your account settings</li>
+            </ul>
+          </div>
+
+          {/* Form validation status */}
+          <div className="text-sm text-gray-600">
+            <p>Define at least one service area to continue</p>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+}

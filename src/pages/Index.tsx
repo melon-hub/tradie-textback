@@ -1,42 +1,50 @@
-import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import HowItWorks from "@/components/HowItWorks";
-import Pricing from "@/components/Pricing";
-import FAQ from "@/components/FAQ";
-import CTA from "@/components/CTA";
-import Footer from "@/components/Footer";
+import { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { Loader2 } from 'lucide-react';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      {/* Hero - Primary brand colors with gradient */}
-      <Hero />
-      
-      {/* How It Works - Strong muted background */}
-      <div className="bg-muted/50 border-t border-b border-border/50">
-        <HowItWorks />
+  const { user, profile, loading, isAuthenticated } = useAuth();
+
+  // Show loading while checking auth status
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
-      
-      {/* Pricing - Clean white background with shadow */}
-      <div className="bg-card shadow-sm border-y border-border/30">
-        <Pricing />
+    );
+  }
+
+  // If not authenticated, redirect to landing page
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  // If authenticated, check onboarding status
+  if (user && profile) {
+    // Check if user needs onboarding
+    const needsOnboarding = profile.user_type === 'tradie' && !profile.onboarding_completed;
+    
+    if (needsOnboarding) {
+      // Redirect to onboarding completion
+      return <Navigate to="/onboarding/complete" replace />;
+    } else {
+      // Onboarding completed, redirect to dashboard
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+
+  // If we have a user but no profile yet, wait for profile to load
+  if (user && !profile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
-      
-      {/* FAQ - Strong muted background again */}
-      <div className="bg-muted/60 border-t border-b border-border/50">
-        <FAQ />
-      </div>
-      
-      {/* CTA - Strong primary accent background */}
-      <div className="bg-gradient-to-br from-primary/5 to-primary/10 border-t border-primary/20">
-        <CTA />
-      </div>
-      
-      <Footer />
-    </div>
-  );
+    );
+  }
+
+  // Default fallback to landing page
+  return <Navigate to="/" replace />;
 };
 
 export default Index;

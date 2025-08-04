@@ -48,6 +48,7 @@ const ROUTES = [
   { path: '/', label: 'Home', icon: Home },
   { path: '/intake', label: 'Job Intake', icon: FileText },
   { path: '/dashboard', label: 'Dashboard', icon: Briefcase },
+  { path: '/onboarding', label: 'Onboarding', icon: User },
   { path: '/admin', label: 'Admin Panel', icon: Shield },
   { path: '/settings', label: 'Settings', icon: Settings },
   { path: '/auth', label: 'Auth/Login', icon: LogIn },
