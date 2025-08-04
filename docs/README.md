@@ -3,6 +3,7 @@
 <!-- Updated: 2025-08-03 - Added onboarding system implementation and updated project status -->
 <!-- Updated: 2025-08-04 - Completed onboarding phases 3-7, enhanced settings, SMS templates, testing -->
 <!-- Updated: 2025-08-04 - Consolidated documentation structure and archived duplicates -->
+<!-- Updated: 2025-08-04 - Added project maintenance guide and cleanup documentation -->
 
 ## Overview
 This documentation covers the TradiePro missed-call management system for Australian tradies. The system automatically sends SMS responses to missed calls and provides a comprehensive job management dashboard.
@@ -23,6 +24,7 @@ Step-by-step guides for common tasks:
 - [CLIENT_ONBOARDING.md](guides/CLIENT_ONBOARDING.md) - Client onboarding and testing guide
 - [DEPLOYMENT_GUIDE.md](guides/DEPLOYMENT_GUIDE.md) - Supabase production deployment guide
 - [MIGRATION_PROCESS.md](guides/MIGRATION_PROCESS.md) - Database migration best practices
+- [PROJECT_MAINTENANCE.md](guides/PROJECT_MAINTENANCE.md) - Project cleanup and organization guide
 - [TWILIO_VAULT_SETUP.md](guides/TWILIO_VAULT_SETUP.md) - Secure Twilio credential management
 - [URGENT_PERFORMANCE_FIX.md](guides/URGENT_PERFORMANCE_FIX.md) - Emergency performance fixes
 

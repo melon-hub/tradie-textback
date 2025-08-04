@@ -38,8 +38,26 @@ CREATE INDEX IF NOT EXISTS idx_profiles_user_id_is_admin ON profiles(user_id, is
 - [ ] **Google Maps API**: Add referrer restrictions
 - [ ] **Remove DevToolsPanel**: Must be disabled/removed for production
 - [ ] **Admin toggle removal**: Remove lines 469-519 in DevToolsPanel.tsx
+- [x] **SECURITY DEFINER View**: Fixed customer_jobs_view (migration 20250804152138)
+- [x] **Function Search Paths**: Fixed all 5 functions with SET search_path (2025-08-04)
 
-### 2. User Impersonation System
+### 2. Auth Configuration (Low Priority - Using Magic Links)
+- [ ] **OTP Expiry**: Currently >1 hour (only relevant if switching from magic links to OTP)
+- [ ] **Leaked Password Protection**: Disabled (not relevant - app uses passwordless auth)
+  - Note: If adding password auth in future, enable HaveIBeenPwned integration
+
+### 3. Performance Optimizations (Low Priority - Post-Launch)
+- [ ] **RLS Auth Optimization**: Replace auth.uid() with (SELECT auth.uid()) in 36 policies
+  - Impact: Minor performance improvement for queries
+  - Risk: High - could break RLS if done incorrectly
+  - Recommendation: Fix after launch when performance matters
+- [ ] **Duplicate Index**: Remove duplicate idx_profiles_user_id_btree
+  - Simple fix: DROP INDEX idx_profiles_user_id_btree;
+- [ ] **Multiple Policies**: Consider consolidating RLS policies
+  - Current design is correct for multi-tenant (clients/tradies)
+  - Only optimize if performance issues arise
+
+### 4. User Impersonation System
 - [ ] Implement proper backend impersonation system
   - Current implementation is development-only
   - Need server-side API to generate impersonation tokens

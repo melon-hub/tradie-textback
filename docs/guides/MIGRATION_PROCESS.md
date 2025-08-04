@@ -1,5 +1,7 @@
 # Better Migration Process for Supabase
 
+<!-- Updated: 2025-08-04 - Added migration naming conventions and security best practices -->
+
 ## 1. Before Creating Any Migration
 
 ### Check Current State
@@ -27,6 +29,10 @@ For RLS policies or complex changes:
 # Use full timestamp to avoid conflicts
 YYYYMMDDHHMMSS_descriptive_name.sql
 # Example: 20250802093045_fix_profiles_rls.sql
+
+# IMPORTANT: Always use complete timestamps (14 digits)
+# BAD:  20250801_production_fix.sql
+# GOOD: 20250801000000_production_fix.sql
 ```
 
 ### Make Migrations Idempotent
@@ -128,7 +134,33 @@ supabase migration repair --status applied YYYYMMDD --password "$PGPASSWORD"
 -- CREATE POLICY "old_policy" ON table USING (old_condition);
 ```
 
-## 6. Current State Sync Process
+## 6. Security Best Practices
+
+### Always Set Search Path for Functions
+```sql
+-- Prevent SQL injection by setting explicit search path
+CREATE OR REPLACE FUNCTION my_function()
+RETURNS ... 
+LANGUAGE plpgsql
+SECURITY DEFINER -- or SECURITY INVOKER
+SET search_path = public, pg_temp -- ALWAYS include this
+AS $$
+...
+$$;
+```
+
+### Use SECURITY INVOKER for Views
+```sql
+-- Use WITH clause for PostgreSQL 15+
+CREATE OR REPLACE VIEW my_view 
+WITH (security_invoker=on)
+AS SELECT ...;
+
+-- For older versions, views default to SECURITY INVOKER
+-- Avoid SECURITY DEFINER unless absolutely necessary
+```
+
+## 7. Current State Sync Process
 
 When things are out of sync (like now):
 ```bash
