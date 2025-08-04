@@ -249,7 +249,7 @@ export default function LandingPageAlternative() {
               size="lg" 
               variant="outline"
               onClick={() => navigate('/auth')}
-              className="text-xl px-12 py-6 h-auto border-white/30 text-white hover:bg-white/10 transition-all duration-300"
+              className="text-xl px-12 py-6 h-auto border-white/30 text-gray-900 bg-white hover:bg-gray-100 transition-all duration-300"
             >
               Watch Demo Video
             </Button>
