@@ -46,76 +46,73 @@ export default function LandingPageAlternative() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      {/* Enhanced Visual Hero Section - Better Balanced Layout */}
-      <div className="relative overflow-hidden">
-        <div className="container mx-auto px-4 py-20">
-          <div className="grid lg:grid-cols-2 gap-16 items-center max-w-7xl mx-auto">
-            <div className="space-y-8">
-              <Badge className="mb-6 bg-blue-100 text-blue-800 hover:bg-blue-200" variant="secondary">
-                For Australian Tradies 🇦🇺
-              </Badge>
-              
-              <div className="space-y-6">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Turn Missed Calls Into <span className="text-blue-600">Customers</span>
-                </h1>
-                
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  Automatically respond to missed calls with SMS. Never lose a job because you were on site.
-                </p>
+      {/* Hero Section - Centered Layout like Original */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center max-w-3xl mx-auto">
+          <Badge className="mb-4" variant="secondary">
+            For Australian Tradies
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            Turn Missed Calls Into
+            <br />
+            <span className="text-blue-600">Customers</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            Automatically respond to missed calls with SMS. Never lose a job because you were on site.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/onboarding')}
+              className="text-lg px-8"
+            >
+              Start 14-Day Free Trial
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={() => navigate('/auth')}
+              className="text-lg px-8"
+            >
+              Sign In
+            </Button>
+          </div>
+          <p className="text-sm text-gray-500 mb-12">
+            No credit card required • Set up in 5 minutes
+          </p>
+        </div>
+
+        {/* Image and Benefits Section */}
+        <div className="grid lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>Capture leads you'd normally lose</span>
               </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Capture leads you'd normally lose</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Faster quotes with photos upfront</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Zero new app to learn</span>
-                </div>
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>Faster quotes with photos upfront</span>
               </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="lg" 
-                  onClick={() => navigate('/onboarding')}
-                  className="text-lg px-8 py-4 bg-blue-600 hover:bg-blue-700"
-                >
-                  Start 14-Day Free Trial
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  onClick={() => navigate('/auth')}
-                  className="text-lg px-8 py-4"
-                >
-                  Sign In
-                </Button>
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>Zero new app to learn</span>
               </div>
-              
-              <p className="text-sm text-gray-500">
-                No credit card required • Set up in 5 minutes
-              </p>
             </div>
-            
-            <div className="relative">
-              <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-                <img 
-                  src={heroImage} 
-                  alt="Tradie using phone on job site" 
-                  className="w-full h-auto"
-                />
-              </div>
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl border">
-                <div className="text-sm font-semibold text-gray-600 mb-1">Never miss a lead</div>
-                <div className="text-3xl font-bold text-blue-600 mb-1">+127%</div>
-                <div className="text-sm text-gray-500">More callbacks</div>
-              </div>
+          </div>
+          
+          <div className="relative">
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+              <img 
+                src={heroImage} 
+                alt="Tradie using phone on job site" 
+                className="w-full h-auto"
+              />
+            </div>
+            <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl border">
+              <div className="text-sm font-semibold text-gray-600 mb-1">Never miss a lead</div>
+              <div className="text-3xl font-bold text-blue-600 mb-1">+127%</div>
+              <div className="text-sm text-gray-500">More callbacks</div>
             </div>
           </div>
         </div>
