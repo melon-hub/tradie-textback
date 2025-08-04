@@ -46,9 +46,10 @@ export default function LandingPageAlternative() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      {/* Hero Section - Centered Layout like Original */}
+      {/* Hero Section - Two Column Layout */}
       <div className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-3xl mx-auto">
+        {/* Header - Centered */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
           <Badge className="mb-4" variant="secondary">
             For Australian Tradies
           </Badge>
@@ -57,35 +58,38 @@ export default function LandingPageAlternative() {
             <br />
             <span className="text-blue-600">Customers</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Automatically respond to missed calls with SMS. Never lose a job because you were on site.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/onboarding')}
-              className="text-lg px-8"
-            >
-              Start 14-Day Free Trial
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              onClick={() => navigate('/auth')}
-              className="text-lg px-8"
-            >
-              Sign In
-            </Button>
-          </div>
-          <p className="text-sm text-gray-500 mb-12">
-            No credit card required • Set up in 5 minutes
-          </p>
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto mt-16">
-          {/* Left Column - Content */}
+        <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">
+          {/* Left Column - All Content */}
           <div className="space-y-8">
+            <p className="text-xl text-gray-600 mb-8">
+              Automatically respond to missed calls with SMS. Never lose a job because you were on site.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <Button 
+                size="lg" 
+                onClick={() => navigate('/onboarding')}
+                className="text-lg px-8"
+              >
+                Start 14-Day Free Trial
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => navigate('/auth')}
+                className="text-lg px-8"
+              >
+                Sign In
+              </Button>
+            </div>
+            
+            <p className="text-sm text-gray-500 mb-8">
+              No credit card required • Set up in 5 minutes
+            </p>
+
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
                 <CheckCircle className="h-6 w-6 text-green-500" />
