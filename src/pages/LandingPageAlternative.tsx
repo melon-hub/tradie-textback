@@ -46,21 +46,21 @@ export default function LandingPageAlternative() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      {/* Enhanced Visual Hero Section - Merged from Hero component */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-white">
-        <div className="container mx-auto px-4 py-16">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <div className="space-y-6 lg:space-y-8">
-              <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200" variant="secondary">
+      {/* Enhanced Visual Hero Section - Better Balanced Layout */}
+      <div className="relative overflow-hidden">
+        <div className="container mx-auto px-4 py-20">
+          <div className="grid lg:grid-cols-2 gap-16 items-center max-w-7xl mx-auto">
+            <div className="space-y-8">
+              <Badge className="mb-6 bg-blue-100 text-blue-800 hover:bg-blue-200" variant="secondary">
                 For Australian Tradies 🇦🇺
               </Badge>
               
-              <div className="space-y-6 lg:space-y-8">
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight tracking-tight">
-                  Turn Missed Calls Into <span className="text-blue-600">Hot Leads</span>
+              <div className="space-y-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                  Turn Missed Calls Into <span className="text-blue-600">Customers</span>
                 </h1>
                 
-                <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-lg">
+                <p className="text-xl text-gray-600 leading-relaxed">
                   Automatically respond to missed calls with SMS. Never lose a job because you were on site.
                 </p>
               </div>
@@ -68,23 +68,23 @@ export default function LandingPageAlternative() {
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="text-lg">Capture leads you'd normally lose</span>
+                  <span>Capture leads you'd normally lose</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="text-lg">Faster quotes with photos upfront</span>
+                  <span>Faster quotes with photos upfront</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="text-lg">Zero new app to learn</span>
+                  <span>Zero new app to learn</span>
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-start">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg" 
                   onClick={() => navigate('/onboarding')}
-                  className="text-lg px-10 py-4 h-auto bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="text-lg px-8 py-4 bg-blue-600 hover:bg-blue-700"
                 >
                   Start 14-Day Free Trial
                 </Button>
@@ -92,25 +92,10 @@ export default function LandingPageAlternative() {
                   size="lg" 
                   variant="outline"
                   onClick={() => navigate('/auth')}
-                  className="text-lg px-10 py-4 h-auto border-blue-200 text-blue-600 hover:bg-blue-50 transition-all duration-300"
+                  className="text-lg px-8 py-4"
                 >
-                  See How It Works
+                  Sign In
                 </Button>
-              </div>
-              
-              <div className="flex items-center space-x-8 pt-4">
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm font-medium">Keep Your Number</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <MessageSquare className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm font-medium">5 Min Setup</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm font-medium">No Credit Card</span>
-                </div>
               </div>
               
               <p className="text-sm text-gray-500">
@@ -118,16 +103,15 @@ export default function LandingPageAlternative() {
               </p>
             </div>
             
-            <div className="relative lg:mt-8">
-              <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+            <div className="relative">
+              <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                 <img 
                   src={heroImage} 
                   alt="Tradie using phone on job site" 
-                  className="w-full h-auto transform hover:scale-105 transition-transform duration-700"
+                  className="w-full h-auto"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
-              <div className="absolute -bottom-8 left-2 sm:-left-8 bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl">
+              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl border">
                 <div className="text-sm font-semibold text-gray-600 mb-1">Never miss a lead</div>
                 <div className="text-3xl font-bold text-blue-600 mb-1">+127%</div>
                 <div className="text-sm text-gray-500">More callbacks</div>
