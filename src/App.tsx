@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
+import LandingPageAlternative from "./pages/LandingPageAlternative";
 import Intake from "./pages/Intake";
 import JobCard from "./pages/JobCard";
 import Dashboard from "./pages/Dashboard";
@@ -33,6 +34,7 @@ const App = () => (
         <DevDrawer />
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/landing-alt" element={<LandingPageAlternative />} />
           <Route path="/index" element={<Index />} />
           <Route path="/get-started" element={<OnboardingPublic />} />
           <Route path="/onboarding" element={<OnboardingPublic />} />
