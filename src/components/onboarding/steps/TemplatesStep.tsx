@@ -89,14 +89,17 @@ export default function TemplatesStep() {
     job_address: '123 Main St, Sydney NSW',
   });
 
+  // Ensure smsTemplates is an array
+  const templates = Array.isArray(state.formData.smsTemplates) ? state.formData.smsTemplates : [];
+
   const form = useForm<TemplatesFormData>({
     resolver: zodResolver(templatesSchema),
     defaultValues: {
-      missed_call: state.formData.smsTemplates?.find(t => t.template_type === 'missed_call')?.content || 
+      missed_call: templates.find(t => t.template_type === 'missed_call')?.content || 
                    TEMPLATE_CONFIGS.find(t => t.type === 'missed_call')?.defaultContent || '',
-      after_hours: state.formData.smsTemplates?.find(t => t.template_type === 'after_hours')?.content || 
+      after_hours: templates.find(t => t.template_type === 'after_hours')?.content || 
                    TEMPLATE_CONFIGS.find(t => t.type === 'after_hours')?.defaultContent || '',
-      job_confirmation: state.formData.smsTemplates?.find(t => t.template_type === 'job_confirmation')?.content || 
+      job_confirmation: templates.find(t => t.template_type === 'job_confirmation')?.content || 
                         TEMPLATE_CONFIGS.find(t => t.type === 'job_confirmation')?.defaultContent || '',
     },
     mode: 'onChange',

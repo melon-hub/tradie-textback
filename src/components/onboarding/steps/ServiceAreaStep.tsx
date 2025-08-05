@@ -161,12 +161,12 @@ export default function ServiceAreaStep() {
   };
 
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-4">
       <Form {...form}>
-        <form className="space-y-6">
+        <form className="space-y-4">
           {/* Service Area Type Selection */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">How do you want to define your service area?</h3>
+          <div className="space-y-3">
+            <h3 className="text-base font-medium text-gray-900">How do you want to define your service area?</h3>
             
             <FormField
               control={form.control}
@@ -177,22 +177,58 @@ export default function ServiceAreaStep() {
                     <RadioGroup
                       onValueChange={field.onChange}
                       value={field.value}
-                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                      className="grid grid-cols-2 gap-3"
                     >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="postcodes" id="postcodes" />
-                        <Label htmlFor="postcodes" className="flex items-center space-x-2 cursor-pointer">
-                          <MapPin className="w-4 h-4" />
-                          <span>Specific Postcodes</span>
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="radius" id="radius" />
-                        <Label htmlFor="radius" className="flex items-center space-x-2 cursor-pointer">
-                          <Radius className="w-4 h-4" />
-                          <span>Distance Radius</span>
-                        </Label>
-                      </div>
+                      {/* Compact card buttons side by side */}
+                      <label
+                        htmlFor="postcodes"
+                        className={`relative flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all text-center ${
+                          field.value === 'postcodes' 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}
+                      >
+                        <RadioGroupItem value="postcodes" id="postcodes" className="sr-only" />
+                        <div className={`p-2 rounded-lg mb-2 ${
+                          field.value === 'postcodes' ? 'bg-blue-100' : 'bg-gray-100'
+                        }`}>
+                          <MapPin className={`w-5 h-5 ${
+                            field.value === 'postcodes' ? 'text-blue-600' : 'text-gray-600'
+                          }`} />
+                        </div>
+                        <div className="font-medium text-sm">Specific Postcodes</div>
+                        <div className="text-xs text-gray-600 mt-1">Add postcodes where you provide services</div>
+                        {field.value === 'postcodes' && (
+                          <div className="absolute top-2 right-2 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                          </div>
+                        )}
+                      </label>
+                      
+                      <label
+                        htmlFor="radius"
+                        className={`relative flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all text-center ${
+                          field.value === 'radius' 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}
+                      >
+                        <RadioGroupItem value="radius" id="radius" className="sr-only" />
+                        <div className={`p-2 rounded-lg mb-2 ${
+                          field.value === 'radius' ? 'bg-blue-100' : 'bg-gray-100'
+                        }`}>
+                          <Radius className={`w-5 h-5 ${
+                            field.value === 'radius' ? 'text-blue-600' : 'text-gray-600'
+                          }`} />
+                        </div>
+                        <div className="font-medium text-sm">Distance Radius</div>
+                        <div className="text-xs text-gray-600 mt-1">Ideal for rural areas or if you travel based on distance</div>
+                        {field.value === 'radius' && (
+                          <div className="absolute top-2 right-2 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                          </div>
+                        )}
+                      </label>
                     </RadioGroup>
                   </FormControl>
                   <FormMessage />
@@ -204,50 +240,60 @@ export default function ServiceAreaStep() {
           {/* Postcodes Configuration */}
           {watchedValues.area_type === 'postcodes' && (
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-base">Service Postcodes</CardTitle>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 mt-1">
                   Add the postcodes where you provide services
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {/* Selected postcodes */}
                 {watchedValues.service_postcodes && watchedValues.service_postcodes.length > 0 && (
                   <div className="space-y-2">
-                    <Label>Selected Postcodes:</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {watchedValues.service_postcodes.map((postcode) => (
-                        <Badge key={postcode} variant="secondary" className="flex items-center gap-1">
-                          <span className="font-mono">{postcode}</span>
-                          <span className="text-xs text-gray-500">
-                            {getSuburbForPostcode(postcode)}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-4 w-4 p-0 hover:bg-transparent"
-                            onClick={() => handleRemovePostcode(postcode)}
+                    <Label className="text-sm font-medium">Selected Postcodes:</Label>
+                    <div className="flex flex-wrap gap-1">
+                      {watchedValues.service_postcodes.map((postcode) => {
+                        const suburb = getSuburbForPostcode(postcode);
+                        return (
+                          <Badge
+                            key={postcode}
+                            variant="secondary"
+                            className="pl-2.5 pr-0.5 py-0.5 sm:py-1 flex items-center gap-1 text-xs sm:text-sm h-7 sm:h-8"
                           >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </Badge>
-                      ))}
+                            <span className="font-mono font-medium">{postcode}</span>
+                            {suburb && (
+                              <span className="text-xs text-gray-500 hidden sm:inline">
+                                {suburb.split(',')[0]}
+                              </span>
+                            )}
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-5 w-5 p-0 hover:bg-transparent"
+                              onClick={() => handleRemovePostcode(postcode)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </Badge>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
                 {/* Add postcode input */}
                 <div className="space-y-2">
-                  <Label>Add Postcode:</Label>
+                  <Label className="text-sm font-medium">Add Postcode:</Label>
                   <div className="flex gap-2">
                     <div className="flex-1 relative">
                       <Input
-                        placeholder="Search by postcode or suburb"
+                        placeholder="e.g. 2000 or Sydney"
                         value={postcodeInput}
                         onChange={(e) => handlePostcodeInputChange(e.target.value)}
                         maxLength={4}
-                        className="font-mono"
+                        className="font-mono text-base"
+                        inputMode="numeric"
                       />
                       
                       {/* Suggestions dropdown */}
@@ -257,13 +303,16 @@ export default function ServiceAreaStep() {
                             <button
                               key={suggestion.postcode}
                               type="button"
-                              className="w-full px-3 py-2 text-left hover:bg-gray-50 flex justify-between items-center"
+                              className="w-full px-3 py-3 text-left hover:bg-gray-50 flex items-center justify-between border-b border-gray-100 last:border-0"
                               onClick={() => handleAddPostcode(suggestion.postcode)}
                             >
-                              <span className="font-mono font-medium">{suggestion.postcode}</span>
-                              <span className="text-sm text-gray-600">
-                                {suggestion.suburb}, {suggestion.state}
-                              </span>
+                              <div className="flex items-center gap-3">
+                                <span className="font-mono font-semibold text-base">{suggestion.postcode}</span>
+                                <span className="text-sm text-gray-600">
+                                  {suggestion.suburb}, {suggestion.state}
+                                </span>
+                              </div>
+                              <Plus className="w-4 h-4 text-gray-400" />
                             </button>
                           ))}
                         </div>
@@ -274,11 +323,13 @@ export default function ServiceAreaStep() {
                       variant="outline"
                       onClick={() => handleAddPostcode(postcodeInput)}
                       disabled={!postcodeInput || postcodeInput.length !== 4}
-                      className="px-4"
+                      className="px-3 sm:px-4"
                     >
                       <Plus className="w-4 h-4" />
+                      <span className="hidden sm:inline ml-1">Add</span>
                     </Button>
                   </div>
+                  <p className="text-xs text-gray-600">Enter a 4-digit postcode</p>
                 </div>
 
                 <FormField

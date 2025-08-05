@@ -60,10 +60,10 @@ export default function LandingPageAlternative() {
           </h1>
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start lg:items-center max-w-6xl mx-auto">
+        {/* Two Column Layout - Desktop/Tablet */}
+        <div className="hidden sm:grid sm:grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-start lg:items-center max-w-6xl mx-auto">
           {/* Left Column - All Content */}
-          <div className="space-y-6 lg:space-y-8 px-4 lg:px-0 lg:pl-8 order-2 lg:order-1">
+          <div className="space-y-6 lg:space-y-8 px-4 lg:px-0 lg:pl-8">
             <p className="text-lg lg:text-xl text-gray-600 mb-6 lg:mb-8">
               Automatically respond to missed calls with SMS. Never lose a job because you were on site.
             </p>
@@ -107,7 +107,7 @@ export default function LandingPageAlternative() {
           </div>
           
           {/* Right Column - Image */}
-          <div className="relative flex justify-center order-1 lg:order-2 mb-8 lg:mb-0">
+          <div className="relative flex justify-center">
             <div className="relative overflow-hidden rounded-2xl shadow-2xl w-full max-w-sm lg:max-w-md">
               <img 
                 src={heroImage} 
@@ -115,8 +115,8 @@ export default function LandingPageAlternative() {
                 className="w-full h-auto object-cover"
               />
             </div>
-            {/* Stats card - hidden on mobile, repositioned on larger screens */}
-            <div className="hidden lg:block absolute -bottom-6 -left-6 bg-white p-4 lg:p-6 rounded-xl shadow-xl border">
+            {/* Stats card overlay - shown on tablet and desktop */}
+            <div className="absolute -bottom-4 -left-4 lg:-bottom-6 lg:-left-6 bg-white p-4 lg:p-6 rounded-xl shadow-xl border">
               <div className="text-sm font-semibold text-gray-600 mb-1">Never miss a lead</div>
               <div className="text-2xl lg:text-3xl font-bold text-blue-600 mb-1">+127%</div>
               <div className="text-sm text-gray-500">More callbacks</div>
@@ -124,12 +124,67 @@ export default function LandingPageAlternative() {
           </div>
         </div>
 
-        {/* Mobile Stats - Only visible on mobile */}
-        <div className="lg:hidden mt-8 max-w-sm mx-auto">
-          <div className="bg-white p-6 rounded-xl shadow-xl border text-center">
-            <div className="text-sm font-semibold text-gray-600 mb-1">Never miss a lead</div>
-            <div className="text-3xl font-bold text-blue-600 mb-1">+127%</div>
-            <div className="text-sm text-gray-500">More callbacks</div>
+        {/* Mobile Layout - Image after header, before content */}
+        <div className="sm:hidden space-y-6 px-4">
+          {/* Mobile Image with Overlay Stats - Right after header */}
+          <div className="relative flex justify-center -mt-4 mb-6">
+            <div className="relative w-full max-w-xs">
+              <div className="overflow-hidden rounded-2xl shadow-2xl">
+                <img 
+                  src={heroImage} 
+                  alt="Tradie using phone on job site" 
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              {/* Stats card overlay on mobile too */}
+              <div className="absolute -bottom-3 -left-3 bg-white p-3 rounded-xl shadow-xl border z-10">
+                <div className="text-xs font-semibold text-gray-600">Never miss a lead</div>
+                <div className="text-xl font-bold text-blue-600">+127%</div>
+                <div className="text-xs text-gray-500">More callbacks</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Content */}
+          <p className="text-lg text-gray-600">
+            Automatically respond to missed calls with SMS. Never lose a job because you were on site.
+          </p>
+          
+          <div className="flex flex-col gap-3">
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/onboarding')}
+              className="text-base px-6 w-full"
+            >
+              Start 14-Day Free Trial
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={() => navigate('/auth')}
+              className="text-base px-6 w-full"
+            >
+              Sign In
+            </Button>
+          </div>
+          
+          <p className="text-sm text-gray-500">
+            No credit card required • Set up in 5 minutes
+          </p>
+
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+              <span className="text-base">Capture leads you'd normally lose</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+              <span className="text-base">Faster quotes with photos upfront</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+              <span className="text-base">Zero new app to learn</span>
+            </div>
           </div>
         </div>
       </div>

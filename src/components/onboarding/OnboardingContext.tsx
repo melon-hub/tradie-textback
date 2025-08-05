@@ -54,6 +54,16 @@ function onboardingReducer(
       };
 
     case 'UPDATE_FORM_DATA':
+      // Special handling for smsTemplates which should remain an array
+      if (action.payload.step === 'smsTemplates') {
+        return {
+          ...state,
+          formData: {
+            ...state.formData,
+            smsTemplates: action.payload.data,
+          },
+        };
+      }
       return {
         ...state,
         formData: {
