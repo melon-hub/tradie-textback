@@ -59,6 +59,8 @@ const JobCard = () => {
   const [editingNotes, setEditingNotes] = useState(false);
   const [editingLocation, setEditingLocation] = useState(false);
   const [location, setLocation] = useState<string>("");
+  const [jobType, setJobType] = useState<string>("");
+  const [preferredTime, setPreferredTime] = useState<string>("");
   const [isEditMode, setIsEditMode] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
@@ -111,6 +113,8 @@ const JobCard = () => {
         setQuote(data.estimated_value?.toString() || '');
         setNotes(data.description || '');
         setLocation(data.location || '');
+        setJobType(data.job_type || '');
+        setPreferredTime(data.preferred_time || '');
       } catch (error) {
         toast({
           title: "Error",
@@ -214,6 +218,8 @@ const JobCard = () => {
     if (job) {
       setLocation(job.location || '');
       setNotes(job.description || '');
+      setJobType(job.job_type || '');
+      setPreferredTime(job.preferred_time || '');
     }
   };
 
@@ -233,6 +239,16 @@ const JobCard = () => {
     if (notes !== job.description) {
       updates.description = notes;
       updatedFields.push('description');
+    }
+    
+    if (jobType !== job.job_type) {
+      updates.job_type = jobType;
+      updatedFields.push('job type');
+    }
+    
+    if (preferredTime !== job.preferred_time) {
+      updates.preferred_time = preferredTime;
+      updatedFields.push('preferred time');
     }
 
     // If nothing changed, just exit edit mode
@@ -298,9 +314,11 @@ const JobCard = () => {
     if (job && isEditMode) {
       const hasLocationChange = location !== job.location;
       const hasNotesChange = notes !== job.description;
-      setHasChanges(hasLocationChange || hasNotesChange);
+      const hasJobTypeChange = jobType !== job.job_type;
+      const hasPreferredTimeChange = preferredTime !== job.preferred_time;
+      setHasChanges(hasLocationChange || hasNotesChange || hasJobTypeChange || hasPreferredTimeChange);
     }
-  }, [location, notes, job, isEditMode]);
+  }, [location, notes, jobType, preferredTime, job, isEditMode]);
 
   // Update notes/description
   const handleNotesUpdate = async () => {
@@ -777,39 +795,6 @@ const JobCard = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-2 items-end">
-                {/* Single Edit Button for Clients */}
-                {!isEditMode && ((job.status === 'new' && profile?.user_type === 'client') || profile?.user_type === 'tradie') && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleEnterEditMode}
-                    className="mb-2"
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Details
-                  </Button>
-                )}
-                {/* Save/Cancel buttons in edit mode */}
-                {isEditMode && (
-                  <div className="flex gap-2 mb-2">
-                    <Button
-                      size="sm"
-                      variant="default"
-                      onClick={handleSaveAll}
-                      disabled={!hasChanges}
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Changes
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleCancelEdit}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                )}
                 <Badge variant={getUrgencyColor(job.urgency)}>
                   {job.urgency === "high" && <AlertTriangle className="h-3 w-3 mr-1" />}
                   {job.urgency.charAt(0).toUpperCase() + job.urgency.slice(1)} Priority
@@ -821,6 +806,44 @@ const JobCard = () => {
                   ).join(' ')}
                 </Badge>
               </div>
+            </div>
+            
+            {/* Edit Button - Below header on mobile */}
+            <div className="flex justify-center mt-4">
+              {!isEditMode && ((job.status === 'new' && profile?.user_type === 'client') || profile?.user_type === 'tradie') && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleEnterEditMode}
+                  className="w-full sm:w-auto"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Details
+                </Button>
+              )}
+              {/* Save/Cancel buttons in edit mode */}
+              {isEditMode && (
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={handleSaveAll}
+                    disabled={!hasChanges}
+                    className="flex-1 sm:flex-none"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    className="flex-1 sm:flex-none"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </div>
           </CardHeader>
           
@@ -844,9 +867,18 @@ const JobCard = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Job Type</p>
-                <p className="text-sm flex items-center">
-                  {job.job_type}
-                </p>
+                {isEditMode ? (
+                  <Input
+                    value={jobType}
+                    onChange={(e) => setJobType(e.target.value)}
+                    placeholder="Enter job type"
+                    className="text-sm"
+                  />
+                ) : (
+                  <p className="text-sm flex items-center">
+                    {job.job_type}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -864,15 +896,22 @@ const JobCard = () => {
               )}
             </div>
 
-            {job.preferred_time && (
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Preferred Time</p>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Preferred Time</p>
+              {isEditMode ? (
+                <Input
+                  value={preferredTime}
+                  onChange={(e) => setPreferredTime(e.target.value)}
+                  placeholder="Enter preferred time (e.g., Any time today, Morning only)"
+                  className="text-sm"
+                />
+              ) : (
                 <p className="text-sm flex items-center">
                   <Clock className="h-4 w-4 mr-1" />
-                  {job.preferred_time}
+                  {job.preferred_time || 'No preference specified'}
                 </p>
-              </div>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
 
