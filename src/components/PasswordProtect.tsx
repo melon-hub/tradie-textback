@@ -16,6 +16,12 @@ export function PasswordProtect({ children }: PasswordProtectProps) {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Skip password protection in development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      setIsAuthenticated(true);
+      return;
+    }
+
     // Check if already authenticated in this session
     const auth = sessionStorage.getItem(PASSWORD_KEY);
     if (auth === 'true') {
