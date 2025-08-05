@@ -5,9 +5,25 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, MapPin, Clock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import IntakePhotoUpload from "@/components/IntakePhotoUpload";
+import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
+
+// Trade types from our database
+const TRADE_TYPES = [
+  { code: 'plumber', label: 'Plumber' },
+  { code: 'electrician', label: 'Electrician' },
+  { code: 'carpenter', label: 'Carpenter' },
+  { code: 'hvac', label: 'HVAC Technician' },
+  { code: 'handyman', label: 'Handyman' },
+  { code: 'landscaper', label: 'Landscaper' },
+  { code: 'locksmith', label: 'Locksmith' },
+  { code: 'painter', label: 'Painter' },
+  { code: 'tiler', label: 'Tiler' },
+  { code: 'roofer', label: 'Roofer' },
+];
 
 const Intake = () => {
   const [step, setStep] = useState(1);
@@ -166,12 +182,11 @@ const Intake = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="suburb">Suburb</Label>
-                  <Input 
-                    id="suburb" 
-                    placeholder="e.g. Thornbury, VIC"
+                  <Label htmlFor="suburb">Address / Suburb</Label>
+                  <GooglePlacesAutocomplete
                     value={formData.suburb}
-                    onChange={(e) => setFormData({...formData, suburb: e.target.value})}
+                    onChange={(value) => setFormData({...formData, suburb: value})}
+                    placeholder="e.g. Thornbury, VIC or full address"
                   />
                 </div>
               </>
@@ -180,13 +195,19 @@ const Intake = () => {
             {step === 2 && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="jobType">What kind of job?</Label>
-                  <Input 
-                    id="jobType" 
-                    placeholder="e.g. Plumbing, Electrical, Carpentry"
-                    value={formData.jobType}
-                    onChange={(e) => setFormData({...formData, jobType: e.target.value})}
-                  />
+                  <Label htmlFor="jobType">Trade Required</Label>
+                  <Select value={formData.jobType} onValueChange={(value) => setFormData({...formData, jobType: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select trade required" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TRADE_TYPES.map((trade) => (
+                        <SelectItem key={trade.code} value={trade.label}>
+                          {trade.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="description">Describe the issue</Label>

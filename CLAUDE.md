@@ -55,7 +55,7 @@ Use the Task tool with:
 - **Prevent wasted time** by spending 30 seconds asking rather than 3 hours building the wrong thing
 
 ### 1. Database & Supabase
-- **ALWAYS use `sdb-push` alias** - NEVER use direct supabase commands
+- **ALWAYS use `./bin/sdb-push` script** - NEVER use direct supabase commands or expose API keys
 - **Check for existing .env.local** before creating new ones
 - **The .env.local contains sensitive PGPASSWORD** - never overwrite without checking
 - **Use environment variables** for all sensitive data
@@ -109,11 +109,11 @@ Use the Task tool with:
 
 ### 5. Common Commands
 ```bash
-# Push database changes (ALWAYS use this)
-sdb-push
+# Push database changes (ALWAYS use this) - secure script in bin/
+./bin/sdb-push
 
-# Generate TypeScript types
-sdb-types
+# Generate TypeScript types - secure script in bin/
+./bin/sdb-types
 
 # Start dev server
 npm run dev
@@ -128,7 +128,8 @@ npm run dev
 
 ### 7. Common Pitfalls to Avoid
 - ❌ Don't create new .env files without checking existing ones
-- ❌ Don't use `supabase db push` directly - use `sdb-push`
+- ❌ Don't use `supabase db push` directly - use `./bin/sdb-push`
+- ❌ Don't expose API keys or credentials in bash commands
 - ❌ Don't hardcode localhost:8082 or any specific port
 - ❌ Don't forget to check user_type for conditional rendering
 - ❌ Don't mix up "client" (tradie) vs "client" (customer) terminology
@@ -184,18 +185,25 @@ npm run dev
 ### When Starting Work
 1. Check current branch and status
 2. **FIRST**: Check for .env.local file with `ls -la .env*`
-3. **SECOND**: Sync remote migrations with `supabase db pull`
-4. **CHECK SERVER**: Run `lsof -i :8080` to see if dev server is already running
+3. **SECOND**: Run validation check: `npm run validate` or `/validate`
+   - This checks environment, database, constraints, migrations, etc.
+   - Use `npm run validate:fix` to auto-fix issues
+4. **THIRD**: Sync remote migrations with `supabase db pull` if needed
+5. **CHECK SERVER**: Run `lsof -i :8080` to see if dev server is already running
    - If running, use existing server at http://localhost:8080
    - If not running, then run `npm run dev` to start server
-5. Open DevToolsPanel to test logins
-6. Use `sdb-push` if database changes are needed
+6. Open DevToolsPanel to test logins
+7. Use `./bin/sdb-push` if database changes are needed
 
 ### When Database Issues Occur
 1. Check .env.local has correct PGPASSWORD
 2. Run `source .env.local && echo $PGPASSWORD` to verify
-3. Use `sdb-push` to sync database
-4. Generate fresh types with `sdb-types`
+3. Use `./bin/sdb-push` to sync database
+4. Generate fresh types with `./bin/sdb-types`
+5. **CRITICAL**: If you get constraint violations, check the actual database constraints:
+   - The error message tells you exactly which constraint failed
+   - Database constraints may not match your migration files
+   - Always verify constraints are actually applied
 
 ### When Auth Issues Occur
 1. Check user profile exists in profiles table
@@ -256,8 +264,20 @@ Error: Remote migration versions not found in local migrations directory
   - Run migrations directly in Supabase SQL editor if needed
   - Mark as applied with: `supabase migration repair --status applied YYYYMMDD`
 
+### Database Constraint Violations (NEW!)
+- **Symptom**: "new row for relation 'jobs' violates check constraint" errors
+- **Cause**: Code expects values that database constraint doesn't allow
+- **Fix**:
+  1. Run `scripts/validate-constraints.sql` in Supabase SQL Editor
+  2. Check actual constraint definition vs expected values
+  3. Update constraint if needed: `ALTER TABLE jobs DROP CONSTRAINT IF EXISTS jobs_status_check;`
+  4. Add correct constraint with all needed values
+- **Prevention**: Always test new status/enum values by actually using them in the UI
+
 ### Valid Database Constraints
-- **Job statuses**: 'new', 'in_progress', 'completed', 'cancelled'
+- **Job statuses**: 'new', 'contacted', 'quoted', 'scheduled', 'completed', 'cancelled'
+  - ⚠️ NOTE: Database previously had different constraint than code expected
+  - ALWAYS verify with: `SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = 'jobs'::regclass AND contype = 'c';`
 - **Urgency levels**: 'low', 'medium', 'high', 'urgent'
 - **User types**: 'client', 'tradie'
 - **tenant_sms_templates.template_type**: 'missed_call', 'after_hours', 'new_job', 'job_update', 'reminder'
@@ -402,6 +422,87 @@ Run the test suite with: npm test $ARGUMENTS
 - Check file permissions: `ls -la ~/.claude/commands/`
 - Ensure `.md` extension on command files
 - Personal commands in `~/.claude/commands/` work more reliably
+
+## Database Constraint Best Practices (LEARNED THE HARD WAY)
+
+### The Problem We Hit
+- Code tried to use status values that the database constraint didn't allow
+- Migration files existed but weren't applied to production
+- Error only showed up when users tried to update job status
+- Wasted time debugging because we assumed migrations were applied
+
+### How to Prevent This
+1. **Before Any Status/Enum Changes**:
+   ```sql
+   -- Check current constraints in Supabase SQL Editor
+   SELECT 
+     conname AS constraint_name,
+     pg_get_constraintdef(oid) AS constraint_definition
+   FROM pg_constraint 
+   WHERE conrelid = 'jobs'::regclass AND contype = 'c';
+   ```
+
+2. **After Writing Migration Files**:
+   - Don't assume `./bin/sdb-push` worked
+   - Manually verify in Supabase SQL Editor
+   - Test the actual constraint with a dummy update
+
+3. **When Adding New Status Values**:
+   - Update constraint in migration
+   - Update TypeScript types
+   - Update any UI dropdowns/buttons
+   - TEST by actually clicking the button
+
+4. **Create Validation Scripts**:
+   ```bash
+   # Add to scripts/validate-constraints.sql
+   -- This shows all constraints vs what code expects
+   ```
+
+### Key Lesson
+**NEVER trust that database constraints match your code**. Always verify, especially after deployments or migrations. The database is the source of truth, not your migration files.
+
+## Comprehensive Validation System (NEW!)
+
+### Quick Validation Commands
+```bash
+# Basic validation check
+npm run validate
+# Or use slash command: /validate
+
+# Auto-fix common issues
+npm run validate:fix
+# Or: /validate fix
+
+# Detailed verbose output
+npm run validate:verbose
+# Or: /validate verbose
+
+# Complete validation suite
+npm run validate:all
+# Or: /validate all
+```
+
+### What Gets Validated
+The validation system checks **45+ individual items** across 11 categories:
+1. **Environment Variables** - All required secrets and configs
+2. **Database Connectivity** - Connection and permissions
+3. **Database Constraints** - Status values, urgency levels, etc.
+4. **Migration Status** - Schema sync and type generation
+5. **Security Configuration** - RLS policies, API keys
+6. **Build System** - Dependencies and TypeScript
+7. **Test Configuration** - Test setup and coverage
+8. **Edge Functions** - SMS functions deployment
+9. **API Endpoints** - REST API health
+10. **Data Integrity** - Orphaned records, foreign keys
+11. **Performance** - Indexes and query optimization
+
+### When to Run Validation
+- **Always at session start** - Catch issues early
+- **Before deployments** - Ensure production readiness
+- **After migrations** - Verify constraints applied
+- **When debugging** - Find configuration issues
+- **In CI/CD** - Automated quality gates
 
 ## Remember
 This is a business-critical application for tradies' livelihoods. Always prioritize:

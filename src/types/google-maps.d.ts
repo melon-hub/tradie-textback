@@ -2,6 +2,42 @@ declare global {
   interface Window {
     google: any;
   }
+  
+  namespace google {
+    namespace maps {
+      class Map {
+        constructor(mapDiv: Element | null, opts?: any);
+      }
+
+      namespace places {
+        class AutocompleteService {
+          constructor();
+          getPlacePredictions(
+            request: any,
+            callback: (results: any[] | null, status: any) => void
+          ): void;
+        }
+
+        class PlacesService {
+          constructor(attrContainer: any);
+          getDetails(
+            request: any,
+            callback: (result: any | null, status: any) => void
+          ): void;
+        }
+
+        namespace PlacesServiceStatus {
+          const OK: string;
+          const ZERO_RESULTS: string;
+          const OVER_QUERY_LIMIT: string;
+          const REQUEST_DENIED: string;
+          const INVALID_REQUEST: string;
+          const NOT_FOUND: string;
+          const UNKNOWN_ERROR: string;
+        }
+      }
+    }
+  }
 }
 
 declare module 'google.maps' {

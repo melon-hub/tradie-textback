@@ -30,7 +30,23 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
+import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
+
+// Trade types from our database
+const TRADE_TYPES = [
+  { code: 'plumber', label: 'Plumber' },
+  { code: 'electrician', label: 'Electrician' },
+  { code: 'carpenter', label: 'Carpenter' },
+  { code: 'hvac', label: 'HVAC Technician' },
+  { code: 'handyman', label: 'Handyman' },
+  { code: 'landscaper', label: 'Landscaper' },
+  { code: 'locksmith', label: 'Locksmith' },
+  { code: 'painter', label: 'Painter' },
+  { code: 'tiler', label: 'Tiler' },
+  { code: 'roofer', label: 'Roofer' },
+];
 
 interface Job {
   id: string;
@@ -132,10 +148,20 @@ const JobCard = () => {
 
   // Update job status
   const handleStatusUpdate = async (newStatus: string) => {
-    if (!job) return;
+    if (!job) {
+      console.error('No job data available');
+      return;
+    }
+
+    console.log('Updating status:', { 
+      jobId: job.id, 
+      currentStatus: job.status, 
+      newStatus,
+      userType: profile?.user_type 
+    });
 
     try {
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('jobs')
         .update({ 
           status: newStatus,
@@ -143,9 +169,15 @@ const JobCard = () => {
           // Update last_contact when marking as contacted
           ...(newStatus === 'contacted' ? { last_contact: new Date().toISOString() } : {})
         })
-        .eq('id', job.id);
+        .eq('id', job.id)
+        .select(); // Add select to see what gets updated
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error details:', error);
+        throw error;
+      }
+
+      console.log('Status update successful:', data);
 
       setJob({ 
         ...job, 
@@ -155,14 +187,14 @@ const JobCard = () => {
       });
       
       toast({
-        title: "Status updated",
+        title: "Status updated ✅",
         description: `Job marked as ${newStatus.replace('_', ' ')}`,
       });
     } catch (error) {
       console.error('Error updating status:', error);
       toast({
         title: "Error",
-        description: "Failed to update job status",
+        description: `Failed to update job status: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
     }
@@ -190,15 +222,82 @@ const JobCard = () => {
         description: `Quote set to $${quote}`,
       });
       
-      // Update status to quote_sent if it was new
+      // Update status to quoted if it was new
       if (job.status === 'new') {
-        handleStatusUpdate('quote_sent');
+        handleStatusUpdate('quoted');
       }
     } catch (error) {
       console.error('Error updating quote:', error);
       toast({
         title: "Error",
         description: "Failed to update quote",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Send quote to customer (with future SMS integration)
+  const handleSendQuote = async () => {
+    if (!job) return;
+
+    try {
+      // Update status to quoted
+      const { error } = await supabase
+        .from('jobs')
+        .update({ 
+          status: 'quoted',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', job.id);
+
+      if (error) throw error;
+
+      setJob({ ...job, status: 'quoted', updated_at: new Date().toISOString() });
+
+      // Future SMS integration - send quote to customer
+      if (job.phone && job.estimated_value > 0) {
+        try {
+          const { error: smsError } = await supabase.functions.invoke('send-quote-sms', {
+            body: {
+              jobId: job.id,
+              customerPhone: job.phone,
+              customerName: job.customer_name,
+              quoteAmount: job.estimated_value,
+              jobType: job.job_type,
+              location: job.location
+            }
+          });
+
+          if (smsError) {
+            console.error('SMS failed but status updated:', smsError);
+            toast({
+              title: "Quote status updated ✅",
+              description: "Status updated (SMS service unavailable)",
+            });
+          } else {
+            toast({
+              title: "Quote sent ✅",
+              description: `$${job.estimated_value.toLocaleString()} quote sent to ${job.customer_name}`,
+            });
+          }
+        } catch (smsError) {
+          console.error('SMS service error:', smsError);
+          toast({
+            title: "Quote status updated ✅",
+            description: "Status updated (SMS service unavailable)",
+          });
+        }
+      } else {
+        toast({
+          title: "Quote status updated ✅",
+          description: "Job marked as quoted",
+        });
+      }
+    } catch (error) {
+      console.error('Error sending quote:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send quote",
         variant: "destructive",
       });
     }
@@ -474,12 +573,42 @@ const JobCard = () => {
     });
   };
 
-  const handleSMS = (customerName: string, phone: string) => {
-    window.location.href = `sms:${phone}`;
-    toast({
-      title: "SMS opened",
-      description: `Ready to text ${customerName}`,
-    });
+  const handleSMS = async (customerName: string, phone: string) => {
+    try {
+      // Future SMS integration - send custom message to customer
+      const { error: smsError } = await supabase.functions.invoke('send-custom-sms', {
+        body: {
+          jobId: job?.id,
+          customerPhone: phone,
+          customerName: customerName,
+          message: `Hi ${customerName}, this is regarding your ${job?.job_type} job at ${job?.location}. Please reply with any questions.`,
+          senderId: profile?.id || user?.id
+        }
+      });
+
+      if (smsError) {
+        console.error('SMS service unavailable, opening device SMS:', smsError);
+        // Fallback to device SMS app
+        window.location.href = `sms:${phone}`;
+        toast({
+          title: "SMS app opened",
+          description: `Device SMS opened for ${customerName}`,
+        });
+      } else {
+        toast({
+          title: "SMS sent ✅",
+          description: `Message sent to ${customerName}`,
+        });
+      }
+    } catch (error) {
+      console.error('SMS error, using fallback:', error);
+      // Fallback to device SMS app
+      window.location.href = `sms:${phone}`;
+      toast({
+        title: "SMS app opened",
+        description: `Device SMS opened for ${customerName}`,
+      });
+    }
   };
 
   const shareJobLink = async (job: Job) => {
@@ -513,9 +642,10 @@ const JobCard = () => {
     switch (status) {
       case "new": return "destructive";
       case "contacted": return "secondary";
-      case "quote_sent": return "default";
+      case "quoted": return "default";
       case "scheduled": return "default";
       case "completed": return "outline";
+      case "cancelled": return "destructive";
       default: return "outline";
     }
   };
@@ -524,7 +654,7 @@ const JobCard = () => {
     switch (status) {
       case 'new': return X;
       case 'contacted': return Phone;
-      case 'quote_sent': return DollarSign;
+      case 'quoted': return DollarSign;
       case 'scheduled': return Calendar;
       case 'completed': return Check;
       default: return Clock;
@@ -535,7 +665,7 @@ const JobCard = () => {
     switch (status) {
       case 'new': return 'Not contacted yet';
       case 'contacted': return 'Customer contacted';
-      case 'quote_sent': return job.estimated_value > 0 ? `Quoted $${job.estimated_value.toLocaleString()}` : 'Quote sent';
+      case 'quoted': return job.estimated_value > 0 ? `Quoted $${job.estimated_value.toLocaleString()}` : 'Quote sent';
       case 'scheduled': return 'Job scheduled';
       case 'completed': return 'Job completed';
       default: return status.replace('_', ' ');
@@ -702,8 +832,32 @@ const JobCard = () => {
                       />
                     </div>
                   ) : (
-                    <div className="text-2xl font-bold text-green-600">
-                      ${job.estimated_value || '0'}
+                    <div className="space-y-3">
+                      {/* Price and Send Quote Button - Inline */}
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="text-2xl font-bold text-green-600">
+                          ${job.estimated_value || '0'}
+                        </div>
+                        {/* Send Quote Button - Show when there's a quote value and status isn't already quoted */}
+                        {job.estimated_value > 0 && job.status !== 'quoted' && (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={handleSendQuote}
+                            className="flex-1 max-w-[50%]"
+                          >
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            Send Quote
+                          </Button>
+                        )}
+                      </div>
+                      {/* Quote Sent Indicator */}
+                      {job.status === 'quoted' && (
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                          <CheckCircle className="h-4 w-4" />
+                          Quote sent to customer
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -752,11 +906,11 @@ const JobCard = () => {
                       Contacted
                     </Button>
                     <Button 
-                      variant={job.status === "quote_sent" ? "default" : "outline"}
+                      variant={job.status === "quoted" ? "default" : "outline"}
                       size="sm"
-                      onClick={() => handleStatusUpdate("quote_sent")}
+                      onClick={() => handleStatusUpdate("quoted")}
                     >
-                      Quote Sent
+                      Quoted
                     </Button>
                     <Button 
                       variant={job.status === "scheduled" ? "default" : "outline"}
@@ -852,10 +1006,10 @@ const JobCard = () => {
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Location</p>
                 {isEditMode ? (
-                  <Input
+                  <GooglePlacesAutocomplete
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Enter job location"
+                    onChange={setLocation}
+                    placeholder="Enter address or suburb"
                     className="text-sm"
                   />
                 ) : (
@@ -866,14 +1020,20 @@ const JobCard = () => {
                 )}
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Job Type</p>
+                <p className="text-sm font-medium text-muted-foreground">Trade Required</p>
                 {isEditMode ? (
-                  <Input
-                    value={jobType}
-                    onChange={(e) => setJobType(e.target.value)}
-                    placeholder="Enter job type"
-                    className="text-sm"
-                  />
+                  <Select value={jobType} onValueChange={setJobType}>
+                    <SelectTrigger className="text-sm">
+                      <SelectValue placeholder="Select trade required" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TRADE_TYPES.map((trade) => (
+                        <SelectItem key={trade.code} value={trade.label}>
+                          {trade.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <p className="text-sm flex items-center">
                     {job.job_type}

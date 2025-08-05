@@ -17,7 +17,12 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "test:dashboard": "open tests/test-dashboard.html"
+    "test:dashboard": "open tests/test-dashboard.html",
+    "validate": "./scripts/validate-all.sh",
+    "validate:fix": "./scripts/validate-all.sh --fix",
+    "validate:verbose": "./scripts/validate-all.sh --verbose",
+    "test:validation": "vitest run tests/validation.test.ts",
+    "validate:all": "npm run validate && npm run test:validation"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

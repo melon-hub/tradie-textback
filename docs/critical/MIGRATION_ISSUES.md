@@ -1,7 +1,28 @@
 # Migration Issues - RESOLVED ✅
 
+<!-- Updated: 2025-08-05 - Added database constraint mismatch section -->
+
 ## Overview
 The database migration sync issues have been successfully resolved as of 2025-08-02. All critical migrations have been applied and the system is now performing optimally.
+
+## Recent Issue: Database Constraint Mismatch (2025-08-05)
+
+### Problem
+- **Symptom**: "new row for relation 'jobs' violates check constraint 'jobs_status_check'"
+- **Cause**: Database constraint didn't match code expectations
+- **Impact**: Status update buttons failed with constraint violations
+
+### Resolution
+1. Created migration to fix constraint: `20250805120000_fix_jobs_status_constraint.sql`
+2. Applied fix manually via SQL Editor when migration sync failed
+3. Updated all invalid status values in database
+4. Verified constraint now allows: 'new', 'contacted', 'quoted', 'scheduled', 'completed', 'cancelled'
+
+### Prevention
+- Created comprehensive validation system (`npm run validate`)
+- Added `scripts/validate-constraints.sql` for regular checks
+- Updated CLAUDE.md with constraint verification steps
+- Key lesson: **Never trust that database constraints match your code**
 
 ## Resolution Summary
 - **Status**: RESOLVED ✅

@@ -2,6 +2,7 @@
 
 <!-- Updated: 2025-08-03 - Added onboarding schema changes notice and updated test requirements -->
 <!-- Updated: 2025-08-04 - Updated test status to reflect all 106 passing tests and new coverage areas -->
+<!-- Updated: 2025-08-05 - Added validation test suite documentation -->
 
 ## Overview
 
@@ -122,6 +123,29 @@ npm run test:e2e:ui
 **Key E2E Tests:**
 - `auth.spec.ts` - Login/logout workflows
 - `job-management.spec.ts` - Job CRUD operations
+
+### 4. Validation Tests (NEW)
+
+Comprehensive system validation tests check configuration, database constraints, and environment setup.
+
+```bash
+# Run validation tests
+npm run test:validation
+
+# Run all validations with auto-fix
+npm run validate:fix
+
+# Location: tests/validation.test.ts
+```
+
+**What Gets Validated:**
+- Environment variables configuration
+- Database connectivity and constraints
+- Migration status and schema sync
+- Security policies (RLS)
+- API endpoints health
+- Edge functions availability
+- Data integrity checks
 
 ## Test Structure
 
