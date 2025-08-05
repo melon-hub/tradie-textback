@@ -680,12 +680,12 @@ const JobCard = () => {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-muted-foreground">Location</p>
-                  {!editingLocation && (job.status === 'new' || profile?.user_type === 'tradie') && (
+                  {!editingLocation && ((job.status === 'new' && profile?.user_type === 'client') || profile?.user_type === 'tradie') && (
                     <Button
                       size="sm"
-                      variant="ghost"
+                      variant="outline"
                       onClick={() => setEditingLocation(true)}
-                      className="h-6 px-2"
+                      className="h-6 px-2 border"
                     >
                       <Edit className="h-3 w-3" />
                     </Button>
@@ -739,11 +739,12 @@ const JobCard = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">Description / Notes</p>
-                {!editingNotes && (job.status === 'new' || profile?.user_type === 'tradie') && (
+                {!editingNotes && ((job.status === 'new' && profile?.user_type === 'client') || profile?.user_type === 'tradie') && (
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => setEditingNotes(true)}
+                    className="border"
                   >
                     <Edit className="h-3 w-3" />
                   </Button>

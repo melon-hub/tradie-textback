@@ -819,12 +819,12 @@ const Dashboard = () => {
                               )}
                               {job.status === 'new' && (
                                 <Button 
-                                  variant="ghost" 
+                                  variant="outline" 
                                   size="sm"
-                                  className="sm:px-3"
+                                  className="sm:px-3 border-2"
                                   onClick={() => {
-                                    // Navigate to intake form with job ID to edit
-                                    navigate(`/intake?edit=${job.id}`);
+                                    // Navigate to job detail page where client can edit
+                                    navigate(`/job/${job.id}`);
                                   }}
                                 >
                                   Edit
