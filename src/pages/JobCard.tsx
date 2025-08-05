@@ -59,6 +59,8 @@ const JobCard = () => {
   const [editingNotes, setEditingNotes] = useState(false);
   const [editingLocation, setEditingLocation] = useState(false);
   const [location, setLocation] = useState<string>("");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { jobId } = useParams();
@@ -198,9 +200,117 @@ const JobCard = () => {
     }
   };
 
+  // Enter edit mode
+  const handleEnterEditMode = () => {
+    setIsEditMode(true);
+    setHasChanges(false);
+  };
+
+  // Cancel edit mode
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setHasChanges(false);
+    // Reset all values to original
+    if (job) {
+      setLocation(job.location || '');
+      setNotes(job.description || '');
+    }
+  };
+
+  // Save all changes
+  const handleSaveAll = async () => {
+    if (!job) return;
+
+    // Check what actually changed
+    const updatedFields: string[] = [];
+    const updates: any = { updated_at: new Date().toISOString() };
+    
+    if (location !== job.location) {
+      updates.location = location;
+      updatedFields.push('location');
+    }
+    
+    if (notes !== job.description) {
+      updates.description = notes;
+      updatedFields.push('description');
+    }
+
+    // If nothing changed, just exit edit mode
+    if (updatedFields.length === 0) {
+      setIsEditMode(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update(updates)
+        .eq('id', job.id);
+
+      if (error) throw error;
+
+      setJob({ ...job, ...updates });
+      setIsEditMode(false);
+      
+      // Send SMS notification if client updated
+      if (profile?.user_type === 'client' && job.client_id && updatedFields.length > 0) {
+        supabase.functions.invoke('send-job-update-sms', {
+          body: {
+            jobId: job.id,
+            updatedFields,
+            updatedBy: profile.id || user?.id,
+            updatedByType: 'client'
+          }
+        }).then(({ data, error }) => {
+          if (error) {
+            console.error('Failed to send SMS notification:', error);
+          }
+        });
+      }
+      
+      // Show toast only if changes were made
+      if (updatedFields.length > 0) {
+        const fieldsText = updatedFields.join(' and ');
+        if (profile?.user_type === 'client') {
+          toast({
+            title: "Details updated ✅",
+            description: `${fieldsText} updated. Your tradie will be notified.`,
+          });
+        } else {
+          toast({
+            title: "Job updated ✅",
+            description: `${fieldsText} have been saved.`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update job details",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Track changes
+  useEffect(() => {
+    if (job && isEditMode) {
+      const hasLocationChange = location !== job.location;
+      const hasNotesChange = notes !== job.description;
+      setHasChanges(hasLocationChange || hasNotesChange);
+    }
+  }, [location, notes, job, isEditMode]);
+
   // Update notes/description
   const handleNotesUpdate = async () => {
     if (!job) return;
+
+    // Check if value actually changed
+    if (notes === job.description) {
+      setEditingNotes(false);
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -260,6 +370,12 @@ const JobCard = () => {
   // Update location
   const handleLocationUpdate = async () => {
     if (!job) return;
+
+    // Check if value actually changed
+    if (location === job.location) {
+      setEditingLocation(false);
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -660,7 +776,40 @@ const JobCard = () => {
                   <p className="text-sm text-muted-foreground">{job.phone}</p>
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 items-end">
+                {/* Single Edit Button for Clients */}
+                {!isEditMode && ((job.status === 'new' && profile?.user_type === 'client') || profile?.user_type === 'tradie') && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleEnterEditMode}
+                    className="mb-2"
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Details
+                  </Button>
+                )}
+                {/* Save/Cancel buttons in edit mode */}
+                {isEditMode && (
+                  <div className="flex gap-2 mb-2">
+                    <Button
+                      size="sm"
+                      variant="default"
+                      onClick={handleSaveAll}
+                      disabled={!hasChanges}
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
                 <Badge variant={getUrgencyColor(job.urgency)}>
                   {job.urgency === "high" && <AlertTriangle className="h-3 w-3 mr-1" />}
                   {job.urgency.charAt(0).toUpperCase() + job.urgency.slice(1)} Priority
@@ -678,43 +827,8 @@ const JobCard = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">Location</p>
-                  {!editingLocation && ((job.status === 'new' && profile?.user_type === 'client') || profile?.user_type === 'tradie') && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setEditingLocation(true)}
-                      className="h-6 px-2 border"
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                  )}
-                  {editingLocation && (
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={handleLocationUpdate}
-                        className="h-6 px-2"
-                      >
-                        <Save className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditingLocation(false);
-                          setLocation(job.location || '');
-                        }}
-                        className="h-6 px-2"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                {editingLocation ? (
+                <p className="text-sm font-medium text-muted-foreground">Location</p>
+                {isEditMode ? (
                   <Input
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
@@ -737,41 +851,8 @@ const JobCard = () => {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">Description / Notes</p>
-                {!editingNotes && ((job.status === 'new' && profile?.user_type === 'client') || profile?.user_type === 'tradie') && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEditingNotes(true)}
-                    className="border"
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                )}
-                {editingNotes && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="default"
-                      onClick={handleNotesUpdate}
-                    >
-                      <Save className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        setEditingNotes(false);
-                        setNotes(job.description || '');
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-              {editingNotes ? (
+              <p className="text-sm font-medium text-muted-foreground">Description / Notes</p>
+              {isEditMode ? (
                 <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
