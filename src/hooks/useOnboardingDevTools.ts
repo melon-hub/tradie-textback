@@ -57,6 +57,55 @@ const MOCK_DATA_SETS = {
       after_hours: 'Thanks for contacting Sparky Solutions. We\'re closed but will respond first thing tomorrow. For electrical emergencies, call 0423 456 789.',
       job_confirmation: 'Confirmed! I\'ll be at {job_address} on {job_date} at {job_time}. - Sarah from Sparky Solutions'
     }
+  },
+  'brisbane-carpenter': {
+    basicInfo: {
+      name: 'Mike Wilson',
+      phone: '0434 567 890',
+      email: 'mike@customcarpentry.com.au',
+      trade_primary: 'carpenter',
+      trade_secondary: ['builder', 'handyman'],
+      years_experience: 20
+    },
+    businessDetails: {
+      business_name: 'Wilson Custom Carpentry',
+      abn: '11223344556',
+      license_number: 'QBCC-123456',
+      license_expiry: new Date(Date.now() + 300 * 24 * 60 * 60 * 1000).toISOString(),
+      insurance_provider: 'CGU',
+      insurance_expiry: new Date(Date.now() + 250 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    serviceArea: {
+      area_type: 'postcodes',
+      service_postcodes: ['4000', '4005', '4006', '4001', '4169'],
+    },
+    templates: {
+      missed_call: 'G\'day! Mike from Wilson Carpentry here. Missed your call but will ring back shortly.',
+      after_hours: 'Thanks for calling Wilson Carpentry. We\'re closed but will call you back tomorrow. Cheers! - Mike',
+      job_confirmation: 'Job confirmed for {job_date} at {job_time}. Location: {job_address}. - Mike'
+    }
+  },
+  'minimal-tradie': {
+    basicInfo: {
+      name: 'Test Tradie',
+      phone: '0400 000 000',
+      email: 'test@example.com',
+      trade_primary: 'handyman',
+      years_experience: 5
+    },
+    businessDetails: {
+      business_name: 'Test Business',
+      abn: '00000000000'
+    },
+    serviceArea: {
+      area_type: 'postcodes',
+      service_postcodes: ['2000'],
+    },
+    templates: {
+      missed_call: 'Missed your call, will get back to you soon.',
+      after_hours: 'We\'re closed, will call back tomorrow.',
+      job_confirmation: 'Job confirmed for {job_date} at {job_time}.'
+    }
   }
 };
 
@@ -64,6 +113,52 @@ export function useOnboardingDevTools() {
   const { dispatch, state } = useOnboarding();
 
   useEffect(() => {
+    // Check for URL parameters on mount
+    if (import.meta.env.DEV && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const devAction = urlParams.get('devAction');
+      const dataSet = urlParams.get('dataSet');
+      const step = urlParams.get('step');
+
+      // Process dev actions from URL
+      if (devAction) {
+        // Clear URL parameters after reading to prevent re-execution on refresh
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, '', cleanUrl);
+
+        // Execute the action after a small delay to ensure context is ready
+        setTimeout(() => {
+          const devTools = (window as any).__onboardingDevTools;
+          if (!devTools) {
+            console.error('Dev tools not ready yet');
+            return;
+          }
+
+          switch (devAction) {
+            case 'fillMockData':
+              if (dataSet && MOCK_DATA_SETS[dataSet as keyof typeof MOCK_DATA_SETS]) {
+                console.log('🚀 Executing fillMockData from URL:', dataSet);
+                devTools.fillMockData(dataSet as keyof typeof MOCK_DATA_SETS);
+              }
+              break;
+            case 'jumpToStep':
+              if (step) {
+                const stepNumber = parseInt(step, 10);
+                if (!isNaN(stepNumber)) {
+                  console.log('🚀 Executing jumpToStep from URL:', stepNumber);
+                  devTools.jumpToStep(stepNumber);
+                }
+              }
+              break;
+            case 'clearData':
+              console.log('🚀 Executing clearData from URL');
+              devTools.clearData();
+              break;
+          }
+        }, 100);
+      }
+    }
+
     // Expose dev tools to window for console access
     if (import.meta.env.DEV) {
       (window as any).__onboardingDevTools = {
@@ -174,6 +269,8 @@ export function useOnboardingDevTools() {
       console.log('📝 Usage:');
       console.log('  __onboardingDevTools.fillMockData("sydney-plumber")');
       console.log('  __onboardingDevTools.fillMockData("melbourne-electrician")');
+      console.log('  __onboardingDevTools.fillMockData("brisbane-carpenter")');
+      console.log('  __onboardingDevTools.fillMockData("minimal-tradie")');
       console.log('  __onboardingDevTools.jumpToStep(2) // Go to step 2');
       console.log('  __onboardingDevTools.clearData() // Clear all data');
       console.log('  __onboardingDevTools.getState() // View current state');

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Onboarding Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .controls h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        .controls button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .controls button:hover {
+            background: #f0f0f0;
+        }
+        .controls button.active {
+            background: #3b82f6;
+            color: white;
+        }
+        .device-frame {
+            margin: 50px auto;
+            background: white;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .device-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .device-info {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .rotate-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h3>📱 Test Devices</h3>
+        <button onclick="setDevice('desktop')">Desktop (1280×800)</button>
+        <button onclick="setDevice('tablet-landscape')">Tablet Landscape (1024×768)</button>
+        <button onclick="setDevice('tablet')">Tablet Portrait (768×1024)</button>
+        <button onclick="setDevice('tablet-air')">iPad Air (820×1180)</button>
+        <button onclick="setDevice('mobile-large')">iPhone Plus (414×896)</button>
+        <button onclick="setDevice('mobile')">iPhone 12 (390×844)</button>
+        <button onclick="setDevice('mobile-small')">iPhone SE (375×667)</button>
+        <button onclick="setDevice('mobile-mini')">Small Phone (320×568)</button>
+        
+        <h3 style="margin-top: 20px;">🎯 Critical Sizes</h3>
+        <button onclick="setDevice('breakpoint-sm')">SM Breakpoint (640px)</button>
+        <button onclick="setDevice('breakpoint-md')">MD Breakpoint (768px)</button>
+        <button onclick="setDevice('breakpoint-lg')">LG Breakpoint (1024px)</button>
+    </div>
+
+    <div class="device-frame" id="deviceFrame">
+        <div class="device-info" id="deviceInfo">Desktop (1280×800)</div>
+        <iframe src="http://localhost:8080/onboarding" id="previewFrame"></iframe>
+    </div>
+
+    <div class="rotate-hint" id="rotateHint" style="display: none;">
+        💡 Tip: Test both portrait and landscape orientations
+    </div>
+
+    <script>
+        const devices = {
+            'desktop': { width: 1280, height: 800, name: 'Desktop' },
+            'tablet-landscape': { width: 1024, height: 768, name: 'Tablet Landscape' },
+            'tablet': { width: 768, height: 1024, name: 'Tablet Portrait' },
+            'tablet-air': { width: 820, height: 1180, name: 'iPad Air' },
+            'mobile-large': { width: 414, height: 896, name: 'iPhone Plus' },
+            'mobile': { width: 390, height: 844, name: 'iPhone 12' },
+            'mobile-small': { width: 375, height: 667, name: 'iPhone SE' },
+            'mobile-mini': { width: 320, height: 568, name: 'Small Phone' },
+            'breakpoint-sm': { width: 640, height: 800, name: 'SM Breakpoint (640px)' },
+            'breakpoint-md': { width: 768, height: 800, name: 'MD Breakpoint (768px)' },
+            'breakpoint-lg': { width: 1024, height: 800, name: 'LG Breakpoint (1024px)' }
+        };
+
+        function setDevice(deviceKey) {
+            const device = devices[deviceKey];
+            const frame = document.getElementById('deviceFrame');
+            const info = document.getElementById('deviceInfo');
+            const hint = document.getElementById('rotateHint');
+            
+            frame.style.width = device.width + 'px';
+            frame.style.height = device.height + 'px';
+            info.textContent = `${device.name} (${device.width}×${device.height})`;
+            
+            // Update active button
+            document.querySelectorAll('.controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show rotate hint for mobile devices
+            hint.style.display = deviceKey.includes('mobile') ? 'block' : 'none';
+        }
+
+        // Initialize with desktop view
+        setDevice('desktop');
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '1') setDevice('mobile');
+            if (e.key === '2') setDevice('tablet');
+            if (e.key === '3') setDevice('desktop');
+        });
+    </script>
+</body>
+</html>

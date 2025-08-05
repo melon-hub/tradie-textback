@@ -66,6 +66,18 @@ export default function OnboardingWizard({
     }
   }, [state.currentStep, dispatch]);
   const progressPercentage = ((state.currentStep + 1) / ONBOARDING_STEPS.length) * 100;
+  
+  // Ref for mobile scroller to ensure current step is visible
+  const mobileScrollerRef = React.useRef<HTMLDivElement | null>(null);
+  
+  React.useEffect(() => {
+    // Only run on mobile (tailwind sm:hidden equivalent)
+    if (typeof window !== "undefined" && window.innerWidth < 640 && mobileScrollerRef.current) {
+      const scroller = mobileScrollerRef.current;
+      const current = scroller.children[state.currentStep] as HTMLElement | undefined;
+      if (current) current.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }, [state.currentStep]);
 
   const handleNext = async () => {
     if (canGoNext) {
@@ -177,7 +189,7 @@ export default function OnboardingWizard({
   };
 
   return (
-    <div className={cn("min-h-screen bg-gray-50 py-2 md:py-4 px-2 md:px-4", className)}>
+    <div className={cn("min-h-screen bg-gray-50 py-2 md:py-4 px-2 md:px-4 overflow-x-hidden", className)}>
       <div className="max-w-2xl mx-auto">
         {/* Integrated Header Card */}
         <Card className="mb-4 md:mb-6">
@@ -217,7 +229,7 @@ export default function OnboardingWizard({
             </div>
 
             {/* Bottom row: Step indicators */}
-            <div className="border-t pt-3 md:pt-4">
+            <div className="border-t pt-3 md:pt-4" style={{ contain: "layout paint style" }}>
               {/* Desktop Step Indicators */}
               <div className="hidden md:block">
                 {/* Grid container for perfect alignment */}
@@ -291,9 +303,9 @@ export default function OnboardingWizard({
 
               {/* Mobile & Tablet Step Indicators */}
               <div className="md:hidden">
-                {/* Tablet view (sm to md) - Fixed alignment */}
-                <div className="hidden sm:flex items-center justify-center">
-                  <div className="flex items-start space-x-4 w-full max-w-4xl">
+                {/* Tablet view (sm to md) - Grid-based layout for stability */}
+                <div className="hidden sm:block md:hidden">
+                  <div className="grid grid-cols-7 gap-0 items-start">
                     {ONBOARDING_STEPS.map((step, index) => {
                       const isActive = index === state.currentStep;
                       const isCompleted = Object.keys(state.stepValidation)
@@ -302,28 +314,31 @@ export default function OnboardingWizard({
                         .includes(index);
 
                       return (
-                        <div key={step.id} className="flex flex-col items-center flex-1 min-w-0">
-                          {/* Step Circle Container */}
-                          <div className="flex items-center justify-center h-8 w-8 mb-2">
-                            <div className={cn(
-                              "flex items-center justify-center w-6 h-6 rounded-full border text-xs font-medium transition-colors",
-                              isCompleted 
-                                ? "bg-green-100 border-green-600 text-green-600"
-                                : isActive 
-                                ? "bg-blue-100 border-blue-600 text-blue-600"
-                                : "bg-white border-gray-300 text-gray-400"
-                            )}>
+                        <div key={step.id} className="flex flex-col items-center">
+                          <div className="h-8 w-8 mb-1 flex items-center justify-center">
+                            <div
+                              className={cn(
+                                "w-6 h-6 rounded-full border text-xs font-medium grid place-items-center select-none",
+                                isCompleted
+                                  ? "bg-green-100 border-green-600 text-green-600"
+                                  : isActive
+                                  ? "bg-blue-100 border-blue-600 text-blue-600"
+                                  : "bg-white border-gray-300 text-gray-400"
+                              )}
+                            >
                               {isCompleted ? "✓" : index + 1}
                             </div>
                           </div>
-                          <span className={cn(
-                            "text-xs text-center transition-colors leading-tight px-1",
-                            isCompleted 
-                              ? "text-green-700"
-                              : isActive 
-                              ? "text-blue-700"
-                              : "text-gray-500"
-                          )}>
+                          <span
+                            className={cn(
+                              "text-[11px] leading-[12px] text-center px-1 max-w-[100px] min-h-[24px] line-clamp-2",
+                              isCompleted
+                                ? "text-green-700 font-medium"
+                                : isActive
+                                ? "text-blue-700 font-medium"
+                                : "text-gray-500"
+                            )}
+                          >
                             {step.title}
                           </span>
                         </div>
@@ -332,45 +347,60 @@ export default function OnboardingWizard({
                   </div>
                 </div>
 
-                {/* Mobile view (below sm) - Fixed cutoff issue */}
+                {/* Mobile view (below sm) - Enhanced for step 7 visibility */}
                 <div className="sm:hidden">
-                  <div className="flex items-start space-x-1 overflow-x-auto pb-2 px-1 scrollbar-none">
+                  <div
+                    ref={mobileScrollerRef}
+                    className="flex items-start gap-0.5 overflow-x-auto pb-2 px-1 scrollbar-none"
+                    style={{ 
+                      WebkitOverflowScrolling: "touch",
+                      scrollPaddingRight: "1rem"
+                    }}
+                  >
                     {ONBOARDING_STEPS.map((step, index) => {
                       const isActive = index === state.currentStep;
                       const isCompleted = Object.keys(state.stepValidation)
                         .filter(stepId => state.stepValidation[parseInt(stepId)]?.isValid)
                         .map(stepId => parseInt(stepId))
                         .includes(index);
-                      const shortLabel = step.title.split(' ')[0];
 
                       return (
-                        <div key={step.id} className="flex flex-col items-center flex-shrink-0" style={{minWidth: '50px', width: '50px'}}>
-                          {/* Step Circle Container */}
-                          <div className="flex items-center justify-center h-7 w-7 mb-1">
-                            <div className={cn(
-                              "flex items-center justify-center w-5 h-5 rounded-full border text-xs font-medium transition-colors",
-                              isCompleted 
-                                ? "bg-green-100 border-green-600 text-green-600"
-                                : isActive 
-                                ? "bg-blue-100 border-blue-600 text-blue-600"
-                                : "bg-white border-gray-300 text-gray-400"
-                            )}>
+                        <div
+                          key={step.id}
+                          className="flex flex-col items-center flex-shrink-0 snap-start"
+                          style={{ width: 48, minWidth: 48 }}
+                        >
+                          <div className="flex items-center justify-center h-6 w-6 mb-0.5">
+                            <div
+                              className={cn(
+                                "w-4 h-4 rounded-full border text-[10px] font-medium grid place-items-center select-none",
+                                isCompleted
+                                  ? "bg-green-100 border-green-600 text-green-600"
+                                  : isActive
+                                  ? "bg-blue-100 border-blue-600 text-blue-600"
+                                  : "bg-white border-gray-300 text-gray-400"
+                              )}
+                            >
                               {isCompleted ? "✓" : index + 1}
                             </div>
                           </div>
-                          <span className={cn(
-                            "text-xs text-center transition-colors leading-tight block w-full overflow-hidden text-xs",
-                            isCompleted 
-                              ? "text-green-700"
-                              : isActive 
-                              ? "text-blue-700"
-                              : "text-gray-500"
-                          )} style={{fontSize: '10px', lineHeight: '12px'}}>
-                            {shortLabel}
+                          <span
+                            className={cn(
+                              "block w-full overflow-hidden text-[9px] leading-[11px] text-center",
+                              isCompleted
+                                ? "text-green-700 font-medium"
+                                : isActive
+                                ? "text-blue-700 font-medium"
+                                : "text-gray-500"
+                            )}
+                          >
+                            {step.title.split(" ")[0]}
                           </span>
                         </div>
                       );
                     })}
+                    {/* Spacer to ensure last item is visible */}
+                    <div className="w-4 flex-shrink-0" />
                   </div>
                 </div>
               </div>

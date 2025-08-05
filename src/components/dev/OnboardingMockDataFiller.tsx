@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
-import { FormDataItem, Wand2 } from 'lucide-react';
+import { FormDataItem, Wand2, ArrowRight, RotateCcw } from 'lucide-react';
 import { useOnboarding } from '@/components/onboarding/OnboardingContext';
 
 interface MockDataSet {
@@ -432,13 +432,74 @@ export function OnboardingMockDataFiller() {
             📝 Onboarding Dev Tools
           </p>
           <div className="space-y-2 text-xs text-blue-700">
-            <p>When on the onboarding page, use the browser console:</p>
-            <div className="font-mono bg-white p-2 rounded border border-blue-200 space-y-1">
-              <p>__onboardingDevTools.fillMockData("sydney-plumber")</p>
-              <p>__onboardingDevTools.fillMockData("melbourne-electrician")</p>
-              <p>__onboardingDevTools.jumpToStep(2)</p>
-              <p>__onboardingDevTools.clearData()</p>
-              <p>__onboardingDevTools.getState()</p>
+            <p>Click any action below to execute it:</p>
+            <div className="bg-white p-2 rounded border border-blue-200 space-y-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-xs font-mono hover:bg-blue-50 h-auto py-1 px-2"
+                onClick={() => {
+                  window.location.href = '/onboarding?devAction=fillMockData&dataSet=sydney-plumber';
+                }}
+              >
+                <Wand2 className="h-3 w-3 mr-2 flex-shrink-0" />
+                <span className="text-left">Fill Sydney Plumber Data</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-xs font-mono hover:bg-blue-50 h-auto py-1 px-2"
+                onClick={() => {
+                  window.location.href = '/onboarding?devAction=fillMockData&dataSet=melbourne-electrician';
+                }}
+              >
+                <Wand2 className="h-3 w-3 mr-2 flex-shrink-0" />
+                <span className="text-left">Fill Melbourne Electrician Data</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-xs font-mono hover:bg-blue-50 h-auto py-1 px-2"
+                onClick={() => {
+                  window.location.href = '/onboarding?devAction=fillMockData&dataSet=brisbane-carpenter';
+                }}
+              >
+                <Wand2 className="h-3 w-3 mr-2 flex-shrink-0" />
+                <span className="text-left">Fill Brisbane Carpenter Data</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-xs font-mono hover:bg-blue-50 h-auto py-1 px-2"
+                onClick={() => {
+                  window.location.href = '/onboarding?devAction=fillMockData&dataSet=minimal-tradie';
+                }}
+              >
+                <Wand2 className="h-3 w-3 mr-2 flex-shrink-0" />
+                <span className="text-left">Fill Minimal Setup Data</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-xs font-mono hover:bg-blue-50 h-auto py-1 px-2"
+                onClick={() => {
+                  window.location.href = '/onboarding?devAction=jumpToStep&step=2';
+                }}
+              >
+                <ArrowRight className="h-3 w-3 mr-2 flex-shrink-0" />
+                <span className="text-left">Jump to Step 2</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-xs font-mono hover:bg-blue-50 h-auto py-1 px-2"
+                onClick={() => {
+                  window.location.href = '/onboarding?devAction=clearData';
+                }}
+              >
+                <RotateCcw className="h-3 w-3 mr-2 flex-shrink-0" />
+                <span className="text-left">Clear All Data</span>
+              </Button>
             </div>
           </div>
         </div>
