@@ -1,6 +1,7 @@
 # User Flow Diagrams
 
 <!-- Updated: 2025-08-04 - Added comprehensive onboarding flow with 6-step wizard -->
+<!-- Updated: 2025-08-05 - Added job update notification flow and client editing capabilities -->
 
 ## Current System Flows
 
@@ -96,6 +97,34 @@
                      └─────────────────┘
 
 Note: Clients can only see their own jobs
+```
+
+### 3.1 Client Job Update Flow (NEW)
+
+```
+┌─────────────────┐
+│  Job Details    │
+│  (/job/:id)     │
+│                 │
+│ Status: New     │
+└────────┬────────┘
+         │
+         ├──────────────┬───────────────┐
+         ▼              ▼               ▼
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│ Edit Location│ │ Edit Notes   │ │ Message      │
+│              │ │              │ │ Tradie       │
+└──────┬───────┘ └──────┬───────┘ └──────────────┘
+       │                │
+       ▼                ▼
+┌─────────────────────────────────┐
+│     Update Notification         │
+│                                 │
+│ 1. Job updated in database      │
+│ 2. Dashboard shows "Updated"    │
+│ 3. SMS sent to tradie          │
+│ 4. Notification logged          │
+└─────────────────────────────────┘
 ```
 
 ### 4. Tradie Flow (Business Owner) - NEEDS FIXING

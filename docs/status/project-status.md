@@ -3,20 +3,44 @@
 <!-- Created: 2025-08-03 - Comprehensive project status including onboarding system progress -->
 <!-- Updated: 2025-08-04 - All onboarding phases complete, 106 tests passing, production ready -->
 <!-- Updated: 2025-08-04 - Project cleanup, security fixes, and responsive UI improvements -->
+<!-- Updated: 2025-08-05 - Dashboard UI improvements, client/tradie view separation, notification system -->
 
 ## Executive Summary
 
-**Project**: TradiePro Missed-Call Management System  
+**Project**: TradieText Missed-Call Management System  
 **Status**: Production Ready  
-**Last Updated**: 2025-08-04  
+**Last Updated**: 2025-08-05  
 **Major Milestone**: All Onboarding Phases Complete ✅  
-**Latest Work**: Project Cleanup & Security Hardening ✅  
+**Latest Work**: Dashboard UX & Notification System ✅  
 
 ## Current Status: All Phases Complete ✅
 
 The project has successfully completed all seven phases of the comprehensive onboarding system implementation. The system is now production-ready with 106 passing tests and comprehensive features for tradie onboarding and management.
 
-### Recent Achievements (2025-08-04)
+### Recent Achievements (2025-08-05)
+
+**🎨 Dashboard UX Improvements**
+- ✅ Separated client and tradie dashboard views for clarity
+- ✅ Added visual status badges with icons (Phone, Dollar, Check, etc.)
+- ✅ Implemented timezone-aware time displays with tooltips
+- ✅ Fixed mobile UI issues (header wrapping, font sizing, filter layout)
+- ✅ Rebranded from "TradiePro" to "TradieText"
+
+**🔔 Job Update Notification System**
+- ✅ Clients can now edit job location and description (for "new" status jobs)
+- ✅ Visual indicators on dashboard for updated jobs (blue badge & ring)
+- ✅ SMS notifications via Twilio when clients update jobs
+- ✅ Created notification_logs table for tracking all notifications
+- ✅ Added Edge Function: send-job-update-sms
+
+**👥 Client Experience Enhancements**
+- ✅ Client cards show tradie business name and contact info prominently
+- ✅ Removed confusing tradie-focused stats from client view
+- ✅ Added job summary card for clients showing active jobs and quotes
+- ✅ Message button for direct SMS to assigned tradie
+- ✅ Edit functionality with inline editing for location/notes
+
+### Previous Achievements (2025-08-04)
 
 **🎉 All Onboarding Phases Complete**
 - ✅ Phase 3: 6-step onboarding wizard with public signup flow

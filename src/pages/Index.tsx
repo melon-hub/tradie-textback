@@ -22,7 +22,12 @@ const Index = () => {
 
   // If authenticated, check onboarding status
   if (user && profile) {
-    // Check if user needs onboarding
+    // Admins always go to admin panel
+    if (profile.is_admin) {
+      return <Navigate to="/admin" replace />;
+    }
+    
+    // Check if user needs onboarding (non-admin tradies only)
     const needsOnboarding = profile.user_type === 'tradie' && !profile.onboarding_completed;
     
     if (needsOnboarding) {

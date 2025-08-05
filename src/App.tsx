@@ -19,8 +19,10 @@ import OnboardingPublic from "./pages/OnboardingPublic";
 import AuthCallback from "./pages/AuthCallback";
 import { AdminRoute } from "./components/AdminRoute";
 import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
+import AuthUrlSanitizer from "./components/AuthUrlSanitizer";
 import { DevDrawer } from "./components/DevDrawer";
 import { RequireOnboarding } from "./components/RequireOnboarding";
+import { DevPreviewBanner } from "./components/DevPreviewBanner";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +33,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ImpersonationBanner />
+        <DevPreviewBanner />
         <DevDrawer />
+        <AuthUrlSanitizer />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/index" element={<Index />} />
@@ -41,11 +45,32 @@ const App = () => (
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/login" element={<AuthPage />} />
-          <Route path="/dashboard" element={<RequireOnboarding><Dashboard /></RequireOnboarding>} />
+          <Route
+            path="/dashboard"
+            element={
+              <RequireOnboarding>
+                <Dashboard />
+              </RequireOnboarding>
+            }
+          />
           <Route path="/job/:jobId" element={<JobCard />} />
           <Route path="/secure/:jobId" element={<SecureJobAccess />} />
-          <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-          <Route path="/settings" element={<RequireOnboarding><Settings /></RequireOnboarding>} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <RequireOnboarding>
+                <Settings />
+              </RequireOnboarding>
+            }
+          />
           <Route path="/onboarding/complete" element={<Onboarding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

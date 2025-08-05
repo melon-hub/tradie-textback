@@ -19,9 +19,9 @@ export default function Admin() {
       {/* Simple Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <div className="flex gap-4 items-center">
-            <span className="text-sm text-muted-foreground">
+          <h1 className="text-xl md:text-2xl font-bold">Admin Dashboard</h1>
+          <div className="flex gap-2 md:gap-4 items-center">
+            <span className="text-sm text-muted-foreground hidden sm:inline">
               {profile?.name || 'Admin'}
             </span>
             <Button 
@@ -29,27 +29,31 @@ export default function Admin() {
               size="sm"
               onClick={() => navigate('/dashboard')}
             >
-              <Home className="h-4 w-4 mr-2" />
-              Back to Dashboard
+              <Home className="h-4 w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="sm:hidden">Back</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-8 px-4 max-w-7xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 max-w-[600px]">
-          <TabsTrigger value="users" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Users
+        <TabsList className="grid w-full grid-cols-3 max-w-[400px] sm:max-w-[500px] md:max-w-[600px] mx-auto lg:mx-0">
+          <TabsTrigger value="users" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Users</span>
+            <span className="sm:hidden">Users</span>
           </TabsTrigger>
-          <TabsTrigger value="jobs" className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
-            Jobs
+          <TabsTrigger value="jobs" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Jobs</span>
+            <span className="sm:hidden">Jobs</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Analytics
+          <TabsTrigger value="analytics" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Analytics</span>
+            <span className="sm:hidden">Stats</span>
           </TabsTrigger>
         </TabsList>
 

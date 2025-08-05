@@ -4,6 +4,7 @@
 <!-- Updated: 2025-08-04 - Completed onboarding phases 3-7, enhanced settings, SMS templates, testing -->
 <!-- Updated: 2025-08-04 - Consolidated documentation structure and archived duplicates -->
 <!-- Updated: 2025-08-04 - Added project maintenance guide and cleanup documentation -->
+<!-- Updated: 2025-08-05 - Added notification system, dashboard UI improvements, client/tradie view updates -->
 
 ## Overview
 This documentation covers the TradiePro missed-call management system for Australian tradies. The system automatically sends SMS responses to missed calls and provides a comprehensive job management dashboard.
@@ -27,6 +28,7 @@ Step-by-step guides for common tasks:
 - [PROJECT_MAINTENANCE.md](guides/PROJECT_MAINTENANCE.md) - Project cleanup and organization guide
 - [TWILIO_VAULT_SETUP.md](guides/TWILIO_VAULT_SETUP.md) - Secure Twilio credential management
 - [URGENT_PERFORMANCE_FIX.md](guides/URGENT_PERFORMANCE_FIX.md) - Emergency performance fixes
+- [NOTIFICATION_SYSTEM.md](guides/NOTIFICATION_SYSTEM.md) - Job update notifications and SMS alerts (2025-08-05)
 
 ### 📚 Reference
 Historical and reference documents:

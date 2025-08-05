@@ -20,8 +20,8 @@ serve(async (req) => {
     )
 
     // Get the request body
-    const { email, name, userType, address, isAdmin } = await req.json()
-    console.log('Dev login request:', { email, name, userType, address, isAdmin })
+    const { email, name, userType, address, isAdmin, redirect_to } = await req.json()
+    console.log('Dev login request:', { email, name, userType, address, isAdmin, redirect_to })
 
     // Create or get user
     const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
@@ -52,12 +52,29 @@ serve(async (req) => {
       
       console.log('Found existing user:', existingUser.id)
       
+      // Update the profile to set onboarding_completed for existing dev users
+      if (userType === 'tradie' || isAdmin) {
+        const { error: profileError } = await supabaseClient
+          .from('profiles')
+          .update({ 
+            onboarding_completed: true,
+            is_admin: isAdmin || false
+          })
+          .eq('user_id', existingUser.id)
+        
+        if (profileError) {
+          console.error('Failed to update existing user profile:', profileError)
+        }
+      }
+      
       // Generate a session for the existing user
       const { data: sessionData, error: sessionError } = await supabaseClient.auth.admin.generateLink({
         type: 'magiclink',
         email: email,
         options: {
-          redirectTo: 'http://localhost:8080/dashboard'
+          redirectTo: redirect_to || (userType === 'client' ? 'http://localhost:8080/intake' : 
+                      isAdmin ? 'http://localhost:8080/admin' : 
+                      'http://localhost:8080/dashboard')
         }
       })
       
@@ -89,12 +106,29 @@ serve(async (req) => {
     
     console.log('User created successfully:', authData.user.id)
 
+    // Update the profile to set onboarding_completed for dev users
+    if (userType === 'tradie' || isAdmin) {
+      const { error: profileError } = await supabaseClient
+        .from('profiles')
+        .update({ 
+          onboarding_completed: true,
+          is_admin: isAdmin || false
+        })
+        .eq('user_id', authData.user.id)
+      
+      if (profileError) {
+        console.error('Failed to update profile:', profileError)
+      }
+    }
+
     // Generate a magic link for the new user
     const { data: linkData, error: linkError } = await supabaseClient.auth.admin.generateLink({
       type: 'magiclink',
       email: email,
       options: {
-        redirectTo: 'http://localhost:8080/dashboard'
+        redirectTo: redirect_to || (userType === 'client' ? 'http://localhost:8080/intake' : 
+                    isAdmin ? 'http://localhost:8080/admin' : 
+                    'http://localhost:8080/dashboard')
       }
     })
     

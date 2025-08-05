@@ -1,15 +1,22 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { ReactNode } from 'react';
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useDevPreview } from "@/hooks/useDevPreview";
+import { ReactNode } from "react";
 
 interface AdminRouteProps {
   children: ReactNode;
 }
 
 export function AdminRoute({ children }: AdminRouteProps) {
-  const { profile, loading, user } = useAuth();
+  const { profile, loading, user, authReady } = useAuth();
+  const { role: previewRole } = useDevPreview();
 
-  if (loading) {
+  // In dev mode, allow preview bypass
+  if (!import.meta.env.PROD && previewRole === 'admin') {
+    return <>{children}</>;
+  }
+
+  if (loading || !authReady) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-lg">Loading auth...</div>
@@ -28,8 +35,8 @@ export function AdminRoute({ children }: AdminRouteProps) {
 
   // Check if user is authenticated and is an admin
   // TEMPORARY: Also check user_type === 'tradie' as fallback
-  const isAdmin = profile?.is_admin || profile?.user_type === 'tradie';
-  
+  const isAdmin = profile?.is_admin || profile?.user_type === "tradie";
+
   if (!profile || !isAdmin) {
     // Redirect non-admin users to dashboard
     return <Navigate to="/dashboard" replace />;

@@ -41,6 +41,19 @@ Use the Task tool with:
 
 ## CRITICAL RULES TO REMEMBER
 
+### 0. ALWAYS ASK CLARIFYING QUESTIONS FIRST
+- **Before implementing any solution**, ask questions to understand:
+  - What is the user trying to achieve? (not just what they asked for)
+  - Is this for testing with real data or just UI preview?
+  - What is the actual problem they're experiencing?
+  - Have they tried something already that didn't work?
+- **Don't assume** - A request for "auth help" could mean:
+  - Fixing login bugs
+  - Creating test users
+  - Building a UI preview system
+  - Debugging redirect issues
+- **Prevent wasted time** by spending 30 seconds asking rather than 3 hours building the wrong thing
+
 ### 1. Database & Supabase
 - **ALWAYS use `sdb-push` alias** - NEVER use direct supabase commands
 - **Check for existing .env.local** before creating new ones
@@ -62,11 +75,23 @@ Use the Task tool with:
   - DB_URL (full connection string)
 
 ### 2. Authentication & User Types
-- **Two user types**: 'client' (tradies who receive jobs) and 'tradie' (admin users)
-  - NOTE: This naming is confusing and should be refactored in future
+- **Two user types**: 'client' (customers who submit jobs) and 'tradie' (service providers)
+  - NOTE: This naming is confusing - 'client' = customers, 'tradie' = actual tradies
 - **Magic link authentication only** - no passwords
 - **Dev tools provide quick login** for testing both user types
 - **User profiles have user_type field** that determines access levels
+
+#### Auth State Management
+- Profile is cached in localStorage to prevent flickering
+- Cache includes user_id validation to ensure correct user
+- Only clear cache on explicit sign out
+- Added `onboarding_completed` field to Profile interface
+- Fixed auth state flickering issue in `/src/hooks/useAuth.ts`
+
+#### Dashboard Differences by User Type
+- **Tradies see**: Stats cards (urgent/new jobs, total value), all jobs, analytics tab
+- **Clients see**: Their submitted jobs, tradie contact info, job status updates
+- Stats cards are hidden from client view to avoid confusion
 
 ### 3. Development Server
 - **Default port is 8080** (configured in vite.config.ts)
@@ -120,11 +145,39 @@ npm run dev
 - **No emojis** unless user explicitly requests
 - **Keep code changes minimal** and focused
 
+### 9.1 UI/UX Patterns
+- **Status Badges**: Use icon + text for clarity (Phone icon for "contacted", etc)
+- **Time Display**: Show relative time with absolute time in tooltip
+- **Mobile Optimization**: Header stays fixed, proper touch targets, responsive text
+- **Color Coding**: Green for recent, yellow for older, red for urgent
+- **Client Cards**: Show tradie info prominently, job type as title
+- **Tradie Cards**: Show customer name, value, urgency prominently
+
 ### 10. Project-Specific Context
 - **Australian market focus** - use Australian terminology
 - **Mobile-first design** - tradies use phones primarily
 - **Multi-tenant architecture** - always filter by tenant/client
 - **Production URL**: https://lovable.dev/projects/17ebc76a-2297-472d-aba2-aae2d54dd873
+
+### 11. Notification System & Job Updates
+- **Visual Indicators**: Updated jobs show blue "Updated" badge and ring highlight
+- **SMS Notifications**: Sent via Twilio when clients update job details
+- **Edge Function**: `send-job-update-sms` handles SMS sending
+- **Notification Logs**: All notifications tracked in `notification_logs` table
+- **Client Editing**: Clients can edit location and description for "new" status jobs
+- **Real-time Updates**: Dashboard subscribes to changes for instant updates
+
+#### Update Flow
+1. Client edits job (location/description) in JobCard view
+2. System updates job and triggers edge function
+3. SMS sent to tradie if Twilio configured
+4. Dashboard shows visual indicators for 24 hours
+5. All updates logged with timestamps
+
+#### SMS Requirements
+- Requires Twilio credentials in Settings → Twilio tab
+- Without Twilio, only visual indicators work
+- SMS format: "Job Update: [Customer] updated their [Type] request..."
 
 ## Quick Reference
 
@@ -149,6 +202,23 @@ npm run dev
 2. Verify user_type is set correctly
 3. Check RLS policies aren't blocking access
 4. Use DevToolsPanel to test different user types
+
+## Recent Updates & Features
+
+### Dashboard Improvements (Aug 2025)
+- **Timezone Support**: All timestamps display in user's local timezone
+- **Status Icons**: Visual icons added to status badges for better clarity
+- **Mobile UI Fixes**: Resolved header wrapping, font sizing, and filter layout issues
+- **Client Dashboard**: Removed tradie-focused stats, added job summary card
+- **Job Updates**: Clients can edit location/description on "new" jobs
+- **Update Notifications**: SMS alerts + visual indicators for job changes
+- **Branding**: Changed from "TradiePro" to "TradieText"
+
+### Key UI Components
+- **Badge Components**: Used instead of emojis for professional appearance
+- **Responsive Design**: Mobile-first with proper breakpoints (xs:475px+)
+- **Filter Dropdown**: Functional status filter with all job states
+- **Message Button**: Direct SMS to tradie from client dashboard
 
 ## Common Issues & Solutions
 
@@ -190,6 +260,52 @@ Error: Remote migration versions not found in local migrations directory
 - **Job statuses**: 'new', 'in_progress', 'completed', 'cancelled'
 - **Urgency levels**: 'low', 'medium', 'high', 'urgent'
 - **User types**: 'client', 'tradie'
+- **tenant_sms_templates.template_type**: 'missed_call', 'after_hours', 'new_job', 'job_update', 'reminder'
+- **job_photos.upload_status**: Limited values (check constraint before bulk inserts)
+
+### SQL CTE Scope
+- CTEs in PostgreSQL are scoped to single statements
+- Cannot share CTEs across multiple INSERT/UPDATE statements
+- Each statement needs its own WITH clause
+
+## Test Data Management
+
+### Overview
+The project includes a comprehensive test data management system accessible through the Dev Drawer.
+
+### Key Components
+- **SQL Functions** (`/scripts/test-data-functions-v2.sql`, `/scripts/client-test-data-functions.sql`):
+  - `create_test_job_for_current_user()` - Creates jobs with time offsets
+  - `create_test_client_jobs()` - Creates client-submitted jobs
+  - `clear_current_user_test_data()` - Cleans up test data
+  - Uses `auth.uid()` to avoid permission issues
+
+- **TypeScript Library** (`/src/lib/test-data-manager.ts`):
+  - Wrapper for SQL functions
+  - Preset configurations for quick testing
+  - Random job generator for bulk data
+
+- **UI Components**:
+  - `TestDataManager.tsx` - Main test data UI with 3 tabs (Quick Actions, Custom Job, Stats)
+  - `ClientTestDataManager.tsx` - Client-specific test tools
+  - Integrated into Dev Drawer (Cmd+K)
+
+### Dev Users
+- `testadmin@dev.local` (password: test123) - Admin dashboard access
+- `testtradie@dev.local` (password: test123) - Tradie dashboard, jobs
+- `testclient@dev.local` (password: test123) - Client dashboard, multi-tradie support
+
+### Usage
+1. Open Dev Drawer (Cmd+K)
+2. Navigate to Test Data tab
+3. Use Quick Actions for bulk operations or Custom Job for specific scenarios
+4. Time slider allows creating jobs from past (up to 30 days)
+
+### Testing with Different Roles
+1. Use test accounts to verify role-specific features
+2. Client accounts can view jobs submitted to tradies
+3. Test data functions adapt based on current user type
+4. Time-based testing available through Dev Drawer
 
 ## Testing
 

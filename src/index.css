@@ -219,6 +219,16 @@ All colors MUST be HSL.
   }
 }
 
+/* Extra small screen utilities (xs: 475px and up) */
+@media (min-width: 475px) {
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
+  }
+}
+
 /* Touch-friendly interactions */
 .touch-manipulation {
   touch-action: manipulation;
@@ -229,5 +239,55 @@ All colors MUST be HSL.
   body {
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Tablet-specific media query */
+@media (min-width: 768px) and (max-width: 1024px) {
+  body {
+    font-size: 15px; /* Slightly larger than mobile for tablets */
+    line-height: 1.6;
+  }
+  
+  .container {
+    padding-left: 1.5rem; /* More padding for tablet comfort */
+    padding-right: 1.5rem;
+  }
+  
+  /* Fix potential dashboard/table overflows */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ensure tables are scrollable on tablets */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Adjust spacing for tablet layouts */
+  .space-y-4 > * + * {
+    margin-top: 1.25rem; /* Slightly more space on tablets */
+  }
+  
+  /* Fix grid layouts for tablets */
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  @supports (display: grid) {
+    .md\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+/* Ensure smooth transitions across all viewports */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
   }
 }

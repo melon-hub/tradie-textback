@@ -1,6 +1,7 @@
 # Database Schema Reference
 
 <!-- Created: 2025-08-03 - Complete database schema documentation including onboarding system tables -->
+<!-- Updated: 2025-08-05 - Added notification_logs table for job update notifications -->
 
 ## Overview
 
@@ -262,6 +263,27 @@ CREATE TABLE admin_logs (
   user_agent TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+```
+
+### 8. notification_logs
+Tracks all notifications sent (SMS, email, etc) for audit and debugging (2025-08-05).
+
+```sql
+CREATE TABLE notification_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('sms', 'email', 'push', 'in_app')),
+  recipient TEXT NOT NULL,
+  message TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'failed', 'delivered')),
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX idx_notification_logs_job_id ON notification_logs(job_id);
+CREATE INDEX idx_notification_logs_created_at ON notification_logs(created_at DESC);
+CREATE INDEX idx_notification_logs_type_status ON notification_logs(type, status);
 ```
 
 ## Indexes and Performance

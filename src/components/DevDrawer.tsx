@@ -1,21 +1,21 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle, 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetDescription,
-  SheetTrigger 
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,12 +23,12 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Code2, 
-  User, 
-  Navigation, 
-  Database, 
-  Copy, 
+import {
+  Code2,
+  User,
+  Navigation,
+  Database,
+  Copy,
   RefreshCw,
   Key,
   Home,
@@ -37,29 +37,34 @@ import {
   Shield,
   Briefcase,
   LogIn,
+  LogOut,
   Search,
-  FormInput
+  FormInput,
 } from "lucide-react";
 import { DevAuthSwitch, DevRole } from "@/lib/dev-auth-switch";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { OnboardingMockDataFiller } from "@/components/dev/OnboardingMockDataFiller";
-import { OnboardingPresets } from "@/components/dev/OnboardingPresets";
+import { useDevPreview } from "@/hooks/useDevPreview";
+import { devPreview } from "@/lib/dev-preview";
+import { devExistingSession } from "@/lib/dev-existing-session";
+import { TestDataManagerComponent } from "@/components/dev/TestDataManager";
 
 // Route configuration
 const ROUTES = [
-  { path: '/', label: 'Home', icon: Home },
-  { path: '/intake', label: 'Job Intake', icon: FileText },
-  { path: '/dashboard', label: 'Dashboard', icon: Briefcase },
-  { path: '/onboarding', label: 'Onboarding', icon: User },
-  { path: '/admin', label: 'Admin Panel', icon: Shield },
-  { path: '/settings', label: 'Settings', icon: Settings },
-  { path: '/auth', label: 'Auth/Login', icon: LogIn },
+  { path: "/", label: "Home", icon: Home },
+  { path: "/intake", label: "Job Intake", icon: FileText },
+  { path: "/dashboard", label: "Dashboard", icon: Briefcase },
+  { path: "/onboarding", label: "Onboarding", icon: User },
+  { path: "/admin", label: "Admin Panel", icon: Shield },
+  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/auth", label: "Auth/Login", icon: LogIn },
 ];
 
 // Check environment flags
-const isDevMode = import.meta.env.DEV || import.meta.env.VITE_DEV_TOOLS === 'true';
-const isDemoMode = import.meta.env.VITE_DEMO_TOOLS === 'true';
+const isDevMode =
+  import.meta.env.DEV || import.meta.env.VITE_DEV_TOOLS === "true";
+const isDemoMode = import.meta.env.VITE_DEMO_TOOLS === "true";
 const isEnabled = isDevMode || isDemoMode;
 
 // Demo presets for quick scenario setup
@@ -77,69 +82,69 @@ interface DemoPreset {
 
 const DEMO_PRESETS: DemoPreset[] = [
   {
-    id: 'new-job-flow',
-    name: 'New Job Flow',
-    description: 'Client with new urgent job',
-    role: 'client' as DevRole,
-    route: '/intake',
+    id: "new-job-flow",
+    name: "New Job Flow",
+    description: "Client with new urgent job",
+    role: "client" as DevRole,
+    route: "/intake",
   },
   {
-    id: 'tradie-dashboard',
-    name: 'Tradie View',
-    description: 'Tradie viewing available jobs',
-    role: 'tradie' as DevRole,
-    route: '/dashboard',
+    id: "tradie-dashboard",
+    name: "Tradie View",
+    description: "Tradie viewing available jobs",
+    role: "tradie" as DevRole,
+    route: "/dashboard",
   },
   {
-    id: 'admin-overview',
-    name: 'Admin Overview',
-    description: 'Admin monitoring system',
-    role: 'admin' as DevRole,
-    route: '/admin',
+    id: "admin-overview",
+    name: "Admin Overview",
+    description: "Admin monitoring system",
+    role: "admin" as DevRole,
+    route: "/admin",
   },
   {
-    id: 'plumber-sydney',
-    name: 'Plumber Sydney',
-    description: 'Complete profile, licensed plumber',
-    role: 'tradie' as DevRole,
-    route: '/dashboard',
-    trade: 'plumbing',
-    location: 'Sydney',
-    onboardingStep: 'complete',
+    id: "plumber-sydney",
+    name: "Plumber Sydney",
+    description: "Complete profile, licensed plumber",
+    role: "tradie" as DevRole,
+    route: "/dashboard",
+    trade: "plumbing",
+    location: "Sydney",
+    onboardingStep: "complete",
   },
   {
-    id: 'electrician-melbourne',
-    name: 'Electrician Melbourne',
-    description: 'Licensed electrician with certifications',
-    role: 'tradie' as DevRole,
-    route: '/dashboard',
-    trade: 'electrical',
-    location: 'Melbourne',
-    onboardingStep: 'complete',
+    id: "electrician-melbourne",
+    name: "Electrician Melbourne",
+    description: "Licensed electrician with certifications",
+    role: "tradie" as DevRole,
+    route: "/dashboard",
+    trade: "electrical",
+    location: "Melbourne",
+    onboardingStep: "complete",
   },
   {
-    id: 'incomplete-onboarding',
-    name: 'Incomplete Setup',
-    description: 'Tradie stuck at step 2 onboarding',
-    role: 'tradie' as DevRole,
-    route: '/onboarding',
-    onboardingStep: '2',
+    id: "incomplete-onboarding",
+    name: "Incomplete Setup",
+    description: "Tradie stuck at step 2 onboarding",
+    role: "tradie" as DevRole,
+    route: "/onboarding",
+    onboardingStep: "2",
   },
   {
-    id: 'twilio-configured',
-    name: 'SMS Ready',
-    description: 'Twilio configured and active',
-    role: 'tradie' as DevRole,
-    route: '/dashboard',
-    twilioStatus: 'configured',
+    id: "twilio-configured",
+    name: "SMS Ready",
+    description: "Twilio configured and active",
+    role: "tradie" as DevRole,
+    route: "/dashboard",
+    twilioStatus: "configured",
   },
   {
-    id: 'twilio-pending',
-    name: 'SMS Pending',
-    description: 'Twilio setup pending verification',
-    role: 'tradie' as DevRole,
-    route: '/settings',
-    twilioStatus: 'pending',
+    id: "twilio-pending",
+    name: "SMS Pending",
+    description: "Twilio setup pending verification",
+    role: "tradie" as DevRole,
+    route: "/settings",
+    twilioStatus: "pending",
   },
 ];
 
@@ -152,51 +157,65 @@ export function DevDrawer() {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+  const { role: previewRole, setRole: setPreviewRole, clear: clearPreview } = useDevPreview();
+
   // Memoize DevAuthSwitch to prevent recreation on every render
   const devAuth = useMemo(() => new DevAuthSwitch(queryClient), [queryClient]);
+
+  // Debug auth state changes
+  useEffect(() => {
+    console.log('DevDrawer auth state updated:', {
+      hasUser: !!user,
+      userEmail: user?.email,
+      hasProfile: !!profile,
+      profileName: profile?.name,
+      isAdmin: profile?.is_admin,
+      userType: profile?.user_type
+    });
+  }, [user, profile]);
 
   // Keyboard shortcut: Ctrl+` - must be called before early return
   useEffect(() => {
     if (!isEnabled) return;
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === '`') {
+      if (e.ctrlKey && e.key === "`") {
         e.preventDefault();
-        setOpen(prev => !prev);
+        setOpen((prev) => !prev);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   // Only show in development or demo mode
   if (!isEnabled) return null;
 
   // Filter routes based on search
-  const filteredRoutes = ROUTES.filter(route =>
-    route.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    route.path.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRoutes = ROUTES.filter(
+    (route) =>
+      route.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      route.path.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Handle role switch
   const handleRoleSwitch = async (role: DevRole) => {
     setLoading(true);
-    const result = await devAuth.switchToRole(role, { 
+    const result = await devAuth.switchToRole(role, {
       navigateTo: getDefaultRouteForRole(role),
-      clearAll: false 
+      clearAll: false,
     });
-    
+
     if (result.success) {
       toast({
         title: "✅ Switched Role",
         description: `Now logged in as ${role}`,
       });
-      
+
       // Close drawer
       setOpen(false);
-      
+
       // Navigate to appropriate route for the role
       const targetRoute = result.navigateTo || getDefaultRouteForRole(role);
       if (targetRoute) {
@@ -215,14 +234,14 @@ export function DevDrawer() {
   // Get default route for role
   const getDefaultRouteForRole = (role: DevRole): string => {
     switch (role) {
-      case 'admin':
-        return '/admin';
-      case 'tradie':
-        return '/dashboard';
-      case 'client':
-        return '/intake';
+      case "admin":
+        return "/admin";
+      case "tradie":
+        return "/dashboard";
+      case "client":
+        return "/intake";
       default:
-        return '/';
+        return "/";
     }
   };
 
@@ -239,39 +258,39 @@ export function DevDrawer() {
       // Add more demo jobs
       const demoJobs = [
         {
-          customer_name: 'John Demo',
-          phone: '+61412345678',
-          address: '456 Demo St, Sydney NSW',
-          job_type: 'Plumbing',
-          location: 'Sydney NSW',
-          urgency: 'urgent',
-          status: 'new',
-          description: 'Burst pipe in bathroom - URGENT',
-          estimated_value: 800
+          customer_name: "John Demo",
+          phone: "+61412345678",
+          address: "456 Demo St, Sydney NSW",
+          job_type: "Plumbing",
+          location: "Sydney NSW",
+          urgency: "urgent",
+          status: "new",
+          description: "Burst pipe in bathroom - URGENT",
+          estimated_value: 800,
         },
         {
-          customer_name: 'Sarah Test',
-          phone: '+61498765432',
-          address: '789 Test Ave, Melbourne VIC',
-          job_type: 'Electrical',
-          location: 'Melbourne VIC',
-          urgency: 'medium',
-          status: 'contacted',
-          description: 'Install outdoor lighting',
-          estimated_value: 1200
-        }
+          customer_name: "Sarah Test",
+          phone: "+61498765432",
+          address: "789 Test Ave, Melbourne VIC",
+          job_type: "Electrical",
+          location: "Melbourne VIC",
+          urgency: "medium",
+          status: "contacted",
+          description: "Install outdoor lighting",
+          estimated_value: 1200,
+        },
       ];
 
       for (const job of demoJobs) {
-        const { error } = await supabase.from('jobs').insert(job);
-        if (error) console.error('Error seeding job:', error);
+        const { error } = await supabase.from("jobs").insert(job);
+        if (error) console.error("Error seeding job:", error);
       }
 
       toast({
         title: "✅ Demo Data Seeded",
         description: "Added demo jobs to database",
       });
-      
+
       queryClient.invalidateQueries();
     } catch (error) {
       toast({
@@ -295,21 +314,22 @@ export function DevDrawer() {
 
   // Copy deep link
   const copyDeepLink = (preset?: DemoPreset) => {
-    const currentRole = devAuth.getCurrentRole() || 'client';
+    const currentRole = devAuth.getCurrentRole() || "client";
     const params = new URLSearchParams();
-    
+
     // Add role parameter
-    params.set('devRole', preset?.role || currentRole);
-    
+    params.set("devRole", preset?.role || currentRole);
+
     // Add preset-specific parameters if provided
     if (preset) {
-      params.set('preset', preset.id);
-      if (preset.trade) params.set('trade', preset.trade);
-      if (preset.location) params.set('location', preset.location);
-      if (preset.onboardingStep) params.set('onboardingStep', preset.onboardingStep);
-      if (preset.twilioStatus) params.set('twilioStatus', preset.twilioStatus);
+      params.set("preset", preset.id);
+      if (preset.trade) params.set("trade", preset.trade);
+      if (preset.location) params.set("location", preset.location);
+      if (preset.onboardingStep)
+        params.set("onboardingStep", preset.onboardingStep);
+      if (preset.twilioStatus) params.set("twilioStatus", preset.twilioStatus);
     }
-    
+
     const deepLink = `${window.location.origin}${preset?.route || location.pathname}?${params.toString()}`;
     navigator.clipboard.writeText(deepLink);
     toast({
@@ -320,36 +340,49 @@ export function DevDrawer() {
 
   // Get current role display
   const getCurrentRoleDisplay = () => {
-    if (!user) return 'Not logged in';
-    
-    const role = profile?.user_type || 'unknown';
+    if (!user) return "Not logged in";
+
     const isAdmin = profile?.is_admin;
+    const role = profile?.user_type;
+
+    if (isAdmin) return "admin";
+    if (role === 'tradie') return "tradie";
+    if (role === 'client') return "client";
     
-    if (isAdmin) return 'admin';
-    return role;
+    // If we have a user but no profile yet, show loading
+    return "Loading...";
+  };
+
+  // Get display name
+  const getDisplayName = () => {
+    if (profile?.name) return profile.name;
+    if (user?.email) return user.email;
+    return "Unknown User";
   };
 
   // Apply demo preset
   const applyPreset = async (preset: DemoPreset) => {
     setLoading(true);
-    
+
     // First switch role with preset-specific navigation
     const result = await devAuth.switchToRole(preset.role, {
       navigateTo: preset.route,
-      clearAll: false
+      clearAll: false,
     });
-    
+
     if (result.success) {
       // Store preset-specific data for the application to use
-      if (preset.trade) localStorage.setItem('devTrade', preset.trade);
-      if (preset.location) localStorage.setItem('devLocation', preset.location);
-      if (preset.onboardingStep) localStorage.setItem('devOnboardingStep', preset.onboardingStep);
-      if (preset.twilioStatus) localStorage.setItem('devTwilioStatus', preset.twilioStatus);
-      
+      if (preset.trade) localStorage.setItem("devTrade", preset.trade);
+      if (preset.location) localStorage.setItem("devLocation", preset.location);
+      if (preset.onboardingStep)
+        localStorage.setItem("devOnboardingStep", preset.onboardingStep);
+      if (preset.twilioStatus)
+        localStorage.setItem("devTwilioStatus", preset.twilioStatus);
+
       // Navigate to preset route
       navigate(preset.route);
       setOpen(false);
-      
+
       toast({
         title: "✅ Preset Applied",
         description: `Switched to ${preset.name}`,
@@ -361,7 +394,7 @@ export function DevDrawer() {
         variant: "destructive",
       });
     }
-    
+
     setLoading(false);
   };
 
@@ -375,20 +408,20 @@ export function DevDrawer() {
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        {/* Floating FAB */}
-        <div className="fixed bottom-6 right-6 z-50">
+        {/* Floating FAB with responsive positioning */}
+        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 lg:bottom-8 lg:right-8 z-50">
           <SheetTrigger asChild>
             <Button
               size="icon"
-              className="h-14 w-14 rounded-full shadow-lg"
+              className="h-12 w-12 md:h-14 md:w-14 rounded-full shadow-lg transition-all hover:scale-105"
               onClick={() => setOpen(true)}
               title="Dev Tools (Ctrl+`)"
             >
-              <Code2 className="h-6 w-6" />
+              <Code2 className="h-5 w-5 md:h-6 md:w-6" />
             </Button>
           </SheetTrigger>
         </div>
-        <SheetContent side="right" className="w-[400px] overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:w-[400px] md:w-[450px] lg:w-[500px] overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Dev Tools</SheetTitle>
             <SheetDescription>
@@ -401,14 +434,18 @@ export function DevDrawer() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Current Role</p>
-                <p className="text-lg font-bold capitalize">{getCurrentRoleDisplay()}</p>
+                <p className="text-lg font-bold capitalize">
+                  {getCurrentRoleDisplay()}
+                </p>
               </div>
               <Badge variant="outline" className="ml-2">
-                {profile?.name || 'Unknown User'}
+                {getDisplayName()}
               </Badge>
             </div>
             {profile?.phone && (
-              <p className="text-xs text-muted-foreground mt-1">{profile.phone}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {profile.phone}
+              </p>
             )}
           </div>
 
@@ -452,7 +489,7 @@ export function DevDrawer() {
                 {filteredRoutes.map((route) => {
                   const Icon = route.icon;
                   const isActive = location.pathname === route.path;
-                  
+
                   return (
                     <Button
                       key={route.path}
@@ -462,7 +499,11 @@ export function DevDrawer() {
                     >
                       <Icon className="h-4 w-4 mr-2" />
                       {route.label}
-                      {isActive && <Badge className="ml-auto" variant="secondary">Current</Badge>}
+                      {isActive && (
+                        <Badge className="ml-auto" variant="secondary">
+                          Current
+                        </Badge>
+                      )}
                     </Button>
                   );
                 })}
@@ -471,114 +512,232 @@ export function DevDrawer() {
 
             {/* Auth Tab */}
             <TabsContent value="auth" className="space-y-4">
-              {/* Onboarding Test Users (Dev Only) */}
-              {isDevMode && !isDemoMode && (
-                <>
-                  <OnboardingPresets />
-                  <Separator />
-                </>
-              )}
-              
+              {/* Preview Mode Section */}
               <div>
-                <Label>Quick Dev Login</Label>
+                <Label>Preview Mode (Instant - No Auth)</Label>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Login as test users (uses magic links)
+                  View pages as different roles without authentication
                 </p>
-                <div className="space-y-2">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={async () => {
-                      setLoading(true);
-                      try {
-                        const { devLoginTradie } = await import('@/lib/dev-tools-client');
-                        const result = await devLoginTradie();
-                        if (result.loginUrl) {
-                          window.location.href = result.loginUrl;
-                        }
-                      } catch (error) {
+                
+                {/* Show current preview if active */}
+                {previewRole && (
+                  <div className="bg-primary/10 border border-primary/20 rounded p-2 mb-3 flex items-center justify-between">
+                    <span className="text-sm">Previewing as: <strong>{devPreview.getDisplayName(previewRole)}</strong></span>
+                    <Button
+                      onClick={() => {
+                        clearPreview();
                         toast({
-                          title: "Login Failed",
-                          description: "Could not create dev login",
-                          variant: "destructive",
+                          title: "Preview Mode Cleared",
+                          description: "Returned to normal authentication"
                         });
-                      }
-                      setLoading(false);
+                      }}
+                      size="sm"
+                      variant="ghost"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <Button 
+                    onClick={() => {
+                      setPreviewRole('tradie');
+                      devPreview.navigateToRolePage('tradie');
+                      setOpen(false);
+                      toast({
+                        title: "Preview Mode Active",
+                        description: "Viewing as Tradie"
+                      });
                     }}
-                    disabled={loading}
+                    variant={previewRole === 'tradie' ? 'default' : 'outline'}
+                    size="sm"
                   >
-                    <Briefcase className="h-4 w-4 mr-2" />
-                    🔧 Login as Tradie
-                    <Badge className="ml-auto" variant="secondary">
-                      Service provider
-                    </Badge>
+                    Tradie
                   </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={async () => {
-                      setLoading(true);
-                      try {
-                        const { devLoginClient } = await import('@/lib/dev-tools-client');
-                        const result = await devLoginClient();
-                        if (result.loginUrl) {
-                          window.location.href = result.loginUrl;
-                        }
-                      } catch (error) {
-                        toast({
-                          title: "Login Failed",
-                          description: "Could not create dev login",
-                          variant: "destructive",
-                        });
-                      }
-                      setLoading(false);
+                  <Button 
+                    onClick={() => {
+                      setPreviewRole('client');
+                      devPreview.navigateToRolePage('client');
+                      setOpen(false);
+                      toast({
+                        title: "Preview Mode Active", 
+                        description: "Viewing as Client"
+                      });
                     }}
-                    disabled={loading}
+                    variant={previewRole === 'client' ? 'default' : 'outline'}
+                    size="sm"
                   >
-                    <User className="h-4 w-4 mr-2" />
-                    👤 Login as Client
-                    <Badge className="ml-auto" variant="secondary">
-                      Customer
-                    </Badge>
+                    Client
                   </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={async () => {
-                      setLoading(true);
-                      try {
-                        const { devLoginAdmin } = await import('@/lib/dev-tools-client');
-                        const result = await devLoginAdmin();
-                        if (result.loginUrl) {
-                          window.location.href = result.loginUrl;
-                        }
-                      } catch (error) {
-                        toast({
-                          title: "Login Failed",
-                          description: "Could not create dev admin login",
-                          variant: "destructive",
-                        });
-                      }
-                      setLoading(false);
+                  <Button 
+                    onClick={() => {
+                      setPreviewRole('admin');
+                      devPreview.navigateToRolePage('admin');
+                      setOpen(false);
+                      toast({
+                        title: "Preview Mode Active",
+                        description: "Viewing as Admin"
+                      });
                     }}
-                    disabled={loading}
+                    variant={previewRole === 'admin' ? 'default' : 'outline'}
+                    size="sm"
                   >
-                    <Shield className="h-4 w-4 mr-2" />
-                    👑 Login as Admin
-                    <Badge className="ml-auto" variant="secondary">
-                      Full access
-                    </Badge>
+                    Admin
                   </Button>
                 </div>
               </div>
 
               <Separator />
 
+              {/* Show sign out button if logged in */}
+              {user && (
+                <>
+                  <div>
+                    <Label>Current Session</Label>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Signed in as {user.email}
+                    </p>
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          await supabase.auth.signOut();
+                          toast({
+                            title: "Signed Out",
+                            description: "You have been signed out successfully"
+                          });
+                          navigate('/');
+                        } catch (error) {
+                          toast({
+                            title: "Sign Out Failed",
+                            description: "Could not sign out",
+                            variant: "destructive"
+                          });
+                        }
+                        setLoading(false);
+                      }}
+                      disabled={loading}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </div>
+                  <Separator />
+                </>
+              )}
+
+              {/* Only show login options when not logged in */}
+              {!user && (
+                <div>
+                  <Label>Quick Magic Link Login</Label>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Sign in as a test user
+                  </p>
+                  <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={async () => {
+                      setLoading(true);
+                      try {
+                        const result = await devExistingSession('tradie');
+                        if (!result.success) {
+                          throw new Error(result.error || "Login failed");
+                        }
+                        // Magic link will redirect automatically
+                      } catch (error: any) {
+                        console.error("Dev login error:", error);
+                        toast({
+                          title: "Login Failed",
+                          description:
+                            error.message || "Could not generate magic link",
+                          variant: "destructive",
+                        });
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    🔧 Login as Tradie
+                    <Badge className="ml-auto" variant="secondary">
+                      testtradie@dev.local
+                    </Badge>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={async () => {
+                      setLoading(true);
+                      try {
+                        const result = await devExistingSession('client');
+                        if (!result.success) {
+                          throw new Error(result.error || "Login failed");
+                        }
+                        // Magic link will redirect automatically
+                      } catch (error: any) {
+                        console.error("Dev login error:", error);
+                        toast({
+                          title: "Login Failed",
+                          description:
+                            error.message || "Could not generate magic link",
+                          variant: "destructive",
+                        });
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    👤 Login as Client
+                    <Badge className="ml-auto" variant="secondary">
+                      testclient@dev.local
+                    </Badge>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={async () => {
+                      setLoading(true);
+                      try {
+                        const result = await devExistingSession('admin');
+                        if (!result.success) {
+                          throw new Error(result.error || "Login failed");
+                        }
+                        // Magic link will redirect automatically
+                      } catch (error: any) {
+                        console.error("Dev login error:", error);
+                        toast({
+                          title: "Login Failed",
+                          description:
+                            error.message || "Could not generate magic link",
+                          variant: "destructive",
+                        });
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    👑 Login as Admin
+                    <Badge className="ml-auto" variant="secondary">
+                      testadmin@dev.local
+                    </Badge>
+                  </Button>
+                </div>
+                </div>
+              )}
+
+              <Separator />
+
               <div>
                 <Label>Session Info</Label>
                 <div className="mt-2 p-3 bg-muted rounded text-xs font-mono">
-                  <p>User ID: {user?.id?.slice(0, 8) || 'None'}</p>
-                  <p>Email: {user?.email || 'None'}</p>
+                  <p>User ID: {user?.id?.slice(0, 8) || "None"}</p>
+                  <p>Email: {user?.email || "None"}</p>
                   <p>Role: {getCurrentRoleDisplay()}</p>
                 </div>
               </div>
@@ -699,6 +858,14 @@ export function DevDrawer() {
                   </p>
                 </div>
               </div>
+              
+              {/* Test Data Manager - Only for authenticated users */}
+              {user && (
+                <>
+                  <Separator />
+                  <TestDataManagerComponent />
+                </>
+              )}
             </TabsContent>
 
             {/* Onboarding Tab */}

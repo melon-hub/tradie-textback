@@ -20,7 +20,8 @@ import {
   DollarSign,
   Edit,
   Save,
-  X
+  X,
+  Check
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -56,6 +57,8 @@ const JobCard = () => {
   const [quote, setQuote] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [editingNotes, setEditingNotes] = useState(false);
+  const [editingLocation, setEditingLocation] = useState(false);
+  const [location, setLocation] = useState<string>("");
   const { toast } = useToast();
   const navigate = useNavigate();
   const { jobId } = useParams();
@@ -105,6 +108,7 @@ const JobCard = () => {
         setJob(data);
         setQuote(data.estimated_value?.toString() || '');
         setNotes(data.description || '');
+        setLocation(data.location || '');
       } catch (error) {
         toast({
           title: "Error",
@@ -129,16 +133,24 @@ const JobCard = () => {
         .from('jobs')
         .update({ 
           status: newStatus,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          // Update last_contact when marking as contacted
+          ...(newStatus === 'contacted' ? { last_contact: new Date().toISOString() } : {})
         })
         .eq('id', job.id);
 
       if (error) throw error;
 
-      setJob({ ...job, status: newStatus });
+      setJob({ 
+        ...job, 
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+        ...(newStatus === 'contacted' ? { last_contact: new Date().toISOString() } : {})
+      });
+      
       toast({
-        title: "Status updated ✅",
-        description: `Job marked as ${newStatus}`,
+        title: "Status updated",
+        description: `Job marked as ${newStatus.replace('_', ' ')}`,
       });
     } catch (error) {
       console.error('Error updating status:', error);
@@ -203,15 +215,93 @@ const JobCard = () => {
 
       setJob({ ...job, description: notes });
       setEditingNotes(false);
-      toast({
-        title: "Notes updated ✅",
-        description: "Job notes have been saved",
-      });
+      
+      // Send SMS notification if client updated
+      if (profile?.user_type === 'client' && job.client_id) {
+        // Call edge function to send SMS
+        supabase.functions.invoke('send-job-update-sms', {
+          body: {
+            jobId: job.id,
+            updatedFields: ['description'],
+            updatedBy: profile.id || user?.id,
+            updatedByType: 'client'
+          }
+        }).then(({ data, error }) => {
+          if (error) {
+            console.error('Failed to send SMS notification:', error);
+          } else if (data?.requiresSetup) {
+            console.log('Twilio not configured - SMS notifications disabled');
+          }
+        });
+      }
+      
+      // Different message based on user type
+      if (profile?.user_type === 'client') {
+        toast({
+          title: "Details updated ✅",
+          description: "Your tradie will be notified of the changes",
+        });
+      } else {
+        toast({
+          title: "Notes updated ✅",
+          description: "Job notes have been saved",
+        });
+      }
     } catch (error) {
       console.error('Error updating notes:', error);
       toast({
         title: "Error",
         description: "Failed to update notes",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Update location
+  const handleLocationUpdate = async () => {
+    if (!job) return;
+
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ 
+          location: location,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', job.id);
+
+      if (error) throw error;
+
+      setJob({ ...job, location: location });
+      setEditingLocation(false);
+      
+      // Send SMS notification if client updated
+      if (profile?.user_type === 'client' && job.client_id) {
+        supabase.functions.invoke('send-job-update-sms', {
+          body: {
+            jobId: job.id,
+            updatedFields: ['location'],
+            updatedBy: profile.id || user?.id,
+            updatedByType: 'client'
+          }
+        }).then(({ data, error }) => {
+          if (error) {
+            console.error('Failed to send SMS notification:', error);
+          }
+        });
+      }
+      
+      toast({
+        title: "Location updated ✅",
+        description: profile?.user_type === 'client' 
+          ? "Your tradie will be notified of the new address"
+          : "Job location has been updated",
+      });
+    } catch (error) {
+      console.error('Error updating location:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update location",
         variant: "destructive",
       });
     }
@@ -250,6 +340,32 @@ const JobCard = () => {
     });
   };
 
+  const handleSMS = (customerName: string, phone: string) => {
+    window.location.href = `sms:${phone}`;
+    toast({
+      title: "SMS opened",
+      description: `Ready to text ${customerName}`,
+    });
+  };
+
+  const shareJobLink = async (job: Job) => {
+    try {
+      // This would generate a secure job link
+      const jobLink = `${window.location.origin}/job/${job.id}`;
+      await navigator.clipboard.writeText(jobLink);
+      toast({
+        title: "Job link copied!",
+        description: `Link for ${job.customer_name} copied to clipboard`,
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to share job",
+        description: "Could not copy job link",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
       case "high": return "destructive";
@@ -268,6 +384,59 @@ const JobCard = () => {
       case "completed": return "outline";
       default: return "outline";
     }
+  };
+
+  const getContactStatusIcon = (status: string) => {
+    switch (status) {
+      case 'new': return X;
+      case 'contacted': return Phone;
+      case 'quote_sent': return DollarSign;
+      case 'scheduled': return Calendar;
+      case 'completed': return Check;
+      default: return Clock;
+    }
+  };
+
+  const getContactStatusText = (status: string, job: Job) => {
+    switch (status) {
+      case 'new': return 'Not contacted yet';
+      case 'contacted': return 'Customer contacted';
+      case 'quote_sent': return job.estimated_value > 0 ? `Quoted $${job.estimated_value.toLocaleString()}` : 'Quote sent';
+      case 'scheduled': return 'Job scheduled';
+      case 'completed': return 'Job completed';
+      default: return status.replace('_', ' ');
+    }
+  };
+
+  const formatTimeSince = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    
+    return date.toLocaleDateString('en-AU', {
+      timeZone: profile?.timezone || 'Australia/Sydney',
+      day: 'numeric',
+      month: 'short',
+      year: diffDays > 365 ? 'numeric' : undefined
+    });
+  };
+
+  const getTimeSinceColor = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffHours < 24) return 'text-green-600';
+    if (diffHours < 72) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
   return (
@@ -291,57 +460,60 @@ const JobCard = () => {
           <Card className="mb-4">
             <CardContent className="p-4">
               <div className="space-y-3">
+                {/* Status Badge with Icon - matching dashboard style */}
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Job Status</h3>
-                  <Badge variant={getStatusColor(job.status)} className="text-sm">
-                    {job.status === "new" && "Awaiting Response"}
-                    {job.status === "contacted" && "Tradie Has Called"}
-                    {job.status === "quote_sent" && "Quote Sent"}
-                    {job.status === "scheduled" && "Job Scheduled"}
-                    {job.status === "completed" && "Job Completed"}
-                    {job.status === "cancelled" && "Job Cancelled"}
-                  </Badge>
+                  {(() => {
+                    const Icon = getContactStatusIcon(job.status);
+                    return (
+                      <Badge variant={getStatusColor(job.status)} className="text-sm">
+                        <Icon className="h-4 w-4 mr-1" />
+                        {getContactStatusText(job.status, job)}
+                      </Badge>
+                    );
+                  })()}
+                  <span 
+                    className={`text-sm ${getTimeSinceColor(job.created_at)}`}
+                    title={new Date(job.created_at).toLocaleString('en-AU', {
+                      timeZone: profile?.timezone || 'Australia/Sydney',
+                      dateStyle: 'medium',
+                      timeStyle: 'short'
+                    })}
+                  >
+                    Submitted {formatTimeSince(job.created_at)}
+                  </span>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>Submitted {format(new Date(job.created_at), 'MMM d, yyyy h:mm a')}</span>
+                
+                {/* Key Info */}
+                {job.estimated_value > 0 && (
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <span className="text-sm text-muted-foreground">Quote Amount</span>
+                    <span className="text-lg font-semibold text-green-600">
+                      ${job.estimated_value.toLocaleString()}
+                    </span>
                   </div>
-                  {job.estimated_value > 0 && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Quote: ${job.estimated_value}</span>
-                    </div>
-                  )}
-                </div>
+                )}
+                
+                {/* Message Tradie Button for Clients */}
+                {job.client_id && profile?.user_type === 'client' && (
+                  <Button 
+                    variant="default" 
+                    className="w-full mt-2"
+                    onClick={() => {
+                      // In a real app, this would need the tradie's phone number
+                      toast({
+                        title: "Contact Tradie",
+                        description: "This feature requires tradie contact information",
+                      });
+                    }}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Message Tradie
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
-        ) : (
-          // Tradie View - Quick Actions
-          <Card className="mb-4">
-            <CardContent className="p-4">
-              <div className="grid grid-cols-2 gap-2">
-                <Button onClick={handleCall} className="w-full">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call Now
-                </Button>
-                <Button variant="outline" onClick={handleMaps} className="w-full">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  Open Maps
-                </Button>
-                <Button variant="outline" onClick={handleCalendar} className="w-full">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Add to Calendar
-                </Button>
-                <Button variant="outline" className="w-full">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Share Job
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        ) : null}
 
         {/* Quote & Status Update - Only for Tradies */}
         {profile?.user_type === 'tradie' && (
@@ -404,39 +576,69 @@ const JobCard = () => {
               </CardContent>
             </Card>
 
-            {/* Status Update */}
+            {/* All Actions */}
             <Card className="mb-4">
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3">Update Status</h3>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Communication Actions */}
                 <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    variant={job.status === "contacted" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleStatusUpdate("contacted")}
-                  >
-                    Contacted
+                  <Button onClick={handleCall} className="w-full">
+                    <Phone className="h-4 w-4 mr-2" />
+                    Call Now
                   </Button>
                   <Button 
-                    variant={job.status === "quote_sent" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleStatusUpdate("quote_sent")}
+                    variant="outline" 
+                    onClick={() => handleSMS(job.customer_name, job.phone)}
+                    disabled={job.sms_blocked}
                   >
-                    Quote Sent
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    {job.sms_blocked ? 'SMS Blocked' : 'Send SMS'}
                   </Button>
-                  <Button 
-                    variant={job.status === "scheduled" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleStatusUpdate("scheduled")}
-                  >
-                    Scheduled
+                  <Button variant="outline" onClick={handleMaps} className="w-full">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Open Maps
                   </Button>
-                  <Button 
-                    variant={job.status === "completed" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleStatusUpdate("completed")}
-                  >
-                    Completed
+                  <Button variant="outline" onClick={() => shareJobLink(job)} className="w-full">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Share Job
                   </Button>
+                </div>
+                
+                {/* Separator */}
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Update Status</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant={job.status === "contacted" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleStatusUpdate("contacted")}
+                    >
+                      Contacted
+                    </Button>
+                    <Button 
+                      variant={job.status === "quote_sent" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleStatusUpdate("quote_sent")}
+                    >
+                      Quote Sent
+                    </Button>
+                    <Button 
+                      variant={job.status === "scheduled" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleStatusUpdate("scheduled")}
+                    >
+                      Scheduled
+                    </Button>
+                    <Button 
+                      variant={job.status === "completed" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleStatusUpdate("completed")}
+                    >
+                      Completed
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -476,11 +678,55 @@ const JobCard = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Location</p>
-                <p className="text-sm flex items-center">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  {job.location}
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-muted-foreground">Location</p>
+                  {!editingLocation && (job.status === 'new' || profile?.user_type === 'tradie') && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setEditingLocation(true)}
+                      className="h-6 px-2"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  )}
+                  {editingLocation && (
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={handleLocationUpdate}
+                        className="h-6 px-2"
+                      >
+                        <Save className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setEditingLocation(false);
+                          setLocation(job.location || '');
+                        }}
+                        className="h-6 px-2"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {editingLocation ? (
+                  <Input
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Enter job location"
+                    className="text-sm"
+                  />
+                ) : (
+                  <p className="text-sm flex items-center">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    {job.location}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Job Type</p>
@@ -493,7 +739,7 @@ const JobCard = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">Description / Notes</p>
-                {profile?.user_type === 'tradie' && !editingNotes && (
+                {!editingNotes && (job.status === 'new' || profile?.user_type === 'tradie') && (
                   <Button
                     size="sm"
                     variant="ghost"
@@ -502,7 +748,7 @@ const JobCard = () => {
                     <Edit className="h-3 w-3" />
                   </Button>
                 )}
-                {profile?.user_type === 'tradie' && editingNotes && (
+                {editingNotes && (
                   <div className="flex gap-2">
                     <Button
                       size="sm"

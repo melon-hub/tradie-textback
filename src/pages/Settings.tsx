@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Building2, MapPin, DollarSign, MessageSquare, Settings as SettingsIcon, ArrowLeft } from 'lucide-react';
@@ -17,9 +17,15 @@ export default function Settings() {
   const navigate = useNavigate();
   const { profile } = useAuth();
 
-  // Only allow tradies to access settings
-  if (profile?.user_type !== 'tradie' && !profile?.is_admin) {
-    navigate('/dashboard');
+  // Only allow tradies and admins to access settings
+  useEffect(() => {
+    if (profile && profile.user_type !== 'tradie' && !profile.is_admin) {
+      navigate('/dashboard');
+    }
+  }, [profile, navigate]);
+
+  // Show loading or redirect for non-tradies
+  if (profile && profile.user_type !== 'tradie' && !profile.is_admin) {
     return null;
   }
 
@@ -123,6 +129,45 @@ export default function Settings() {
 
           <TabsContent value="twilio" className="space-y-4">
             <TwilioSettingsForm />
+            
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>SMS Notifications</CardTitle>
+                <CardDescription>
+                  Automatic notifications when jobs are updated
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-muted p-4">
+                    <h4 className="font-medium mb-2">Job Update Notifications</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      When clients update their job details, you'll receive an SMS notification instantly.
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                        <span>Location/address changes</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                        <span>Job description updates</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                        <span>Visual indicator on dashboard</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                    <p className="text-sm text-yellow-800">
+                      <strong>Setup Required:</strong> SMS notifications require Twilio to be configured above. Without valid Twilio credentials, only dashboard indicators will show updates.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

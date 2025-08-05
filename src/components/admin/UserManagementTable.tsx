@@ -111,9 +111,10 @@ export function UserManagementTable() {
         />
       </div>
 
-      {/* Table */}
-      <div className="border rounded-lg">
-        <Table>
+      {/* Table with responsive wrapper */}
+      <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+          <Table className="min-w-[600px] md:min-w-full">
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
@@ -187,6 +188,7 @@ export function UserManagementTable() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
 
       {/* Pagination */}

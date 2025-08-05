@@ -2,12 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, Settings, RefreshCw, Users, Briefcase, Key, Database } from "lucide-react";
+import { ChevronDown, ChevronUp, Settings, RefreshCw, Users, Briefcase, Key, Database, Eye, X } from "lucide-react";
 import { createTestClient, createTestJob, resetTestData, createTestTradie, devLoginTradie, devLoginClient } from "@/lib/dev-tools-client";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import { useDevPreview } from "@/hooks/useDevPreview";
+import { devPreview } from "@/lib/dev-preview";
 
 interface DevToolsPanelProps {
   onCreateTestClient?: () => Promise<void>;
@@ -22,6 +24,7 @@ const DevToolsPanel = ({
 }: DevToolsPanelProps) => {
   const { toast } = useToast();
   const { user, profile } = useAuth();
+  const { role: previewRole, setRole: setPreviewRole, clear: clearPreview } = useDevPreview();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isMinimized, setIsMinimized] = useState(() => {
     // Load minimized state from localStorage
@@ -370,29 +373,107 @@ const DevToolsPanel = ({
       </CardHeader>
       {!isMinimized && (
         <CardContent className="space-y-4">
-          {/* Quick Login Section */}
+          {/* Dev Preview Section */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <Key className="h-4 w-4" />
-              Quick Login
+              <Eye className="h-4 w-4" />
+              Preview Mode
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            
+            {/* Show current preview if active */}
+            {previewRole && (
+              <div className="bg-primary/10 border border-primary/20 rounded p-2 flex items-center justify-between">
+                <span className="text-sm">Previewing as: <strong>{devPreview.getDisplayName(previewRole)}</strong></span>
+                <Button
+                  onClick={() => {
+                    clearPreview();
+                    toast({
+                      title: "Preview Mode Cleared",
+                      description: "Returned to normal authentication"
+                    });
+                  }}
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 w-6 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-3 gap-2">
               <Button 
-                onClick={handleDevLoginTradie} 
-                variant="outline"
-                disabled={isProcessing}
+                onClick={() => {
+                  setPreviewRole('tradie');
+                  devPreview.navigateToRolePage('tradie');
+                  toast({
+                    title: "Preview Mode Active",
+                    description: "Viewing as Tradie"
+                  });
+                }}
+                variant={previewRole === 'tradie' ? 'default' : 'outline'}
                 size="sm"
               >
-                {isProcessing ? "..." : "🔧 Tradie"}
+                Tradie
               </Button>
               <Button 
-                onClick={handleDevLoginClient} 
-                variant="outline"
-                disabled={isProcessing}
+                onClick={() => {
+                  setPreviewRole('client');
+                  devPreview.navigateToRolePage('client');
+                  toast({
+                    title: "Preview Mode Active", 
+                    description: "Viewing as Client"
+                  });
+                }}
+                variant={previewRole === 'client' ? 'default' : 'outline'}
                 size="sm"
               >
-                {isProcessing ? "..." : "👤 Client"}
+                Client
               </Button>
+              <Button 
+                onClick={() => {
+                  setPreviewRole('admin');
+                  devPreview.navigateToRolePage('admin');
+                  toast({
+                    title: "Preview Mode Active",
+                    description: "Viewing as Admin"
+                  });
+                }}
+                variant={previewRole === 'admin' ? 'default' : 'outline'}
+                size="sm"
+              >
+                Admin
+              </Button>
+            </div>
+            
+            <Separator className="my-2" />
+            
+            {/* Magic Link Login (for real auth testing) */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Key className="h-3 w-3" />
+                Real Auth (Magic Links)
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  onClick={handleDevLoginTradie} 
+                  variant="ghost"
+                  disabled={isProcessing}
+                  size="sm"
+                  className="text-xs"
+                >
+                  {isProcessing ? "..." : "Login Tradie"}
+                </Button>
+                <Button 
+                  onClick={handleDevLoginClient} 
+                  variant="ghost"
+                  disabled={isProcessing}
+                  size="sm"
+                  className="text-xs"
+                >
+                  {isProcessing ? "..." : "Login Client"}
+                </Button>
+              </div>
             </div>
           </div>
 

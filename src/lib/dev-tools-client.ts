@@ -50,7 +50,7 @@ export const createTestClient = async (): Promise<CreateTestClientResponse> => {
     const timestamp = Date.now();
     const lastDigits = timestamp.toString().slice(-7);
     const testPhone = `+614${lastDigits}`;
-    
+
     // Call the edge function to create a test client
     const { data, error } = await devToolsClient.functions.invoke('create-test-client', {
       body: {
@@ -161,13 +161,17 @@ export const createTestTradie = async (): Promise<CreateTestTradieResponse> => {
 // API function for development login (bypasses email/SMS)
 export const devLoginTradie = async (): Promise<DevLoginResponse> => {
   try {
+    // Compute a stable redirect target (default to dashboard for tradie)
+    const redirectTo = `${window.location.origin}/dashboard`;
+
     // Call the edge function to create a test tradie and get login URL
     const { data, error } = await devToolsClient.functions.invoke('dev-login', {
       body: {
         email: 'testtradie@dev.local',
         name: 'Test Tradie',
         userType: 'tradie',
-        address: '456 Tradie Street, Melbourne, VIC 3000'
+        address: '456 Tradie Street, Melbourne, VIC 3000',
+        redirect_to: redirectTo
       }
     });
 
@@ -175,15 +179,20 @@ export const devLoginTradie = async (): Promise<DevLoginResponse> => {
       throw error;
     }
 
+    // Prefer the server-provided loginUrl but ensure it includes our redirect target
+    const loginUrl: string | undefined = data?.loginUrl
+      ? new URL(data.loginUrl).toString()
+      : undefined;
+
     return {
-      success: data.success,
-      userId: data.userId,
-      email: data.email,
-      name: data.name,
-      userType: data.userType,
-      loginUrl: data.loginUrl,
-      message: data.message,
-      instructions: data.instructions,
+      success: data?.success ?? false,
+      userId: data?.userId,
+      email: data?.email,
+      name: data?.name,
+      userType: data?.userType,
+      loginUrl,
+      message: data?.message,
+      instructions: data?.instructions,
       error: undefined
     };
   } catch (error: any) {
@@ -198,13 +207,17 @@ export const devLoginTradie = async (): Promise<DevLoginResponse> => {
 // API function for development login (bypasses email/SMS)
 export const devLoginClient = async (): Promise<DevLoginResponse> => {
   try {
+    // Compute a stable redirect target (default to intake for client)
+    const redirectTo = `${window.location.origin}/intake`;
+
     // Call the edge function to create a test client and get login URL
     const { data, error } = await devToolsClient.functions.invoke('dev-login', {
       body: {
         email: 'testclient@dev.local',
         name: 'Test Client',
         userType: 'client',
-        address: '123 Client Street, Sydney, NSW 2000'
+        address: '123 Client Street, Sydney, NSW 2000',
+        redirect_to: redirectTo
       }
     });
 
@@ -212,15 +225,19 @@ export const devLoginClient = async (): Promise<DevLoginResponse> => {
       throw error;
     }
 
+    const loginUrl: string | undefined = data?.loginUrl
+      ? new URL(data.loginUrl).toString()
+      : undefined;
+
     return {
-      success: data.success,
-      userId: data.userId,
-      email: data.email,
-      name: data.name,
-      userType: data.userType,
-      loginUrl: data.loginUrl,
-      message: data.message,
-      instructions: data.instructions,
+      success: data?.success ?? false,
+      userId: data?.userId,
+      email: data?.email,
+      name: data?.name,
+      userType: data?.userType,
+      loginUrl,
+      message: data?.message,
+      instructions: data?.instructions,
       error: undefined
     };
   } catch (error: any) {
@@ -235,6 +252,9 @@ export const devLoginClient = async (): Promise<DevLoginResponse> => {
 // API function for admin development login (bypasses email/SMS)
 export const devLoginAdmin = async (): Promise<DevLoginResponse> => {
   try {
+    // Compute a stable redirect target (default to admin panel for admin)
+    const redirectTo = `${window.location.origin}/admin`;
+
     // Call the edge function to create a test admin and get login URL
     const { data, error } = await devToolsClient.functions.invoke('dev-login', {
       body: {
@@ -242,7 +262,8 @@ export const devLoginAdmin = async (): Promise<DevLoginResponse> => {
         name: 'Test Admin',
         userType: 'tradie', // Admin is a tradie with is_admin flag
         address: '789 Admin HQ, Brisbane, QLD 4000',
-        isAdmin: true // This will set the is_admin flag
+        isAdmin: true, // This will set the is_admin flag
+        redirect_to: redirectTo
       }
     });
 
@@ -250,15 +271,19 @@ export const devLoginAdmin = async (): Promise<DevLoginResponse> => {
       throw error;
     }
 
+    const loginUrl: string | undefined = data?.loginUrl
+      ? new URL(data.loginUrl).toString()
+      : undefined;
+
     return {
-      success: data.success,
-      userId: data.userId,
-      email: data.email,
-      name: data.name,
-      userType: data.userType,
-      loginUrl: data.loginUrl,
-      message: data.message,
-      instructions: data.instructions,
+      success: data?.success ?? false,
+      userId: data?.userId,
+      email: data?.email,
+      name: data?.name,
+      userType: data?.userType,
+      loginUrl,
+      message: data?.message,
+      instructions: data?.instructions,
       error: undefined
     };
   } catch (error: any) {

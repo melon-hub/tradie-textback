@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useRef } from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { devPreview } from "@/lib/dev-preview";
 
 interface Profile {
   id: string;
@@ -11,6 +12,7 @@ interface Profile {
   user_type: string;
   address?: string;
   is_admin?: boolean;
+  onboarding_completed?: boolean;
 }
 
 export const useAuth = () => {
@@ -19,7 +21,12 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   const fetchingRef = useRef<string | null>(null); // Track ongoing fetches
+  const lastSignedInAtRef = useRef<number>(0); // Track last SIGNED_IN to debounce spurious SIGNED_OUT
+
+  const isDevAuthInProgress = () =>
+    sessionStorage.getItem("devAuthInProgress") === "1";
 
   useEffect(() => {
     let mounted = true;
@@ -27,14 +34,21 @@ export const useAuth = () => {
     // Get initial session
     const getSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
         if (error) {
-          console.error('Error getting session:', error);
+          console.error("Error getting session:", error);
         } else if (mounted) {
           setSession(session);
           setUser(session?.user ?? null);
           if (session?.user) {
             await fetchProfile(session.user.id);
+          }
+          // Mark ready only when not in a dev-auth handover
+          if (!isDevAuthInProgress()) {
+            setAuthReady(true);
           }
         }
       } finally {
@@ -47,33 +61,59 @@ export const useAuth = () => {
     getSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-        
-        console.log('Auth event:', event, session?.user?.id);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Only fetch profile if we have a user and don't already have a profile
-        // or if the user has changed
-        if (session?.user) {
-          // Don't fetch if we already have a profile for this user
-          if (!profile || profile.user_id !== session.user.id) {
-            // Don't set loading to false until profile is fetched
-            await fetchProfile(session.user.id);
-          }
-          if (mounted) {
-            setLoading(false);
-          }
-        } else {
-          setProfile(null);
-          if (mounted) {
-            setLoading(false);
-          }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
+      console.log("Auth event:", event, session?.user?.id);
+
+      // Record time for SIGNED_IN to debounce immediate SIGNED_OUT
+      if (event === "SIGNED_IN" && session?.user) {
+        lastSignedInAtRef.current = Date.now();
+      }
+
+      // Ignore transient SIGNED_OUT within 1500ms of a SIGNED_IN (caused by URL fragment navigations)
+      if (event === "SIGNED_OUT") {
+        const sinceSignIn = Date.now() - lastSignedInAtRef.current;
+        if (sinceSignIn >= 0 && sinceSignIn < 1500) {
+          console.warn("Ignoring transient SIGNED_OUT shortly after SIGNED_IN");
+          return;
         }
       }
-    );
+
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      // Only fetch profile if we have a user and don't already have a profile
+      // or if the user has changed
+      if (session?.user) {
+        // Don't fetch if we already have a profile for this user
+        if (!profile || profile.user_id !== session.user.id) {
+          // Don't set loading to false until profile is fetched
+          await fetchProfile(session.user.id);
+        }
+        // New session established - clear dev handover flag and mark ready
+        sessionStorage.removeItem("devAuthInProgress");
+        if (mounted) {
+          setLoading(false);
+          setAuthReady(true);
+        }
+      } else {
+        // Only clear profile if we're truly signed out and not in a transient state
+        const sinceSignIn = Date.now() - lastSignedInAtRef.current;
+        if (sinceSignIn < 0 || sinceSignIn > 2000) {
+          setProfile(null);
+          // Also clear the profile cache when truly signing out
+          sessionStorage.removeItem(`profile_${profile?.user_id}`);
+        }
+        if (mounted) {
+          setLoading(false);
+          // Only ready if not waiting for a dev handover to complete
+          setAuthReady(!isDevAuthInProgress());
+        }
+      }
+    });
 
     return () => {
       mounted = false;
@@ -84,72 +124,89 @@ export const useAuth = () => {
   const fetchProfile = async (userId: string) => {
     // Prevent duplicate fetches
     if (fetchingRef.current === userId) {
-      console.log('Already fetching profile for user:', userId);
+      console.log("Already fetching profile for user:", userId);
       return;
     }
-    
+
     // Check cache first
     const cacheKey = `profile_${userId}`;
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       try {
         const cachedData = JSON.parse(cached);
-        console.log('Using cached profile for user:', userId);
-        setProfile(cachedData);
-        setProfileLoading(false);
-        return;
+        // Verify the cached profile is for the correct user
+        if (cachedData.user_id === userId) {
+          console.log("Using cached profile for user:", userId);
+          setProfile(cachedData);
+          setProfileLoading(false);
+          return;
+        } else {
+          // Cache is for wrong user, clear it
+          sessionStorage.removeItem(cacheKey);
+        }
       } catch (e) {
         // Invalid cache, continue with fetch
         sessionStorage.removeItem(cacheKey);
       }
     }
-    
+
     try {
-      console.log('Fetching profile for user:', userId);
+      console.log("Fetching profile for user:", userId);
       fetchingRef.current = userId;
       setProfileLoading(true);
-      
+
       // Create a timeout promise - increased to 20s for slow connections
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timeout after 20s - this may indicate a database performance issue')), 20000);
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                "Profile fetch timeout after 20s - this may indicate a database performance issue",
+              ),
+            ),
+          20000,
+        );
       });
-      
+
       // Create the query promise
       const queryPromise = supabase
-        .from('profiles')
-        .select('id, user_id, phone, name, role, user_type, address, is_admin')
-        .eq('user_id', userId)
+        .from("profiles")
+        .select("id, user_id, phone, name, role, user_type, address, is_admin, onboarding_completed")
+        .eq("user_id", userId)
         .maybeSingle();
-      
-      console.log('Waiting for profile query...');
-      
+
+      console.log("Waiting for profile query...");
+
       // Race between query and timeout
-      const { data, error } = await Promise.race([
+      const { data, error } = (await Promise.race([
         queryPromise,
-        timeoutPromise.then(() => ({ data: null, error: new Error('Timeout') }))
-      ]) as { data: any, error: any };
-      
-      console.log('Profile query result:', { data, error });
+        timeoutPromise.then(() => ({
+          data: null,
+          error: new Error("Timeout"),
+        })),
+      ])) as { data: any; error: any };
+
+      console.log("Profile query result:", { data, error });
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          console.log('No profile found for user');
+        if (error.code === "PGRST116") {
+          console.log("No profile found for user");
         } else {
-          console.error('Error fetching profile:', error);
+          console.error("Error fetching profile:", error);
         }
         fetchingRef.current = null;
         setProfileLoading(false);
         return;
       }
 
-      console.log('Profile fetched successfully:', data);
+      console.log("Profile fetched successfully:", data);
       setProfile(data);
       // Cache the profile
       sessionStorage.setItem(cacheKey, JSON.stringify(data));
       fetchingRef.current = null;
       setProfileLoading(false);
     } catch (error) {
-      console.error('Unexpected error fetching profile:', error);
+      console.error("Unexpected error fetching profile:", error);
       fetchingRef.current = null;
       setProfileLoading(false);
       // Set profile to null on error to prevent indefinite loading
@@ -160,44 +217,82 @@ export const useAuth = () => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
     // Clear profile cache on signout
     sessionStorage.clear();
   };
 
   const isAuthenticated = !!session;
-  const isTradie = profile?.role === 'tradie';
+  const isTradie = profile?.role === "tradie";
+
+  // Check for dev preview mode
+  const previewRole = devPreview.getRole();
+  const isInDevMode = !import.meta.env.PROD;
+  
+  // Create synthetic profile for preview mode
+  let effectiveProfile = profile;
+  let effectiveUser = user;
+  let effectiveSession = session;
+  let effectiveIsAuthenticated = isAuthenticated;
+  
+  if (isInDevMode && previewRole) {
+    // Create synthetic data for preview mode
+    const previewUserId = `preview-${previewRole}`;
+    
+    effectiveProfile = {
+      id: previewUserId,
+      user_id: previewUserId,
+      phone: '+61400000000',
+      name: `Dev Preview ${devPreview.getDisplayName(previewRole)}`,
+      role: previewRole === 'admin' ? 'tradie' : previewRole,
+      user_type: previewRole === 'admin' ? 'tradie' : previewRole,
+      address: '123 Preview Street, Sydney NSW',
+      is_admin: previewRole === 'admin',
+    };
+    
+    effectiveUser = {
+      id: previewUserId,
+      email: `${previewRole}@preview.dev`,
+    } as User;
+    
+    effectiveSession = {} as Session;
+    effectiveIsAuthenticated = true;
+  }
 
   return {
-    user,
-    session,
-    profile,
-    loading: loading || profileLoading, // Combined loading state
-    isAuthenticated,
-    isTradie,
+    user: effectiveUser,
+    session: effectiveSession,
+    profile: effectiveProfile,
+    loading: isInDevMode && previewRole ? false : (loading || profileLoading || !authReady),
+    authReady: isInDevMode && previewRole ? true : authReady,
+    isAuthenticated: effectiveIsAuthenticated,
+    isTradie: effectiveProfile?.role === "tradie",
     signOut,
-    fetchProfile
+    fetchProfile,
   };
 };
 
 // Utility function to generate secure job links
-export const generateJobLink = async (jobId: string, phone?: string): Promise<string | null> => {
+export const generateJobLink = async (
+  jobId: string,
+  phone?: string,
+): Promise<string | null> => {
   try {
-    const { data, error } = await supabase.rpc('create_job_link', {
+    const { data, error } = await supabase.rpc("create_job_link", {
       p_job_id: jobId,
       p_phone: phone,
-      p_expires_hours: 720 // 30 days
+      p_expires_hours: 720, // 30 days
     });
 
     if (error) throw error;
 
     const baseUrl = window.location.origin;
-    const linkUrl = `${baseUrl}/secure/${jobId}?token=${data}${phone ? `&phone=${encodeURIComponent(phone)}` : ''}`;
-    
+    const linkUrl = `${baseUrl}/secure/${jobId}?token=${data}${phone ? `&phone=${encodeURIComponent(phone)}` : ""}`;
+
     return linkUrl;
   } catch (error) {
-    console.error('Error generating job link:', error);
+    console.error("Error generating job link:", error);
     return null;
   }
 };
@@ -206,17 +301,17 @@ export const generateJobLink = async (jobId: string, phone?: string): Promise<st
 export const validateJobLink = async (jobId: string, token: string) => {
   try {
     const { data, error } = await supabase
-      .from('job_links')
-      .select('*, jobs(*)')
-      .eq('job_id', jobId)
-      .eq('token', token)
-      .gte('expires_at', new Date().toISOString())
+      .from("job_links")
+      .select("*, jobs(*)")
+      .eq("job_id", jobId)
+      .eq("token", token)
+      .gte("expires_at", new Date().toISOString())
       .maybeSingle();
 
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error validating job link:', error);
+    console.error("Error validating job link:", error);
     return null;
   }
 };
