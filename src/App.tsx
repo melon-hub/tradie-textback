@@ -23,20 +23,22 @@ import AuthUrlSanitizer from "./components/AuthUrlSanitizer";
 import { DevDrawer } from "./components/DevDrawer";
 import { RequireOnboarding } from "./components/RequireOnboarding";
 import { DevPreviewBanner } from "./components/DevPreviewBanner";
+import { PasswordProtect } from "./components/PasswordProtect";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ImpersonationBanner />
-        <DevPreviewBanner />
-        <DevDrawer />
-        <AuthUrlSanitizer />
-        <Routes>
+      <PasswordProtect>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ImpersonationBanner />
+          <DevPreviewBanner />
+          <DevDrawer />
+          <AuthUrlSanitizer />
+          <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/index" element={<Index />} />
           <Route path="/get-started" element={<OnboardingPublic />} />
@@ -76,6 +78,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </PasswordProtect>
     </TooltipProvider>
   </QueryClientProvider>
 );
