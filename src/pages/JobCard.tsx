@@ -106,8 +106,8 @@ const JobCard = () => {
           .select('*')
           .eq('id', jobId);
         
-        // If user is a client (customer), also check phone number
-        if (profile?.user_type === 'client') {
+        // If user is a client (customer), check phone number if available
+        if (profile?.user_type === 'client' && profile?.phone) {
           query = query.eq('phone', profile.phone);
         } else if (profile?.user_type === 'tradie') {
           // Tradies can only see their own jobs

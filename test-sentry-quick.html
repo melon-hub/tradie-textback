@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Sentry Test</title>
+    <style>
+        body { font-family: system-ui; padding: 40px; max-width: 600px; margin: 0 auto; }
+        button { padding: 12px 24px; font-size: 16px; margin: 10px; cursor: pointer; }
+        .success { background: #10b981; color: white; border: none; border-radius: 6px; }
+        .error { background: #ef4444; color: white; border: none; border-radius: 6px; }
+        .info { background: #3b82f6; color: white; border: none; border-radius: 6px; }
+        pre { background: #f3f4f6; padding: 12px; border-radius: 6px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Quick Sentry Test</h1>
+    
+    <p>Open your app and browser console, then click these buttons:</p>
+    
+    <button class="error" onclick="testError()">
+        🔴 Trigger Test Error
+    </button>
+    
+    <button class="info" onclick="checkSentry()">
+        🔍 Check Sentry Status
+    </button>
+    
+    <button class="success" onclick="window.open('http://localhost:8080/sentry-test', '_blank')">
+        🧪 Open Test Page
+    </button>
+
+    <h3>Instructions:</h3>
+    <ol>
+        <li>Open your app: <a href="http://localhost:8080" target="_blank">http://localhost:8080</a></li>
+        <li>Open browser DevTools (F12)</li>
+        <li>Go to Console tab</li>
+        <li>Paste this code and press Enter:</li>
+    </ol>
+    
+    <pre id="code">// Test if Sentry is loaded
+if (window.__SENTRY__) {
+    console.log('✅ Sentry is ACTIVE');
+    
+    // Send a test error
+    throw new Error('Test Error from Console - ' + new Date().toISOString());
+} else {
+    console.log('❌ Sentry NOT found');
+}</pre>
+    
+    <button onclick="copyCode()" class="info">📋 Copy Code</button>
+    
+    <h3>What to Check:</h3>
+    <ul>
+        <li>✅ If you see "Sentry is ACTIVE" - it's working</li>
+        <li>✅ The error should appear in Sentry within seconds</li>
+        <li>❌ If you see "Sentry NOT found" - there's an issue</li>
+    </ul>
+    
+    <h3>Check These Sentry Pages:</h3>
+    <ul>
+        <li><a href="https://melon-36.sentry.io/issues/" target="_blank">Issues Dashboard</a></li>
+        <li><a href="https://melon-36.sentry.io/projects/javascript-react/" target="_blank">Project Overview</a></li>
+        <li><a href="https://melon-36.sentry.io/settings/projects/javascript-react/keys/" target="_blank">DSN Settings</a></li>
+    </ul>
+
+    <script>
+        function copyCode() {
+            const code = document.getElementById('code').textContent;
+            navigator.clipboard.writeText(code);
+            alert('Code copied to clipboard!');
+        }
+        
+        function testError() {
+            alert('Go to your app tab and check the console!');
+        }
+        
+        function checkSentry() {
+            alert('Check your Sentry dashboard for new errors!');
+        }
+    </script>
+</body>
+</html>

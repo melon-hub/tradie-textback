@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { devPreview } from "@/lib/dev-preview";
+import { setUserContext, clearUserContext } from "@/lib/sentry";
 
 interface Profile {
   id: string;
@@ -88,6 +89,12 @@ export const useAuth = () => {
       // Only fetch profile if we have a user and don't already have a profile
       // or if the user has changed
       if (session?.user) {
+        // Set Sentry user context
+        setUserContext({
+          id: session.user.id,
+          email: session.user.email,
+        });
+        
         // Don't fetch if we already have a profile for this user
         if (!profile || profile.user_id !== session.user.id) {
           // Don't set loading to false until profile is fetched
@@ -100,6 +107,9 @@ export const useAuth = () => {
           setAuthReady(true);
         }
       } else {
+        // Clear Sentry user context
+        clearUserContext();
+        
         // Only clear profile if we're truly signed out and not in a transient state
         const sinceSignIn = Date.now() - lastSignedInAtRef.current;
         if (sinceSignIn < 0 || sinceSignIn > 2000) {

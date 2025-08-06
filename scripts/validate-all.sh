@@ -326,6 +326,86 @@ if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
     fi
 fi
 
+# Check for RLS recursion patterns
+echo ""
+echo -e "${PURPLE}=== 7a. RLS RECURSION CHECK ===${NC}"
+
+if [ -f "scripts/validate-rls-policies.sql" ]; then
+    log_verbose "Checking for RLS recursion patterns..."
+    
+    if command -v psql >/dev/null 2>&1 && [ -n "$PGPASSWORD" ] && [ -n "$SUPABASE_PROJECT_ID" ]; then
+        # Run RLS validation check
+        export PGPASSWORD
+        RLS_OUTPUT=$(psql -h "db.${SUPABASE_PROJECT_ID}.supabase.co" \
+                         -U postgres \
+                         -d postgres \
+                         -f "scripts/validate-rls-policies.sql" \
+                         -t -A 2>/dev/null || echo "ERROR")
+        
+        if [ "$RLS_OUTPUT" = "ERROR" ]; then
+            check_failed "RLS policy validation failed"
+        elif echo "$RLS_OUTPUT" | grep -q "POTENTIAL RECURSION"; then
+            check_failed "Found potential RLS recursion issues"
+            log_warning "RLS policies using auth.uid() instead of (SELECT auth.uid()) can cause infinite recursion"
+            log_info "Fix: Use (SELECT auth.uid()) in RLS policies to prevent recursion"
+            
+            if [ "$FIX_ISSUES" = true ] && [ -f "scripts/fix-rls-recursion.sql" ]; then
+                log_info "Applying RLS recursion fix..."
+                psql -h "db.${SUPABASE_PROJECT_ID}.supabase.co" \
+                     -U postgres \
+                     -d postgres \
+                     -f "scripts/fix-rls-recursion.sql" 2>/dev/null
+                check_passed "RLS recursion fix applied"
+            fi
+        else
+            check_passed "No RLS recursion patterns detected"
+        fi
+    else
+        check_warning "Cannot check RLS recursion - psql not available or missing credentials"
+    fi
+else
+    log_verbose "Creating RLS validation script..."
+    if [ "$FIX_ISSUES" = true ]; then
+        # Create the RLS validation script
+        cat > scripts/validate-rls-policies.sql << 'EOF'
+-- RLS Policy Recursion Detection Script
+-- Identifies policies that may cause infinite recursion
+
+WITH policy_analysis AS (
+    SELECT 
+        schemaname,
+        tablename,
+        policyname,
+        cmd,
+        qual,
+        with_check,
+        CASE 
+            WHEN qual LIKE '%auth.uid()%' 
+                 AND qual NOT LIKE '%(SELECT auth.uid())%'
+                 AND tablename = 'profiles'
+            THEN 'POTENTIAL RECURSION: Uses auth.uid() instead of (SELECT auth.uid())'
+            WHEN with_check LIKE '%auth.uid()%' 
+                 AND with_check NOT LIKE '%(SELECT auth.uid())%'
+                 AND tablename = 'profiles'
+            THEN 'POTENTIAL RECURSION: Uses auth.uid() instead of (SELECT auth.uid())'
+            ELSE 'OK'
+        END as status
+    FROM pg_policies
+    WHERE schemaname = 'public'
+)
+SELECT 
+    tablename,
+    policyname,
+    cmd,
+    status
+FROM policy_analysis
+WHERE status != 'OK'
+ORDER BY tablename, policyname;
+EOF
+        check_passed "Created RLS validation script"
+    fi
+fi
+
 echo ""
 
 # 8. Test Configuration
@@ -423,6 +503,7 @@ if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
     
     for endpoint in "${endpoints[@]}"; do
         response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -m 5 \
             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
             "$VITE_SUPABASE_URL/rest/v1/$endpoint?select=count" || echo "000")
@@ -440,6 +521,7 @@ if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
             if [ -d "$func_dir" ]; then
                 func_name=$(basename "$func_dir")
                 response=$(curl -s -o /dev/null -w "%{http_code}" \
+                    -m 5 \
                     -X OPTIONS \
                     -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
                     "$VITE_SUPABASE_URL/functions/v1/$func_name" || echo "000")

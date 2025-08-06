@@ -1,14 +1,22 @@
+User-agent: *
+Disallow: /
+Crawl-delay: 86400
+
+# Block all search engines from indexing
 User-agent: Googlebot
-Allow: /
+Disallow: /
 
 User-agent: Bingbot
-Allow: /
+Disallow: /
 
-User-agent: Twitterbot
-Allow: /
+User-agent: Slurp
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
 
 User-agent: facebookexternalhit
-Allow: /
+Disallow: /
 
-User-agent: *
-Allow: /
+User-agent: Twitterbot
+Disallow: /

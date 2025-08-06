@@ -6,6 +6,8 @@
 <!-- Updated: 2025-08-04 - Added project maintenance guide and cleanup documentation -->
 <!-- Updated: 2025-08-05 - Added notification system, dashboard UI improvements, client/tradie view updates -->
 <!-- Updated: 2025-08-05 - Added comprehensive validation system, Google Maps integration, database constraint fixes -->
+<!-- Updated: 2025-08-06 - Enhanced validation with RLS recursion detection, added fix scripts -->
+<!-- Updated: 2025-08-06 - Fixed critical RLS recursion issues, cleaned up scripts folder, added Sentry monitoring -->
 
 ## Overview
 This documentation covers the TradieText missed-call management system for Australian tradies. The system automatically sends SMS responses to missed calls and provides a comprehensive job management dashboard.

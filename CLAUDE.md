@@ -39,6 +39,56 @@ Use the Task tool with:
 - "I'll use the database-architect subagent to design this schema"
 - "I'll use the general subagent to search across the codebase"
 
+## CRITICAL: RLS Policy Pattern (ALWAYS FOLLOW THIS)
+
+### The Golden Rule for Profiles Table RLS
+**NEVER use `auth.uid()` directly in profiles table policies. ALWAYS use `(SELECT auth.uid())`**
+
+This single pattern difference can mean the difference between a working app and complete database lockup:
+
+```sql
+-- ❌ NEVER DO THIS (causes infinite recursion, 42P17 errors, 20s timeouts)
+CREATE POLICY "profiles_policy" ON profiles
+  USING (auth.uid() = user_id);
+
+-- ✅ ALWAYS DO THIS (works perfectly, no recursion)
+CREATE POLICY "profiles_policy" ON profiles
+  USING ((SELECT auth.uid()) = user_id);
+```
+
+**Why?** The profiles table is special - it's accessed on almost every request to check user permissions. Using `auth.uid()` directly creates a recursive loop where PostgreSQL tries to check the policy to access profiles, which requires checking the policy, ad infinitum. The `(SELECT auth.uid())` pattern evaluates once and caches the result, breaking the recursion.
+
+### CRITICAL: Avoid Complex RLS Policies
+**NEVER create RLS policies that check other tables, especially not the same table**
+
+```sql
+-- ❌ BAD - Causes recursion when profiles checks profiles
+CREATE POLICY "profiles_tradie_view_all" ON profiles
+USING (EXISTS (
+  SELECT 1 FROM profiles p 
+  WHERE p.user_id = auth.uid() 
+  AND p.user_type = 'tradie'
+));
+
+-- ✅ GOOD - Simple, no recursion
+CREATE POLICY "profiles_authenticated_read" ON profiles
+USING ((SELECT auth.uid()) IS NOT NULL);
+```
+
+### Quick RLS Debug Commands
+```sql
+-- If you get 42P17 error (infinite recursion), run this:
+DROP POLICY IF EXISTS [problematic_policy_name] ON [table_name];
+
+-- To see what's causing recursion:
+SELECT policyname, qual::text 
+FROM pg_policies 
+WHERE schemaname = 'public' 
+AND qual::text LIKE '%EXISTS%';
+```
+
+**This was learned the hard way** - we spent hours debugging "customer_jobs_view" thinking it was a view problem, when the real issue was RLS recursion in the profiles table causing timeouts.
+
 ## CRITICAL RULES TO REMEMBER
 
 ### 0. ALWAYS ASK CLARIFYING QUESTIONS FIRST
@@ -133,6 +183,8 @@ npm run dev
 - ❌ Don't hardcode localhost:8082 or any specific port
 - ❌ Don't forget to check user_type for conditional rendering
 - ❌ Don't mix up "client" (tradie) vs "client" (customer) terminology
+- ❌ **Don't create complex RLS policies** - keep them simple to avoid recursion
+- ❌ **Don't create 30+ SQL scripts** - fix issues in the code when possible
 
 ### 8. Testing & Development
 - **Use DevToolsPanel** for quick user switching and testing
@@ -187,7 +239,9 @@ npm run dev
 2. **FIRST**: Check for .env.local file with `ls -la .env*`
 3. **SECOND**: Run validation check: `npm run validate` or `/validate`
    - This checks environment, database, constraints, migrations, etc.
-   - Use `npm run validate:fix` to auto-fix issues
+   - **NEW**: Now includes migration sync validation (malformed, duplicates, mismatches)
+   - Use `npm run validate:fix` to auto-fix issues (including migration repairs)
+   - Use `/validate migrations` to check only migration sync
 4. **THIRD**: Sync remote migrations with `supabase db pull` if needed
 5. **CHECK SERVER**: Run `lsof -i :8080` to see if dev server is already running
    - If running, use existing server at http://localhost:8080
@@ -228,7 +282,43 @@ npm run dev
 - **Filter Dropdown**: Functional status filter with all job states
 - **Message Button**: Direct SMS to tradie from client dashboard
 
+## Emergency Fixes (When Everything is Broken)
+
+### Profile Timeout (42P17 Error - Infinite Recursion)
+```sql
+-- Nuclear fix - just make profiles readable by all authenticated users
+DROP POLICY IF EXISTS "profiles_tradie_view_all" ON profiles;
+DROP POLICY IF EXISTS "profiles_tradie_view_all_temp" ON profiles;
+DROP POLICY IF EXISTS "profiles_tradie_view_all_fixed" ON profiles;
+CREATE POLICY "profiles_authenticated_read" ON profiles 
+FOR SELECT USING ((SELECT auth.uid()) IS NOT NULL);
+```
+
+### Client Can't See Jobs
+```sql
+-- Let all authenticated users see jobs temporarily
+DROP POLICY IF EXISTS "jobs_clients_view_own" ON jobs;
+CREATE POLICY "jobs_authenticated_view" ON jobs 
+FOR SELECT USING ((SELECT auth.uid()) IS NOT NULL);
+
+-- Give test client a phone that matches jobs
+UPDATE profiles SET phone = '+61423456789'
+WHERE user_id IN (SELECT id FROM auth.users WHERE email = 'testclient@dev.local');
+```
+
+### When to Use SQL vs Code Fixes
+- **Use SQL for**: Initial setup, migrations, indexes
+- **Use CODE for**: Business logic, UI behavior, data filtering
+- **AVOID SQL for**: Complex RLS policies, frequent data updates, UI-driven changes
+
 ## Common Issues & Solutions
+
+### 🆕 Quick Fix for Migration Issues
+If you're getting migration sync errors, run:
+```bash
+npm run validate:fix              # Auto-fixes most issues
+./scripts/fix-migration-sync.sh repair  # Dedicated migration repair
+```
 
 ### Session Startup Issues
 **VERY COMMON**: Every new session encounters these errors:
@@ -251,18 +341,120 @@ Error: Remote migration versions not found in local migrations directory
 - Keep .env.local in .gitignore but backed up elsewhere
 - Add this to daily startup checklist
 
-### RLS Policy Infinite Recursion
-- **Symptom**: 500 errors, "infinite recursion detected in policy"
-- **Cause**: Policies that reference themselves (e.g., checking user_type in profiles while selecting from profiles)
-- **Fix**: Use simple policies without subqueries to the same table
+### RLS Policy Infinite Recursion (42P17 Error)
+- **Symptom**: 
+  - PostgreSQL error code 42P17 (invalid_object_definition)
+  - Profile fetch timeouts (20+ seconds)
+  - "infinite recursion detected in policy" errors
+  - Customer dashboard not loading jobs
+  - 500 errors when accessing protected resources
+  
+- **Root Cause**: 
+  - Using `auth.uid()` directly in profiles table RLS policies causes PostgreSQL to recursively evaluate the policy
+  - The database tries to check the policy to access profiles, which requires checking the policy, creating an infinite loop
+  
+- **The Fix - CRITICAL PATTERN**:
+  ```sql
+  -- ❌ WRONG - Causes recursion
+  CREATE POLICY "profiles_select" ON profiles
+    USING (auth.uid() = user_id);
+  
+  -- ✅ CORRECT - Prevents recursion
+  CREATE POLICY "profiles_select" ON profiles
+    USING ((SELECT auth.uid()) = user_id);
+  ```
+  
+- **Why This Works**:
+  - `(SELECT auth.uid())` creates a subquery that evaluates once
+  - PostgreSQL caches the result and doesn't re-evaluate for each row
+  - This breaks the recursion cycle
+  
+- **Quick Detection**:
+  ```bash
+  # Run validation to detect RLS recursion
+  npm run validate
+  
+  # Or check specifically
+  psql -f scripts/validate-rls-policies.sql
+  ```
+  
+- **Quick Fix**:
+  ```bash
+  # Auto-fix RLS recursion issues
+  npm run validate:fix
+  
+  # Or run the fix script directly
+  psql -f scripts/fix-rls-recursion.sql
+  ```
+  
+- **Prevention**:
+  - ALWAYS use `(SELECT auth.uid())` in profiles table policies
+  - Run validation after any RLS policy changes
+  - Test with actual user sessions, not just service role
 
-### Migration File Issues
-- **Symptom**: "Remote migration versions not found" errors
-- **Cause**: Migration files don't match naming pattern or are out of sync
-- **Fix**: 
-  - Use format: `YYYYMMDDHHMMSS_description.sql`
-  - Run migrations directly in Supabase SQL editor if needed
-  - Mark as applied with: `supabase migration repair --status applied YYYYMMDD`
+### Migration Sync Issues (COMPREHENSIVE)
+**Common Problems & Solutions:**
+
+#### 1. Malformed Migrations (e.g., `20250801` without timestamp)
+- **Symptom**: "Remote migration versions not found" that won't go away
+- **Cause**: Migration entry missing timestamp (just YYYYMMDD instead of YYYYMMDDHHMMSS)
+- **Fix**:
+  ```sql
+  -- Run in Supabase SQL Editor
+  DELETE FROM supabase_migrations.schema_migrations 
+  WHERE version ~ '^[0-9]{8}$';
+  ```
+- **Prevention**: Always use full timestamps in migration names
+
+#### 2. Duplicate Migration Entries
+- **Symptom**: Confusing migration status, sync errors
+- **Cause**: Same version appears multiple times in migration table
+- **Fix**:
+  ```sql
+  -- Removes duplicates, keeps oldest
+  DELETE FROM supabase_migrations.schema_migrations 
+  WHERE version = 'YOUR_VERSION' 
+  AND ctid NOT IN (
+    SELECT MIN(ctid) FROM supabase_migrations.schema_migrations 
+    WHERE version = 'YOUR_VERSION'
+  );
+  ```
+
+#### 3. Local-Remote Mismatch
+- **Symptom**: "Found local migration files to be inserted before the last migration"
+- **Fix Options**:
+  - Quick: `supabase db push --include-all`
+  - Repair: `supabase migration repair --status applied YYYYMMDDHHMMSS`
+  - Auto: `./scripts/fix-migration-sync.sh repair`
+
+#### 4. Quick Migration Validation & Repair
+```bash
+# Check migration sync status
+npm run validate                    # Full validation including migrations
+npm run validate migrations         # Just migration checks
+./scripts/fix-migration-sync.sh check  # Detailed migration status
+
+# Auto-repair most issues
+npm run validate:fix                # Includes migration repair
+./scripts/fix-migration-sync.sh repair # Dedicated migration repair
+
+# Manual fixes when needed
+# 1. Apply SQL in Supabase Dashboard
+# 2. Then: ./bin/sdb-types to regenerate types
+```
+
+#### 5. Daily Migration Workflow
+```bash
+# Start of session - ALWAYS
+supabase db pull                    # Get remote migrations
+npm run validate                    # Check everything is synced
+
+# Before pushing changes
+./bin/sdb-push                      # Will show if issues exist
+
+# If issues occur
+./scripts/fix-migration-sync.sh repair  # Auto-fix most problems
+```
 
 ### Database Constraint Violations (NEW!)
 - **Symptom**: "new row for relation 'jobs' violates check constraint" errors
@@ -503,6 +695,55 @@ The validation system checks **45+ individual items** across 11 categories:
 - **After migrations** - Verify constraints applied
 - **When debugging** - Find configuration issues
 - **In CI/CD** - Automated quality gates
+
+## Sentry Error Monitoring (IMPORTANT)
+
+### Setup Complete
+Sentry is fully configured for error tracking and performance monitoring:
+- **Organization**: melon-36
+- **Project**: javascript-react
+- **DSN**: Already hardcoded in `/src/lib/sentry.ts`
+- **Dashboard**: https://melon-36.sentry.io/issues/
+
+### Key Configuration
+- **Source Maps**: Automatically uploaded on production builds
+- **Auth Token**: `SENTRY_AUTH_TOKEN=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`
+  - Add this to Netlify environment variables for production deployments
+  - Already in `.env.local` for local builds
+
+### Known Issues & Fixes
+- **`__WS_TOKEN__` Error**: If you get this error, the `lovable-tagger` component is causing issues
+  - Fix: Comment out `componentTagger()` in `vite.config.ts`
+  - This is already disabled to prevent the error
+
+### What's Being Tracked
+- JavaScript errors (automatic)
+- Unhandled promise rejections
+- Network failures
+- Performance metrics (10% sampling in production)
+- Session replays for errors
+- User context (when logged in)
+
+### Testing Sentry
+1. **Test Page**: Visit `/sentry-test` in development
+2. **Quick Console Test**:
+   ```javascript
+   throw new Error('Test error - ' + Date.now())
+   ```
+3. **Check Dashboard**: Errors appear at https://melon-36.sentry.io/issues/
+
+### Security Headers & Protection
+- **CSP Headers**: Configured in `netlify.toml` with Sentry domains allowed
+- **Robots.txt**: Blocks all search engines from indexing
+- **X-Robots-Tag**: Additional protection against indexing
+- **Password Protection**: Active via `PasswordProtect` component
+- **Dev Tools**: Only visible in development (`import.meta.env.DEV`)
+
+### For Production Deployment
+1. Add `SENTRY_AUTH_TOKEN` to Netlify environment variables
+2. Source maps will auto-upload during build
+3. Errors will be tracked with full stack traces
+4. Monitor at: https://melon-36.sentry.io/issues/
 
 ## Remember
 This is a business-critical application for tradies' livelihoods. Always prioritize:

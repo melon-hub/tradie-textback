@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -11,9 +12,18 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    // Temporarily disable componentTagger to fix __WS_TOKEN__ error
+    // mode === 'development' && componentTagger(),
+    // Upload source maps to Sentry in production builds
+    mode === 'production' && sentryVitePlugin({
+      org: "melon-36",
+      project: "javascript-react",
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+    }),
   ].filter(Boolean),
+  build: {
+    sourcemap: true, // Generate source maps for production
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

@@ -11,7 +11,7 @@ const Footer = () => {
               <div className="bg-background text-foreground p-2 rounded-lg">
                 <Phone className="h-6 w-6" />
               </div>
-              <span className="text-xl font-bold">CallCatch</span>
+              <span className="text-xl font-bold">TradieText</span>
             </div>
             <p className="text-background/80">
               Never miss a hot lead again. For Australian tradies who want to capture every opportunity.
@@ -47,7 +47,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>hello@callcatch.com.au</span>
+                <span>support@tradietext.com.au</span>
               </li>
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
@@ -59,7 +59,7 @@ const Footer = () => {
         
         <div className="border-t border-background/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-background/60 text-sm">
-            © 2024 CallCatch. All rights reserved.
+            © 2025 TradieText. All rights reserved.
           </p>
           <div className="flex space-x-6 text-background/60 text-sm mt-4 md:mt-0">
             <Link to="/privacy" className="hover:text-background transition-colors">Privacy Policy</Link>

@@ -1,9 +1,29 @@
 # Migration Issues - RESOLVED ✅
 
 <!-- Updated: 2025-08-05 - Added database constraint mismatch section -->
+<!-- Updated: 2025-08-06 - Added RLS recursion issue and fix documentation -->
 
 ## Overview
 The database migration sync issues have been successfully resolved as of 2025-08-02. All critical migrations have been applied and the system is now performing optimally.
+
+## Critical Issue: RLS Policy Recursion (2025-08-06)
+
+### Problem
+- **Symptom**: PostgreSQL error 42P17 (invalid_object_definition), 20+ second timeouts
+- **Cause**: Using `auth.uid()` directly in profiles table RLS policies caused infinite recursion
+- **Impact**: Complete dashboard failure for clients, unable to load jobs
+
+### Resolution
+1. Identified real issue was RLS recursion, not view problems
+2. Applied fix using `(SELECT auth.uid())` pattern instead of direct `auth.uid()`
+3. Created comprehensive fix scripts: `final-rls-fix.sql`, `fix-rls-recursion.sql`
+4. Enhanced validation system to detect RLS recursion patterns
+
+### Prevention
+- **Golden Rule**: Always use `(SELECT auth.uid())` in profiles table policies
+- Enhanced `validate-all.sh` with RLS recursion detection
+- Created `validate-rls-policies.sql` for proactive detection
+- Added prominent documentation in CLAUDE.md
 
 ## Recent Issue: Database Constraint Mismatch (2025-08-05)
 

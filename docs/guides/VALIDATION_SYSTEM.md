@@ -1,6 +1,7 @@
 # Validation System Guide
 
 <!-- Created: 2025-08-05 - Comprehensive validation system documentation -->
+<!-- Updated: 2025-08-06 - Added RLS recursion detection capabilities -->
 
 ## Overview
 
@@ -60,6 +61,7 @@ npm run validate:all
 
 ### 6. Security Configuration
 - RLS (Row Level Security) policies
+- **RLS recursion detection** (NEW - detects problematic auth.uid() patterns)
 - API key separation (anon vs service role)
 - Secret exposure in code
 - CORS and security headers
@@ -92,6 +94,16 @@ npm run validate:all
 
 ## Common Issues & Fixes
 
+### RLS Policy Recursion (NEW)
+**Symptom**: PostgreSQL error 42P17, profile fetch timeouts (20+ seconds)
+
+**Fix**:
+1. Run validation: `npm run validate`
+2. If recursion detected, run: `npm run validate:fix`
+3. Or manually apply: `psql -f scripts/fix-rls-recursion.sql`
+
+**Prevention**: Always use `(SELECT auth.uid())` instead of `auth.uid()` in profiles table policies
+
 ### Database Constraint Mismatch
 **Symptom**: "new row for relation 'jobs' violates check constraint"
 
@@ -123,6 +135,11 @@ npm run validate:all
 - Supports `--fix` flag for auto-fixes
 - Supports `--verbose` for detailed output
 - Exit codes for CI/CD integration
+- **NEW**: RLS recursion detection in section 7a
+
+### RLS Validation Scripts (NEW)
+- `scripts/validate-rls-policies.sql` - Detects RLS recursion patterns
+- `scripts/fix-rls-recursion.sql` - Automatically fixes RLS issues
 
 ### TypeScript Tests: `tests/validation.test.ts`
 - Programmatic validation

@@ -20,3 +20,5 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.twilio.com https://js.stripe.com https://*.ingest.us.sentry.io; frame-src 'self' https://js.stripe.com; object-src 'none'; base-uri 'self';"
+    X-Robots-Tag = "noindex, nofollow, nosnippet, noarchive, noimageindex"

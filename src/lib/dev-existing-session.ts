@@ -38,14 +38,13 @@ export async function devExistingSession(role: 'admin' | 'tradie' | 'client') {
   };
   
   try {
-    // Check if already signed in
+    // Always sign out first to ensure clean slate
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      console.log('Already signed in, please sign out first');
-      return { 
-        success: false, 
-        error: 'Already signed in. Please sign out before switching users.' 
-      };
+      console.log('Existing session found, signing out first...');
+      await supabase.auth.signOut();
+      // Small delay to ensure sign out completes
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
     
     // Try password login first (most reliable)

@@ -14,6 +14,9 @@ import SecureJobAccess from "./pages/SecureJobAccess";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import SentryTest from "./pages/SentryTest";
 import Onboarding from "./pages/Onboarding";
 import OnboardingPublic from "./pages/OnboardingPublic";
 import AuthCallback from "./pages/AuthCallback";
@@ -24,19 +27,21 @@ import { DevDrawer } from "./components/DevDrawer";
 import { RequireOnboarding } from "./components/RequireOnboarding";
 import { DevPreviewBanner } from "./components/DevPreviewBanner";
 import { PasswordProtect } from "./components/PasswordProtect";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <PasswordProtect>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <PasswordProtect>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <ImpersonationBanner />
           <DevPreviewBanner />
-          <DevDrawer />
+          {import.meta.env.DEV && <DevDrawer />}
           <AuthUrlSanitizer />
           <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -74,6 +79,9 @@ const App = () => (
             }
           />
           <Route path="/onboarding/complete" element={<Onboarding />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          {import.meta.env.DEV && <Route path="/sentry-test" element={<SentryTest />} />}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -81,6 +89,7 @@ const App = () => (
       </PasswordProtect>
     </TooltipProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

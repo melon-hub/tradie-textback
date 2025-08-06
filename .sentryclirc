@@ -1,0 +1,7 @@
+[defaults]
+org=melon-36
+project=javascript-react
+
+# Add your auth token to .env.local as SENTRY_AUTH_TOKEN
+# Get it from: https://sentry.io/settings/account/api/auth-tokens/
+# Scopes needed: project:releases, org:read
