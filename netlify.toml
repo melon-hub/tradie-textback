@@ -1,10 +1,11 @@
 [build]
   publish = "dist"
   command = "npm run build"
-
+  ignore = "/bin/false"
 
 [build.environment]
   NODE_VERSION = "18"
+  SENTRY_SKIP_AUTO_RELEASE = "true"
 
 # SPA redirect for React Router
 [[redirects]]
