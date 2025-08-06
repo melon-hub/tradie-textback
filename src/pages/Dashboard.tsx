@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut, BarChart3, Plus, Briefcase, Settings, X, Check, DollarSign, Calendar, ChevronDown, AlertCircle, RefreshCw } from "lucide-react";
+import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut, BarChart3, Plus, Briefcase, Settings, X, Check, DollarSign, Calendar, ChevronDown, AlertCircle, RefreshCw, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -665,13 +665,13 @@ const Dashboard = () => {
       )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
         {profile?.user_type === 'client' ? (
           // CLIENT DASHBOARD
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">My Jobs</h2>
-              <Button onClick={() => navigate('/intake')}>
+              <Button onClick={() => navigate('/intake')} size="default" className="shadow-sm">
                 <Plus className="h-4 w-4 mr-2" />
                 New Job Request
               </Button>
@@ -708,44 +708,44 @@ const Dashboard = () => {
                     </div>
                   </Card>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filteredJobs.map((job) => (
-                      <Card key={job.id} className="hover:shadow-md transition-shadow">
-                        <CardHeader className="pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0 flex-1">
-                              <CardTitle className="text-base sm:text-lg truncate">{job.job_type || 'Job Request'}</CardTitle>
-                              <p className="text-xs sm:text-sm text-muted-foreground">
-                                Submitted <span 
-                                  className={`font-medium ${getTimeSinceColor(job.created_at)}`}
-                                  title={new Date(job.created_at).toLocaleString('en-AU', {
-                                    timeZone: profile?.timezone || 'Australia/Sydney',
-                                    dateStyle: 'medium',
-                                    timeStyle: 'short'
-                                  })}
-                                >
-                                  {formatTimeSince(job.created_at)}
-                                </span>
-                              </p>
+                      <Card key={job.id} className="border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <CardHeader className="pb-3 px-4 pt-4">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-start justify-between">
+                              <CardTitle className="text-lg font-semibold">{job.job_type || 'Job Request'}</CardTitle>
+                              <Badge variant={getStatusColor(job.status)} className="flex-shrink-0 text-xs">
+                                {(() => {
+                                  const Icon = getContactStatusIcon(job.status);
+                                  return (
+                                    <>
+                                      <Icon className="h-3 w-3 mr-1" />
+                                      {getContactStatusText(job)}
+                                    </>
+                                  );
+                                })()}
+                              </Badge>
                             </div>
-                            <Badge variant={getStatusColor(job.status)} className="flex-shrink-0 text-xs">
-                              {(() => {
-                                const Icon = getContactStatusIcon(job.status);
-                                return (
-                                  <>
-                                    <Icon className="h-3 w-3 mr-1" />
-                                    {getContactStatusText(job)}
-                                  </>
-                                );
-                              })()}
-                            </Badge>
+                            <p className="text-sm text-muted-foreground">
+                              Submitted <span 
+                                className={`font-medium ${getTimeSinceColor(job.created_at)}`}
+                                title={new Date(job.created_at).toLocaleString('en-AU', {
+                                  timeZone: profile?.timezone || 'Australia/Sydney',
+                                  dateStyle: 'medium',
+                                  timeStyle: 'short'
+                                })}
+                              >
+                                {formatTimeSince(job.created_at)}
+                              </span>
+                            </p>
                           </div>
                         </CardHeader>
-                        <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                        <CardContent className="px-4 pb-4">
                           <div className="space-y-3">
                             {/* Tradie Information */}
                             {job.tradie_name && (
-                              <div className="bg-muted/50 rounded-lg p-2 sm:p-3">
+                              <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
                                     <User className="h-4 w-4 text-muted-foreground" />
@@ -795,16 +795,17 @@ const Dashboard = () => {
                             </div>
                             
                             {/* Actions */}
-                            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                            <div className="flex gap-2 pt-3 border-t">
                               <Link to={`/job/${job.id}`} className="flex-1">
-                                <Button variant="outline" className="w-full text-sm py-2">
+                                <Button variant="outline" className="w-full hover:bg-gray-50 transition-colors">
+                                  <Eye className="h-4 w-4 mr-2" />
                                   View Details
                                 </Button>
                               </Link>
                               {job.tradie_phone && (
                                 <Button 
                                   variant="default" 
-                                  className="flex-1 text-sm py-2"
+                                  className="flex-1 bg-blue-600 hover:bg-blue-700 transition-colors"
                                   onClick={() => {
                                     window.location.href = `sms:${job.tradie_phone}`;
                                     toast({
@@ -814,7 +815,7 @@ const Dashboard = () => {
                                   }}
                                 >
                                   <MessageSquare className="h-4 w-4 mr-2" />
-                                  Message Tradie
+                                  Message
                                 </Button>
                               )}
                               {job.status === 'new' && (
