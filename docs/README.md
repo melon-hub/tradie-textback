@@ -8,6 +8,7 @@
 <!-- Updated: 2025-08-05 - Added comprehensive validation system, Google Maps integration, database constraint fixes -->
 <!-- Updated: 2025-08-06 - Enhanced validation with RLS recursion detection, added fix scripts -->
 <!-- Updated: 2025-08-06 - Fixed critical RLS recursion issues, cleaned up scripts folder, added Sentry monitoring -->
+<!-- Updated: 2025-08-06 - Added RLS security scripts, Google API security measures, dashboard UI improvements -->
 
 ## Overview
 This documentation covers the TradieText missed-call management system for Australian tradies. The system automatically sends SMS responses to missed calls and provides a comprehensive job management dashboard.
@@ -20,6 +21,7 @@ Essential project documentation for development and deployment:
 - [database-setup.md](critical/database-setup.md) - Database schema and migration guide
 - [MIGRATION_ISSUES.md](critical/MIGRATION_ISSUES.md) - Database migration sync issues and resolution
 - [PERFORMANCE_ISSUES.md](critical/PERFORMANCE_ISSUES.md) - Performance bottlenecks and solutions
+- [RLS_SECURITY.md](critical/RLS_SECURITY.md) - Critical RLS recursion prevention and fixes (2025-08-06)
 
 ### 📖 Guides
 Step-by-step guides for common tasks:
@@ -34,6 +36,7 @@ Step-by-step guides for common tasks:
 - [NOTIFICATION_SYSTEM.md](guides/NOTIFICATION_SYSTEM.md) - Job update notifications and SMS alerts (2025-08-05)
 - [VALIDATION_SYSTEM.md](guides/VALIDATION_SYSTEM.md) - Comprehensive validation system guide (2025-08-05)
 - [GOOGLE_MAPS_INTEGRATION.md](guides/GOOGLE_MAPS_INTEGRATION.md) - Google Places Autocomplete setup (2025-08-05)
+- [google-api-security.md](google-api-security.md) - Google API security configuration and cost controls (2025-08-06)
 
 ### 📚 Reference
 Historical and reference documents:

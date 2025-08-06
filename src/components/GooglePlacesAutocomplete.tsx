@@ -11,6 +11,13 @@ interface GooglePlacesAutocompleteProps {
   disabled?: boolean;
 }
 
+// Cache for storing recent predictions
+const predictionsCache = new Map<string, { predictions: Prediction[]; timestamp: number }>();
+const CACHE_DURATION = 60000; // 1 minute cache
+const MIN_SEARCH_LENGTH = 3; // Minimum characters before searching
+const DEBOUNCE_DELAY = 500; // Increased from 300ms to 500ms
+const MAX_REQUESTS_PER_MINUTE = 30; // Rate limiting
+
 interface Prediction {
   place_id: string;
   description: string;
@@ -19,6 +26,10 @@ interface Prediction {
     secondary_text: string;
   };
 }
+
+// Track API requests for rate limiting
+let requestCount = 0;
+let requestResetTime = Date.now() + 60000;
 
 const GooglePlacesAutocomplete = ({
   value,
@@ -34,6 +45,7 @@ const GooglePlacesAutocomplete = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const lastSearchRef = useRef<string>('');
 
   // Initialize Google Places API (New API only)
   const [isApiLoaded, setIsApiLoaded] = useState(false);
@@ -105,13 +117,49 @@ const GooglePlacesAutocomplete = ({
   }, []);
 
   const fetchPredictions = async (input: string) => {
+    // Validation checks
     if (!input.trim() || !isApiLoaded) {
       setPredictions([]);
       return;
     }
 
+    // Minimum length check
+    if (input.length < MIN_SEARCH_LENGTH) {
+      setPredictions([]);
+      setShowPredictions(false);
+      return;
+    }
+
+    // Prevent duplicate searches
+    if (input === lastSearchRef.current) {
+      return;
+    }
+    lastSearchRef.current = input;
+
+    // Check cache first
+    const cacheKey = input.toLowerCase();
+    const cached = predictionsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      setPredictions(cached.predictions);
+      setShowPredictions(cached.predictions.length > 0);
+      return;
+    }
+
+    // Rate limiting check
+    if (Date.now() > requestResetTime) {
+      requestCount = 0;
+      requestResetTime = Date.now() + 60000;
+    }
+    
+    if (requestCount >= MAX_REQUESTS_PER_MINUTE) {
+      setError('Too many requests. Please wait a moment.');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+
     setLoading(true);
     setError('');
+    requestCount++;
     
     try {
       // Use only the new Places API
@@ -133,6 +181,18 @@ const GooglePlacesAutocomplete = ({
               secondary_text: suggestion.placePrediction?.structuredFormat?.secondaryText?.text || '',
             },
           }));
+          
+          // Cache the results
+          predictionsCache.set(cacheKey, {
+            predictions: convertedPredictions,
+            timestamp: Date.now()
+          });
+          
+          // Clean old cache entries (keep cache size reasonable)
+          if (predictionsCache.size > 50) {
+            const oldestKey = predictionsCache.keys().next().value;
+            predictionsCache.delete(oldestKey);
+          }
           
           setPredictions(convertedPredictions);
           setShowPredictions(true);
@@ -165,10 +225,10 @@ const GooglePlacesAutocomplete = ({
       clearTimeout(timeoutRef.current);
     }
 
-    // Debounce the API call
+    // Debounce the API call with longer delay
     timeoutRef.current = setTimeout(() => {
       fetchPredictions(newValue);
-    }, 300);
+    }, DEBOUNCE_DELAY);
   };
 
   const handlePredictionSelect = (prediction: Prediction) => {
@@ -241,8 +301,8 @@ const GooglePlacesAutocomplete = ({
         </div>
       )}
 
-      {/* Error Messages */}
-      {error && (
+      {/* Error Messages - Only show for actual errors, not missing config */}
+      {error && error !== 'Google Maps API key not configured' && error !== 'Google Places API not available' && (
         <div className="absolute z-50 w-full mt-1 bg-red-50 border border-red-200 rounded-md p-2">
           <div className="flex items-center gap-2">
             <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
