@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut, BarChart3, Plus, Briefcase, Settings, X, Check, DollarSign, Calendar, ChevronDown, AlertCircle, RefreshCw, Eye } from "lucide-react";
+import { Phone, MessageSquare, MapPin, Clock, Search, Filter, Wifi, WifiOff, ExternalLink, Copy, User, LogOut, BarChart3, Plus, Briefcase, Settings, X, Check, DollarSign, Calendar, ChevronDown, AlertCircle, RefreshCw, Eye, Edit, ClipboardList, Users, ListTodo, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -337,7 +337,7 @@ const Dashboard = () => {
       case 'contacted': return "secondary";
       case 'quote_sent': return "default";
       case 'scheduled': return "default";
-      case 'in_progress': return "default";
+      case 'in_progress': return "secondary";
       case 'completed': return "outline";
       default: return "outline";
     }
@@ -358,6 +358,7 @@ const Dashboard = () => {
       case "contacted": return "secondary";
       case "quote_sent": return "default";
       case "scheduled": return "default";
+      case "in_progress": return "secondary";
       case "completed": return "outline";
       default: return "outline";
     }
@@ -465,101 +466,152 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       {/* Header */}
-      <div className="bg-card border-b border-border/50 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-2 mb-4">
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">Dashboard</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                <span className="font-bold">TradieText</span>
-                {profile?.business_name && (
-                  <span> • {profile.business_name}</span>
-                )}
-              </p>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              {profile && (
-                <div className="hidden sm:flex items-center gap-2 mr-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground truncate max-w-24">
-                    {profile.name || profile.phone || 'Tradie'}
-                  </span>
-                </div>
-              )}
-              {profile?.user_type === 'tradie' && (
-                <Link to="/settings">
-                  <Button variant="ghost" size="sm" className="px-2 sm:px-3">
-                    <Settings className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Settings</span>
-                  </Button>
-                </Link>
-              )}
-              <Button variant="ghost" size="sm" onClick={signOut} className="px-2 sm:px-3">
-                <LogOut className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Sign Out</span>
+      <div className="bg-white border-b sticky top-0 z-10">
+        <div className="flex items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <h1 className="text-xl sm:text-2xl font-bold whitespace-nowrap">Dashboard</h1>
+            <span className="text-gray-500 text-base sm:text-lg whitespace-nowrap">TradieText</span>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="p-2">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span className="sr-only">Home</span>
               </Button>
-              <Link to="/">
-                <Button variant="outline" size="sm" className="px-2 sm:px-3">
-                  <span className="text-xs sm:text-sm">Home</span>
+            </Link>
+            {profile?.user_type === 'tradie' && (
+              <Link to="/settings">
+                <Button variant="ghost" size="icon" className="p-2">
+                  <Settings className="h-4 w-4" />
+                  <span className="sr-only">Settings</span>
                 </Button>
               </Link>
+            )}
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="p-2 gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="hidden md:inline">
+                      {profile?.name || 'Account'}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel className="font-normal">
+                    <p className="text-sm font-medium leading-none">{profile?.name || 'User'}</p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {profile?.user_type === 'tradie' && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/settings" className="cursor-pointer">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer lg:hidden">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button variant="ghost" size="sm" onClick={signOut} className="hidden lg:flex gap-2">
+                Sign Out
+              </Button>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Quick Stats - Only for Tradies */}
+      {/* Stats and Search Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        {/* Quick Stats - Only for Tradies */}
           {profile?.user_type === 'tradie' && (
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
-              <Card className="p-2 sm:p-3">
-                <div className="text-center">
-                  <div className="text-lg sm:text-2xl font-bold text-destructive">{urgentJobs}</div>
-                  <div className="text-xs text-muted-foreground">Urgent</div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-3 hover:bg-gray-100 transition-colors duration-200 group">
+              <div className="flex flex-col md:flex-row flex-wrap gap-4">
+                <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-default">
+                  <AlertCircle className="h-5 w-5 text-red-500 group-hover:animate-pulse flex-shrink-0" />
+                  <span className="font-semibold text-base text-gray-700">Urgent:</span>
+                  <span className="text-xl font-bold text-red-600">{urgentJobs}</span>
+                  {urgentJobs > 0 && (
+                    <span className="ml-1 text-xs text-red-500 animate-pulse">•</span>
+                  )}
                 </div>
-              </Card>
-              <Card className="p-2 sm:p-3">
-                <div className="text-center">
-                  <div className="text-lg sm:text-2xl font-bold text-primary">{newJobs}</div>
-                  <div className="text-xs text-muted-foreground">New Jobs</div>
+                <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-default">
+                  <ListTodo className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <span className="font-semibold text-base text-gray-700">New Jobs:</span>
+                  <span className="text-xl font-bold text-blue-600">{newJobs}</span>
+                  {newJobs > 0 && (
+                    <Badge variant="outline" className="ml-2 text-xs border-blue-300 text-blue-600">Today</Badge>
+                  )}
                 </div>
-              </Card>
-              <Card className="p-2 sm:p-3">
-                <div className="text-center">
-                  <div className="text-lg sm:text-2xl font-bold text-green-600">${totalValue.toLocaleString()}</div>
-                  <div className="text-xs text-muted-foreground">Total Value</div>
+                <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-default">
+                  <DollarSign className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <span className="font-semibold text-base text-gray-700">Total Value:</span>
+                  <span className="text-xl font-bold text-green-600">${totalValue.toLocaleString()}</span>
                 </div>
-              </Card>
+                <div className="ml-auto flex items-center gap-1 text-xs text-gray-500">
+                  <Clock className="h-3 w-3" />
+                  <span>Updated {formatTimeSince(new Date().toISOString())}</span>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Client Summary - Only for Clients */}
           {profile?.user_type === 'client' && filteredJobs.length > 0 && (
-            <Card className="mb-4 p-3 sm:p-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Your active jobs</span>
-                  <span className="font-medium">{filteredJobs.length}</span>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-3 hover:bg-gray-100 transition-colors duration-200 group">
+              <div className="flex flex-col md:flex-row flex-wrap gap-4">
+                <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-default">
+                  <ListTodo className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                  <span className="font-semibold text-base text-gray-700">Active Jobs:</span>
+                  <span className="text-xl font-bold text-blue-600">{filteredJobs.length}</span>
                 </div>
                 {availableTradies.length > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Working with</span>
-                    <span className="text-sm font-medium">{availableTradies.length} tradie{availableTradies.length > 1 ? 's' : ''}</span>
+                  <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-default">
+                    <Users className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <span className="font-semibold text-base text-gray-700">Working With:</span>
+                    <span className="text-xl font-bold text-blue-600">
+                      {availableTradies.length} tradie{availableTradies.length > 1 ? 's' : ''}
+                    </span>
                   </div>
                 )}
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Latest status</span>
-                  <Badge variant={getContactStatusVariant(filteredJobs[0].status)} className="text-xs">
-                    {getContactStatusText(filteredJobs[0])}
+                <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-default">
+                  <Activity className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                  <span className="font-semibold text-base text-gray-700">Status:</span>
+                  <Badge 
+                    variant={getContactStatusVariant(filteredJobs[0].status)} 
+                    className="text-xs"
+                  >
+                    <span className="flex items-center gap-1">
+                      {(() => {
+                        const Icon = getContactStatusIcon(filteredJobs[0].status);
+                        return <Icon className="h-3 w-3" />;
+                      })()}
+                      {filteredJobs[0].status.replace('_', ' ').charAt(0).toUpperCase() + filteredJobs[0].status.replace('_', ' ').slice(1)}
+                    </span>
                   </Badge>
+                  <span className="text-xs text-gray-500">
+                    ({formatTimeSince(filteredJobs[0].updated_at || filteredJobs[0].created_at)} ago)
+                  </span>
                 </div>
                 {filteredJobs.filter(job => job.estimated_value > 0).length > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total quoted</span>
-                    <span className="font-medium text-green-600">
+                  <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-default">
+                    <DollarSign className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <span className="font-semibold text-base text-gray-700">Total Quoted:</span>
+                    <span className="text-xl font-bold text-green-600">
                       ${filteredJobs.reduce((sum, job) => sum + (job.estimated_value || 0), 0).toLocaleString()}
                     </span>
                   </div>
                 )}
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Search and Filter */}
@@ -653,7 +705,6 @@ const Dashboard = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
       </div>
 
       {/* Connection Status */}
@@ -665,13 +716,13 @@ const Dashboard = () => {
       )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         {profile?.user_type === 'client' ? (
           // CLIENT DASHBOARD
-          <div className="space-y-6">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">My Jobs</h2>
-              <Button onClick={() => navigate('/intake')} size="default" className="shadow-sm">
+              <Button onClick={() => navigate('/intake')} size="default" className="shadow-sm mt-4 sm:mt-0">
                 <Plus className="h-4 w-4 mr-2" />
                 New Job Request
               </Button>
@@ -692,18 +743,18 @@ const Dashboard = () => {
             ) : (
               <>
                 {filteredJobs.length === 0 ? (
-                  <Card className="p-8 text-center">
-                    <div className="space-y-4">
-                      <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Briefcase className="h-6 w-6 text-primary" />
+                  <Card className="p-12 text-center border-2 border-dashed">
+                    <div className="space-y-4 max-w-sm mx-auto">
+                      <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                        <ClipboardList className="h-8 w-8 text-gray-400" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold">No jobs yet</h3>
-                        <p className="text-muted-foreground">Submit your first job request to get started</p>
+                        <h3 className="text-xl font-semibold text-gray-900">No jobs yet</h3>
+                        <p className="text-gray-500 mt-2">Get started by submitting your first job request to find a qualified tradie</p>
                       </div>
-                      <Button onClick={() => navigate('/intake')}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create Job Request
+                      <Button onClick={() => navigate('/intake')} size="lg" className="mt-6">
+                        <Plus className="h-5 w-5 mr-2" />
+                        Create Your First Job
                       </Button>
                     </div>
                   </Card>
@@ -711,11 +762,11 @@ const Dashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filteredJobs.map((job) => (
                       <Card key={job.id} className="border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                        <CardHeader className="pb-3 px-4 pt-4">
+                        <CardHeader className="pb-2 px-4 pt-3">
                           <div className="flex flex-col gap-2">
-                            <div className="flex items-start justify-between">
-                              <CardTitle className="text-lg font-semibold">{job.job_type || 'Job Request'}</CardTitle>
-                              <Badge variant={getStatusColor(job.status)} className="flex-shrink-0 text-xs">
+                            <div className="flex items-start justify-between gap-2">
+                              <CardTitle className="text-base font-semibold text-gray-900 leading-tight">{job.job_type || 'Job Request'}</CardTitle>
+                              <Badge variant={getStatusColor(job.status)} className="flex-shrink-0 text-xs font-medium">
                                 {(() => {
                                   const Icon = getContactStatusIcon(job.status);
                                   return (
@@ -727,7 +778,7 @@ const Dashboard = () => {
                                 })()}
                               </Badge>
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs text-gray-500 mt-1">
                               Submitted <span 
                                 className={`font-medium ${getTimeSinceColor(job.created_at)}`}
                                 title={new Date(job.created_at).toLocaleString('en-AU', {
@@ -741,18 +792,18 @@ const Dashboard = () => {
                             </p>
                           </div>
                         </CardHeader>
-                        <CardContent className="px-4 pb-4">
-                          <div className="space-y-3">
+                        <CardContent className="px-4 pb-3">
+                          <div className="space-y-2">
                             {/* Tradie Information */}
                             {job.tradie_name && (
-                              <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                              <div className="bg-blue-50 rounded-lg p-2.5 border border-blue-100">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
                                     <User className="h-4 w-4 text-muted-foreground" />
                                     <div>
-                                      <p className="text-sm font-medium">{job.tradie_business_name || job.tradie_name}</p>
+                                      <p className="text-sm font-medium text-gray-800">{job.tradie_business_name || job.tradie_name}</p>
                                       {job.tradie_business_name && job.tradie_name && (
-                                        <p className="text-xs text-muted-foreground">{job.tradie_name}</p>
+                                        <p className="text-xs text-gray-500">{job.tradie_name}</p>
                                       )}
                                     </div>
                                   </div>
@@ -766,14 +817,14 @@ const Dashboard = () => {
                             )}
                             
                             {/* Location */}
-                            <div className="flex items-center gap-2 text-xs sm:text-sm">
-                              <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                              <span className="truncate">{job.location || 'Address not provided'}</span>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 truncate">{job.location || 'Address not provided'}</span>
                             </div>
                             
                             {/* Job Description */}
                             {job.description && (
-                              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                              <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
                                 {job.description}
                               </p>
                             )}
@@ -781,31 +832,43 @@ const Dashboard = () => {
                             {/* Urgency and Time */}
                             <div className="flex items-center gap-2 flex-wrap">
                               {job.urgency && (
-                                <Badge variant={getUrgencyColor(job.urgency)} className="text-xs">
-                                  {job.urgency === 'high' && <AlertCircle className="h-3 w-3 mr-1" />}
+                                <Badge variant={getUrgencyColor(job.urgency)} className="text-xs font-medium">
+                                  {job.urgency === 'high' ? (
+                                    <AlertCircle className="h-3 w-3 mr-1" />
+                                  ) : job.urgency === 'medium' ? (
+                                    <Clock className="h-3 w-3 mr-1" />
+                                  ) : (
+                                    <Check className="h-3 w-3 mr-1" />
+                                  )}
                                   {job.urgency} priority
                                 </Badge>
                               )}
                               {job.preferred_time && (
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Clock className="h-3 w-3" />
+                                <Badge variant="outline" className="text-xs font-normal">
+                                  <Calendar className="h-3 w-3 mr-1" />
                                   {job.preferred_time}
-                                </div>
+                                </Badge>
                               )}
                             </div>
                             
                             {/* Actions */}
-                            <div className="flex gap-2 pt-3 border-t">
+                            <div className="flex gap-2 pt-2 mt-2 border-t">
                               <Link to={`/job/${job.id}`} className="flex-1">
-                                <Button variant="outline" className="w-full hover:bg-gray-50 transition-colors">
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  View Details
+                                <Button 
+                                  variant="outline" 
+                                  className="hover:bg-gray-50 transition-colors w-full h-9 text-xs sm:h-10 sm:text-sm"
+                                  size="sm"
+                                >
+                                  <Eye className="h-3 w-3 mr-1 sm:h-4 sm:w-4 sm:mr-2" />
+                                  <span className="hidden xs:inline">View Details</span>
+                                  <span className="xs:hidden">View</span>
                                 </Button>
                               </Link>
                               {job.tradie_phone && (
                                 <Button 
                                   variant="default" 
-                                  className="flex-1 bg-blue-600 hover:bg-blue-700 transition-colors"
+                                  size="sm"
+                                  className="bg-blue-600 hover:bg-blue-700 transition-colors flex-1 h-9 text-xs sm:h-10 sm:text-sm"
                                   onClick={() => {
                                     window.location.href = `sms:${job.tradie_phone}`;
                                     toast({
@@ -814,21 +877,9 @@ const Dashboard = () => {
                                     });
                                   }}
                                 >
-                                  <MessageSquare className="h-4 w-4 mr-2" />
-                                  Message
-                                </Button>
-                              )}
-                              {job.status === 'new' && (
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  className="sm:px-3 border-2"
-                                  onClick={() => {
-                                    // Navigate to job detail page where client can edit
-                                    navigate(`/job/${job.id}`);
-                                  }}
-                                >
-                                  Edit
+                                  <MessageSquare className="h-3 w-3 mr-1 sm:h-4 sm:w-4 sm:mr-2" />
+                                  <span className="xs:hidden">Msg</span>
+                                  <span className="hidden xs:inline">Message</span>
                                 </Button>
                               )}
                             </div>

@@ -21,7 +21,10 @@ import {
   Edit,
   Save,
   X,
-  Check
+  Check,
+  FileText,
+  Wrench,
+  Clipboard
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -350,9 +353,14 @@ const JobCard = () => {
       updatedFields.push('preferred time');
     }
 
-    // If nothing changed, just exit edit mode
+    // If nothing changed, just exit edit mode with a gentle message
     if (updatedFields.length === 0) {
       setIsEditMode(false);
+      toast({
+        title: "No changes made",
+        description: "Details remain unchanged",
+        variant: "default",
+      });
       return;
     }
 
@@ -761,7 +769,7 @@ const JobCard = () => {
                 {job.client_id && profile?.user_type === 'client' && (
                   <Button 
                     variant="default" 
-                    className="w-full mt-2"
+                    className="w-full mt-4"
                     onClick={() => {
                       // In a real app, this would need the tradie's phone number
                       toast({
@@ -933,53 +941,173 @@ const JobCard = () => {
           </>
         )}
 
-        {/* Job Details */}
-        <Card className="mb-4">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <Avatar>
+        {/* Job Details Card */}
+        <Card className="mb-4 mt-6">
+          {/* Section 1: Header */}
+          <CardHeader className="pb-4">
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-3">
+                <Avatar className="flex-shrink-0">
                   <AvatarFallback>
                     <User className="h-5 w-5" />
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <CardTitle className="text-lg">{job.customer_name}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{job.phone}</p>
+                <div className="flex-1 min-w-0 md:flex md:items-start md:justify-between">
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-semibold text-gray-900">{job.customer_name}</h3>
+                    <p className="text-sm text-gray-500">
+                      {job.phone}
+                    </p>
+                  </div>
+                  <div className="hidden md:flex gap-2 items-start flex-shrink-0">
+                    <Badge variant={getUrgencyColor(job.urgency)}>
+                      {job.urgency.charAt(0).toUpperCase() + job.urgency.slice(1)} Priority
+                    </Badge>
+                    <Badge variant={getStatusColor(job.status)}>
+                      {job.status.replace('_', ' ').split(' ').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
+                    </Badge>
+                    {!isEditMode && (profile?.user_type === 'tradie' || profile?.user_type === 'client') && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleEnterEditMode}
+                        className="hover:bg-gray-100 transition-colors ml-1 px-1 py-1 h-6 w-6"
+                      >
+                        <Edit className="h-3 w-3 text-gray-400" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-2 items-end">
+              <div className="flex gap-2 items-center md:hidden">
                 <Badge variant={getUrgencyColor(job.urgency)}>
-                  {job.urgency === "high" && <AlertTriangle className="h-3 w-3 mr-1" />}
                   {job.urgency.charAt(0).toUpperCase() + job.urgency.slice(1)} Priority
                 </Badge>
                 <Badge variant={getStatusColor(job.status)}>
-                  {job.status === "completed" && <CheckCircle className="h-3 w-3 mr-1" />}
                   {job.status.replace('_', ' ').split(' ').map(word => 
                     word.charAt(0).toUpperCase() + word.slice(1)
                   ).join(' ')}
                 </Badge>
-              </div>
-            </div>
-            
-            {/* Edit Button - Below header on mobile */}
-            <div className="flex justify-center mt-4">
-              {!isEditMode && ((job.status === 'new' && profile?.user_type === 'client') || profile?.user_type === 'tradie') && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleEnterEditMode}
-                  className="w-full sm:w-auto"
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Details
-                </Button>
-              )}
-              {/* Save/Cancel buttons in edit mode */}
-              {isEditMode && (
-                <div className="flex gap-2 w-full sm:w-auto">
+                {!isEditMode && (profile?.user_type === 'tradie' || profile?.user_type === 'client') && (
                   <Button
                     size="sm"
+                    variant="ghost"
+                    onClick={handleEnterEditMode}
+                    className="hover:bg-gray-100 transition-colors ml-1 px-1 py-1 h-6 w-6"
+                  >
+                    <Edit className="h-3 w-3 text-gray-400" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          
+          {/* Section 2: Job Details */}
+          <CardContent className="pb-4 border-t border-gray-200">
+            <div className="py-4">
+              <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-1">
+                <Clipboard className="w-4 h-4 text-gray-400" />
+                Job Details
+              </h4>
+              <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-3 items-start">
+                <div className="text-sm text-gray-500 font-medium flex items-start justify-start mt-0.5">
+                  Location
+                </div>
+                <div>
+                  {isEditMode && profile?.user_type === 'client' ? (
+                    <GooglePlacesAutocomplete
+                      value={location}
+                      onChange={setLocation}
+                      placeholder="Enter address or suburb"
+                      className="text-sm"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900">{job.location}</p>
+                  )}
+                </div>
+                
+                <div className="text-sm text-gray-500 font-medium flex items-start justify-start mt-0.5">
+                  Trade Required
+                </div>
+                <div>
+                  {isEditMode && profile?.user_type === 'tradie' ? (
+                    <Select value={jobType} onValueChange={setJobType}>
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Select trade required" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TRADE_TYPES.map((trade) => (
+                          <SelectItem key={trade.code} value={trade.label}>
+                            {trade.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-sm text-gray-900">{job.job_type}</p>
+                  )}
+                </div>
+                
+                <div className="text-sm text-gray-500 font-medium flex items-start justify-start mt-0.5">
+                  Preferred Time
+                </div>
+                <div>
+                  {isEditMode && profile?.user_type === 'client' ? (
+                    <Input
+                      value={preferredTime}
+                      onChange={(e) => setPreferredTime(e.target.value)}
+                      placeholder="e.g., Any time today, Morning only"
+                      className="text-sm"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900">{job.preferred_time || 'No preference specified'}</p>
+                  )}
+                </div>
+                
+                {job.estimated_value > 0 && (
+                  <>
+                    <div className="text-sm text-gray-500 font-medium flex items-start justify-start mt-0.5">
+                      Quote Amount
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-green-600">
+                        ${job.estimated_value.toLocaleString()}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </CardContent>
+          
+          {/* Section 3: Description / Notes */}
+          <CardContent className="pb-6 border-t border-gray-200">
+            <div className="space-y-4 py-4">
+              <div className="flex items-center">
+                <p className="text-base font-semibold text-gray-900 flex items-center gap-1">
+                  <FileText className="w-4 h-4 text-gray-400" />
+                  Description / Notes
+                </p>
+              </div>
+              {isEditMode ? (
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add notes about this job..."
+                  className="min-h-[100px] max-w-prose text-sm"
+                />
+              ) : (
+                <p className="text-sm text-gray-900 max-w-prose leading-relaxed">
+                  {job.description || 'No description provided'}
+                </p>
+              )}
+              
+              {/* Save/Cancel buttons in edit mode */}
+              {isEditMode && (
+                <div className="flex flex-col sm:flex-row gap-2 pt-4">
+                  <Button
                     variant="default"
                     onClick={handleSaveAll}
                     disabled={!hasChanges}
@@ -989,87 +1117,13 @@ const JobCard = () => {
                     Save Changes
                   </Button>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    variant="ghost"
                     onClick={handleCancelEdit}
-                    className="flex-1 sm:flex-none"
+                    className="flex-1 sm:flex-none hover:bg-gray-100"
                   >
                     Cancel
                   </Button>
                 </div>
-              )}
-            </div>
-          </CardHeader>
-          
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Location</p>
-                {isEditMode ? (
-                  <GooglePlacesAutocomplete
-                    value={location}
-                    onChange={setLocation}
-                    placeholder="Enter address or suburb"
-                    className="text-sm"
-                  />
-                ) : (
-                  <p className="text-sm flex items-center">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {job.location}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Trade Required</p>
-                {isEditMode ? (
-                  <Select value={jobType} onValueChange={setJobType}>
-                    <SelectTrigger className="text-sm">
-                      <SelectValue placeholder="Select trade required" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TRADE_TYPES.map((trade) => (
-                        <SelectItem key={trade.code} value={trade.label}>
-                          {trade.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="text-sm flex items-center">
-                    {job.job_type}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Description / Notes</p>
-              {isEditMode ? (
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add notes about this job..."
-                  className="min-h-[100px]"
-                />
-              ) : (
-                <p className="text-sm">{job.description || 'No description provided'}</p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Preferred Time</p>
-              {isEditMode ? (
-                <Input
-                  value={preferredTime}
-                  onChange={(e) => setPreferredTime(e.target.value)}
-                  placeholder="Enter preferred time (e.g., Any time today, Morning only)"
-                  className="text-sm"
-                />
-              ) : (
-                <p className="text-sm flex items-center">
-                  <Clock className="h-4 w-4 mr-1" />
-                  {job.preferred_time || 'No preference specified'}
-                </p>
               )}
             </div>
           </CardContent>
@@ -1077,14 +1131,14 @@ const JobCard = () => {
 
         {/* Photos Section */}
         <Card className="mb-4">
-          <CardHeader>
-            <CardTitle>Photos</CardTitle>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold text-gray-900">Photos</CardTitle>
           </CardHeader>
           <CardContent>
             {profile?.user_type === 'tradie' ? (
               <PhotoUpload jobId={job.id} existingPhotos={[]} />
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">
+              <p className="text-sm text-gray-500 text-center py-4">
                 Photo viewing coming soon
               </p>
             )}
@@ -1093,8 +1147,8 @@ const JobCard = () => {
 
         {/* Activity Log */}
         <Card>
-          <CardHeader>
-            <CardTitle>Activity</CardTitle>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold text-gray-900">Activity</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -1111,10 +1165,10 @@ const JobCard = () => {
                     Last updated • {format(new Date(job.updated_at), 'MMM d, h:mm a')}
                   </span>
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                )}
+              </div>
+            </CardContent>
+          </Card>
       </div>
     </div>
   );
