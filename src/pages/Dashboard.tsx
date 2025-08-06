@@ -82,6 +82,7 @@ const Dashboard = () => {
       
       // Filter jobs based on user type
       if (profile?.user_type === 'client') {
+        console.log('Client dashboard - querying with phone:', profile.phone);
         // For customers: query by phone number to see jobs from ALL tradies
         // Use the customer_jobs_view to get tradie information
         query = supabase
@@ -102,10 +103,17 @@ const Dashboard = () => {
 
       if (error) {
         console.error('Error fetching jobs:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
       
       const jobsData = data || [];
+      console.log('Fetched jobs data:', jobsData.length, 'jobs for user type:', profile?.user_type);
       
       // For tradies, enhance jobs with their own info
       if (profile?.user_type === 'tradie' && profile?.name) {
@@ -795,7 +803,7 @@ const Dashboard = () => {
                         <CardContent className="px-4 pb-3">
                           <div className="space-y-2">
                             {/* Tradie Information */}
-                            {job.tradie_name && (
+                            {job.tradie_name ? (
                               <div className="bg-blue-50 rounded-lg p-2.5 border border-blue-100">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
@@ -814,41 +822,50 @@ const Dashboard = () => {
                                   )}
                                 </div>
                               </div>
+                            ) : (
+                              <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-100">
+                                <div className="flex items-center gap-2">
+                                  <User className="h-4 w-4 text-gray-400" />
+                                  <span className="text-sm text-gray-400">Tradie not assigned</span>
+                                </div>
+                              </div>
                             )}
                             
                             {/* Location */}
                             <div className="flex items-center gap-2">
                               <MapPin className="h-3 w-3 text-gray-400 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 truncate">{job.location || 'Address not provided'}</span>
+                              <span className={`text-sm truncate ${job.location ? 'text-gray-700' : 'text-gray-400'}`}>
+                                {job.location || 'Address not provided'}
+                              </span>
                             </div>
                             
                             {/* Job Description */}
-                            {job.description && (
-                              <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                                {job.description}
-                              </p>
-                            )}
+                            <p className={`text-sm line-clamp-3 leading-relaxed overflow-hidden ${job.description ? 'text-gray-600' : 'text-gray-400'}`}>
+                              {job.description || 'No description provided'}
+                            </p>
                             
-                            {/* Urgency and Time */}
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {job.urgency && (
-                                <Badge variant={getUrgencyColor(job.urgency)} className="text-xs font-medium">
-                                  {job.urgency === 'high' ? (
-                                    <AlertCircle className="h-3 w-3 mr-1" />
-                                  ) : job.urgency === 'medium' ? (
-                                    <Clock className="h-3 w-3 mr-1" />
-                                  ) : (
-                                    <Check className="h-3 w-3 mr-1" />
-                                  )}
-                                  {job.urgency} priority
-                                </Badge>
-                              )}
-                              {job.preferred_time && (
-                                <Badge variant="outline" className="text-xs font-normal">
-                                  <Calendar className="h-3 w-3 mr-1" />
-                                  {job.preferred_time}
-                                </Badge>
-                              )}
+                            {/* Badges: Priority and Timing */}
+                            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
+                              <Badge 
+                                variant={getUrgencyColor(job.urgency)} 
+                                className="text-xs font-medium min-w-[90px] justify-center"
+                              >
+                                {job.urgency === 'high' ? (
+                                  <AlertCircle className="h-3 w-3 mr-1" />
+                                ) : job.urgency === 'medium' ? (
+                                  <Clock className="h-3 w-3 mr-1" />
+                                ) : (
+                                  <Check className="h-3 w-3 mr-1" />
+                                )}
+                                {job.urgency || 'low'} priority
+                              </Badge>
+                              <Badge 
+                                variant="outline" 
+                                className="text-xs font-normal min-w-[100px] justify-center"
+                              >
+                                <Calendar className="h-3 w-3 mr-1" />
+                                {job.preferred_time || 'Any time'}
+                              </Badge>
                             </div>
                             
                             {/* Actions */}

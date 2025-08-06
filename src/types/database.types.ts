@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -11,6 +12,31 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -181,6 +207,7 @@ export type Database = {
       }
       jobs: {
         Row: {
+          cancellation_reason: string | null
           client_id: string | null
           created_at: string
           customer_name: string
@@ -189,15 +216,19 @@ export type Database = {
           id: string
           job_type: string
           last_contact: string | null
+          last_update_request_at: string | null
           location: string
           phone: string
           preferred_time: string | null
+          quote_accepted_at: string | null
+          quote_accepted_by: string | null
           sms_blocked: boolean | null
           status: string
           updated_at: string
           urgency: string
         }
         Insert: {
+          cancellation_reason?: string | null
           client_id?: string | null
           created_at?: string
           customer_name: string
@@ -206,15 +237,19 @@ export type Database = {
           id?: string
           job_type: string
           last_contact?: string | null
+          last_update_request_at?: string | null
           location: string
           phone: string
           preferred_time?: string | null
+          quote_accepted_at?: string | null
+          quote_accepted_by?: string | null
           sms_blocked?: boolean | null
           status?: string
           updated_at?: string
           urgency: string
         }
         Update: {
+          cancellation_reason?: string | null
           client_id?: string | null
           created_at?: string
           customer_name?: string
@@ -223,9 +258,12 @@ export type Database = {
           id?: string
           job_type?: string
           last_contact?: string | null
+          last_update_request_at?: string | null
           location?: string
           phone?: string
           preferred_time?: string | null
+          quote_accepted_at?: string | null
+          quote_accepted_by?: string | null
           sms_blocked?: boolean | null
           status?: string
           updated_at?: string
@@ -471,30 +509,54 @@ export type Database = {
     Views: {
       customer_jobs_view: {
         Row: {
-          client_id: string | null
+          cancellation_reason: string | null
           created_at: string | null
+          customer_address: string | null
           customer_name: string | null
           customer_phone: string | null
           description: string | null
-          estimated_value: number | null
           id: string | null
           job_type: string | null
           last_contact: string | null
-          location: string | null
+          last_update_request_at: string | null
           preferred_time: string | null
+          quote_accepted_at: string | null
+          quote_accepted_by: string | null
           sms_blocked: boolean | null
           status: string | null
+          tradie_address: string | null
+          tradie_business_name: string | null
           tradie_id: string | null
           tradie_name: string | null
           tradie_phone: string | null
-          tradie_type: string | null
           updated_at: string | null
           urgency: string | null
+          value: number | null
         }
         Relationships: []
       }
     }
     Functions: {
+      clear_current_user_test_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      clear_test_user_data: {
+        Args: { test_email: string }
+        Returns: undefined
+      }
+      create_client_job_request: {
+        Args: {
+          tradie_user_id: string
+          job_type: string
+          urgency: string
+          description: string
+          location: string
+          preferred_time?: string
+          hours_ago?: number
+        }
+        Returns: string
+      }
       create_default_sms_templates: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -503,16 +565,115 @@ export type Database = {
         Args: { p_job_id: string; p_phone?: string; p_expires_hours?: number }
         Returns: string
       }
+      create_test_client_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_test_job: {
+        Args: {
+          tradie_email: string
+          customer_name: string
+          phone: string
+          location: string
+          job_type: string
+          urgency: string
+          status: string
+          description: string
+          estimated_value: number
+          hours_ago?: number
+          last_contact_hours_ago?: number
+        }
+        Returns: string
+      }
+      create_test_job_for_current_user: {
+        Args: {
+          customer_name: string
+          phone: string
+          location: string
+          job_type: string
+          urgency: string
+          status: string
+          description: string
+          estimated_value: number
+          hours_ago?: number
+          last_contact_hours_ago?: number
+        }
+        Returns: string
+      }
+      create_time_based_test_jobs: {
+        Args: { tradie_email: string }
+        Returns: undefined
+      }
+      create_time_based_test_jobs_for_current_user: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      get_client_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          job_type: string
+          urgency: string
+          status: string
+          description: string
+          location: string
+          created_at: string
+          updated_at: string
+          last_contact: string
+          tradie_name: string
+          tradie_phone: string
+          tradie_business: string
+        }[]
+      }
+      get_current_user_job_age_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          time_period: string
+          job_count: number
+          status_breakdown: Json
+        }[]
+      }
+      get_customer_jobs_by_phone: {
+        Args: { customer_phone_param: string }
+        Returns: {
+          id: string
+          client_id: string
+          customer_name: string
+          customer_phone: string
+          job_type: string
+          location: string
+          urgency: string
+          status: string
+          estimated_value: number
+          description: string
+          preferred_time: string
+          last_contact: string
+          sms_blocked: boolean
+          created_at: string
+          updated_at: string
+          tradie_name: string
+          tradie_phone: string
+          tradie_id: string
+          tradie_type: string
+        }[]
+      }
+      get_job_age_stats: {
+        Args: { tradie_email: string }
+        Returns: {
+          time_period: string
+          job_count: number
+          status_breakdown: Json
+        }[]
+      }
       get_twilio_settings: {
         Args: { target_user_id: string }
         Returns: {
-          id: string
           phone_number: string
           webhook_url: string
-          capabilities: Json
-          status: string
+          forward_to_phone: string
+          forward_to_email: string
+          is_active: boolean
           vault_secret_name: string
-          verified_at: string
         }[]
       }
       store_twilio_credentials: {
@@ -652,6 +813,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

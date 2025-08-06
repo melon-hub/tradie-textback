@@ -39,13 +39,14 @@ Use the Task tool with:
 - "I'll use the database-architect subagent to design this schema"
 - "I'll use the general subagent to search across the codebase"
 
-## CRITICAL: RLS Policy Pattern (ALWAYS FOLLOW THIS)
+## 🚨 CRITICAL: RLS RECURSION PREVENTION (TOP PRIORITY)
 
-### The Golden Rule for Profiles Table RLS
-**NEVER use `auth.uid()` directly in profiles table policies. ALWAYS use `(SELECT auth.uid())`**
+### The #1 Cause of Database Timeouts: RLS Recursion
+This issue has caused **HOURS of debugging** and will break your app completely. Follow these rules religiously:
 
-This single pattern difference can mean the difference between a working app and complete database lockup:
+### The Golden Rules for RLS Policies
 
+#### Rule 1: NEVER use `auth.uid()` directly in profiles table
 ```sql
 -- ❌ NEVER DO THIS (causes infinite recursion, 42P17 errors, 20s timeouts)
 CREATE POLICY "profiles_policy" ON profiles
@@ -56,7 +57,52 @@ CREATE POLICY "profiles_policy" ON profiles
   USING ((SELECT auth.uid()) = user_id);
 ```
 
-**Why?** The profiles table is special - it's accessed on almost every request to check user permissions. Using `auth.uid()` directly creates a recursive loop where PostgreSQL tries to check the policy to access profiles, which requires checking the policy, ad infinitum. The `(SELECT auth.uid())` pattern evaluates once and caches the result, breaking the recursion.
+#### Rule 2: NEVER query the same table within its own policy
+```sql
+-- ❌ NEVER DO THIS (infinite recursion)
+CREATE POLICY "profiles_tradie_view" ON profiles
+USING (EXISTS (
+  SELECT 1 FROM profiles WHERE user_id = auth.uid() AND user_type = 'tradie'
+));
+
+-- ✅ DO THIS INSTEAD (simple, no recursion)
+CREATE POLICY "profiles_authenticated_read" ON profiles
+USING ((SELECT auth.uid()) IS NOT NULL);
+```
+
+#### Rule 3: NEVER use JWT claims in profiles policies
+```sql
+-- ❌ AVOID THIS (breaks with dev tools)
+USING (auth.jwt() ->> 'user_type' = 'tradie')
+
+-- ✅ USE THIS (works everywhere)
+USING ((SELECT auth.uid()) IS NOT NULL)
+```
+
+### Daily RLS Health Check (MANDATORY)
+```bash
+# Run this EVERY DAY before starting work
+psql $DATABASE_URL -f scripts/validate-rls-health.sql
+
+# Or in Supabase SQL Editor, run the validate-rls-health.sql script
+```
+
+### Emergency Fix When RLS Breaks
+```sql
+-- If you get 42P17 errors or 20-second timeouts, run this IMMEDIATELY:
+-- 1. First, disable RLS temporarily to regain access
+ALTER TABLE profiles DISABLE ROW LEVEL SECURITY;
+
+-- 2. Then run the safe re-enable script
+-- Copy contents of scripts/enable-rls-safe.sql to Supabase SQL Editor
+```
+
+### Prevention Checklist
+- [ ] ALWAYS test after creating/modifying RLS policies
+- [ ] NEVER commit migrations with complex profiles policies
+- [ ] Run `validate-rls-health.sql` daily
+- [ ] Keep policies SIMPLE - complexity = recursion risk
+- [ ] Test with dev tools login after any RLS change
 
 ### CRITICAL: Avoid Complex RLS Policies
 **NEVER create RLS policies that check other tables, especially not the same table**

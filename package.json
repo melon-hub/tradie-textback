@@ -22,7 +22,9 @@
     "validate:fix": "./scripts/validate-all.sh --fix",
     "validate:verbose": "./scripts/validate-all.sh --verbose",
     "test:validation": "vitest run tests/validation.test.ts",
-    "validate:all": "npm run validate && npm run test:validation"
+    "validate:all": "npm run validate && npm run test:validation",
+    "check:rls": "echo 'Checking RLS health - Run this SQL in Supabase:' && cat scripts/validate-rls-health.sql",
+    "predev": "echo '⚠️  Remember: Run check:rls if you modified any RLS policies'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
