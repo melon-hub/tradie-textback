@@ -1,18 +1,9 @@
 [build]
   publish = "dist"
-  command = "./scripts/netlify-build.sh"
+  command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "18"
-  SENTRY_SKIP_AUTO_RELEASE = "true"
-  SENTRY_DISABLE_AUTO_UPLOAD = "true"
-
-# Explicitly disable Sentry plugin
-[[plugins]]
-  package = "@sentry/netlify-build-plugin"
-
-[plugins.inputs]
-  disable = true
 
 # SPA redirect for React Router
 [[redirects]]
