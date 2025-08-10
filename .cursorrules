@@ -212,3 +212,52 @@ export const Component = ({ ...props }: ComponentProps) => {
 6. **Documentation**: Update README if needed
 
 Remember: This is a **business-critical application** for tradies' livelihoods. Prioritize reliability, simplicity, and mobile experience.
+
+## High-Signal Operational Rules for Cursor (Aligned with CLAUDE.md)
+
+### Clarifying Questions First
+- What is the user actually trying to achieve? Is this real data or a UI preview?
+- What have they already tried? What error are they seeing?
+- Which user type is in scope (client vs tradie) and environment (dev/prod)?
+
+### RLS Recursion Prevention (Top Priority)
+- Never use `auth.uid()` directly in `profiles` RLS policies. Use `(SELECT auth.uid())` instead.
+- Do not reference the same table from its own policy (avoid self-joins/EXISTS on `profiles`).
+- Avoid JWT-claim checks in `profiles` policies; prefer `(SELECT auth.uid()) IS NOT NULL` for authenticated reads.
+- Run daily RLS policy health check before work (see `scripts/validate-rls-health.sql`). Keep policies simple.
+
+### Environment & Secrets
+- Use secure scripts: `./bin/sdb-push`, `./bin/sdb-types`. Avoid raw `supabase db push` in commands.
+- Never commit secrets. Use `.env.local`. To locate: list hidden files and check for `.env*`.
+- Do not expose service_role keys in frontend or in docs/rules.
+
+### Development Server
+- Default port: 8080 (see `vite.config.ts`). Check if already running before starting.
+- Do not hardcode alternate ports. Use `window.location.port || '8080'` where relevant.
+
+### Start-of-Session Checklist
+1) Check branch and status
+2) Ensure `.env.local` exists (no secrets committed)
+3) Run validation (`npm run validate` or `/validate`)
+4) Sync migrations if needed (`supabase db pull`), then `./bin/sdb-push`
+5) Start dev server: `npm run dev`
+
+### Common Pitfalls to Avoid
+- Creating/overwriting env files without checking existing ones
+- Using direct Supabase CLI with inline secrets instead of `./bin/sdb-*`
+- Complex RLS rules that reference the same table or cross-table EXISTS
+- Confusing terminology: 'client' = customer; 'tradie' = service provider
+- Adding emojis into UI unless explicitly requested
+
+### Testing & Quality Gates
+- Commands: `npm test`, `npm run test:watch`, `npm run test:coverage`
+- Maintain ~80% coverage for new work; test happy and error paths
+- Run tests and lint before committing significant changes
+
+### Sentry Monitoring (Heads-up)
+- Sentry configured in `src/lib/sentry.ts` and Netlify build. Source maps enabled for production.
+- Do not include tokens or secrets in rules/docs. If `__WS_TOKEN__` errors occur, `componentTagger()` is disabled in `vite.config.ts`.
+
+### Terminology & Roles
+- 'client' = customer submitting jobs; 'tradie' = service provider
+- Always filter by tenant in queries where applicable

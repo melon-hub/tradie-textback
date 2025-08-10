@@ -1,3 +1,37 @@
+# Cursor Rules Alignment – Todo List
+
+## Problem Analysis
+`/.cursorrules` is missing several critical operational rules and workflows that exist in `CLAUDE.md` (RLS recursion prevention, secure Supabase workflow, start-of-session checklist, testing gates, Sentry notes, pitfall list). This causes inconsistency for contributors using Cursor.
+
+## Objectives
+- Align `/.cursorrules` with the most important, non-sensitive guidance from `CLAUDE.md`.
+- Keep the rules concise, high-signal, and safe (no secrets).
+- Minimal edits with clear sections and checklists.
+
+## Todo Items
+- [x] Identify key gaps between `/.cursorrules` and `CLAUDE.md` (RLS, env/secrets, dev server, checklists, pitfalls, testing, Sentry)
+- [x] Add "Clarifying Questions First" section (short, actionable bullets)
+- [x] Add "RLS Recursion Prevention" (never use `auth.uid()` directly; use `(SELECT auth.uid())`; avoid self-referencing policies; daily health check reference)
+- [x] Add "Environment & Secrets" (use `./bin/sdb-*`, never commit secrets, how to locate `.env.local`, avoid direct `supabase db push`)
+- [x] Add "Development Server" guidance (port 8080, check existing server before starting, avoid hardcoding other ports)
+- [x] Add "Start-of-Session Checklist" (branch/status, `.env.local`, validate, sync migrations, then `npm run dev`)
+- [x] Add "Common Pitfalls" list (env duplication, insecure commands, complex RLS, terminology confusion, unnecessary emojis)
+- [x] Add "Testing & Quality Gates" (commands, 80% coverage, run tests+lint before commit)
+- [x] Add brief "Sentry Monitoring" note (configured in `src/lib/sentry.ts`; source maps on; no secrets in rules; `lovable-tagger` disabled in `vite.config.ts`)
+- [x] Add "Terminology & Roles" clarification (client = customer, tradie = service provider)
+- [x] Review for brevity and sensitivity (no tokens, no service-role keys)
+- [x] Commit changes as a single minimal edit to `/.cursorrules`
+
+## Review
+- Updated `/.cursorrules` with high-signal operational rules aligned to `CLAUDE.md` without adding secrets.
+- Kept edits minimal and tool-agnostic for Cursor users. Ensures day-to-day guidance is consistent across tools.
+
+## Acceptance Criteria
+- `/.cursorrules` contains the new sections above, is concise (< 350 lines), and has no secrets.
+- Guidance matches `CLAUDE.md` intent while being tool-agnostic for Cursor.
+- Clear, checkable checklists suitable for day-to-day development.
+
+---
 # Job Card Redesign - Todo List
 
 ## Problem Analysis
